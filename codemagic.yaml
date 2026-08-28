@@ -20,10 +20,18 @@ workflows:
           mkdir -p build/ios/iphoneos/Payload
           cp -r build/ios/iphoneos/Runner.app build/ios/iphoneos/Payload/
           cd build/ios/iphoneos
-          zip -r ApexSignage.ipa Payload
+          zip -r -q ApexSignage.ipa Payload
+          cp ApexSignage.ipa ../../../ || true
+          cp -r Runner.app ../../../ || true
     artifacts:
+      - "*.ipa"
+      - "*.app"
+      - build/ios/iphoneos/*.ipa
+      - build/ios/iphoneos/Runner.app
       - mobile_app/build/ios/iphoneos/*.ipa
       - mobile_app/build/ios/iphoneos/Runner.app
+      - $CM_BUILD_DIR/*.ipa
+      - $CM_BUILD_DIR/**/*.ipa
     publishing:
       email:
         recipients:
@@ -47,8 +55,13 @@ workflows:
       - name: Build Android APK
         script: |
           flutter build apk --release
+          cp build/app/outputs/flutter-apk/*.apk ../ || true
     artifacts:
+      - "*.apk"
+      - build/app/outputs/flutter-apk/*.apk
       - mobile_app/build/app/outputs/flutter-apk/*.apk
+      - $CM_BUILD_DIR/*.apk
+      - $CM_BUILD_DIR/**/*.apk
     publishing:
       email:
         recipients:
