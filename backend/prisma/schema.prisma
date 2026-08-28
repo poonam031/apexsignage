@@ -643,3 +643,16 @@ model AppSetting {
   category         String          @default("GENERAL")
   updatedAt        DateTime        @updatedAt
 }
+
+model WhatsAppLog {
+  id               String          @id @default(uuid())
+  toPhone          String
+  messageText      String?         @db.Text
+  templateName     String?
+  mediaUrl         String?
+  messageId        String          @unique
+  status           String          @default("SENT") // SENT, DELIVERED, FAILED
+  provider         String          @default("MOCK") // MOCK, WATI, GUPSHUP, CLOUD_API
+  sentAt           DateTime        @default(now())
+}
+

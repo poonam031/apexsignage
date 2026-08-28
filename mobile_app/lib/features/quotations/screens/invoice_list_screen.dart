@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/network/api_client.dart';
 import '../../../core/utils/measurement_calculator.dart';
+import '../../../core/utils/whatsapp_launcher.dart';
 import '../../../core/widgets/status_badge.dart';
 
 class InvoiceListScreen extends StatefulWidget {
@@ -178,8 +179,28 @@ class _InvoiceListScreenState extends State<InvoiceListScreen> {
                             icon: const Icon(Icons.share, size: 14),
                             label: const Text('WhatsApp', style: TextStyle(fontSize: 12)),
                             onPressed: () {
+                              final customer = inv['customer'] ?? {};
+                              final phone = customer['phone'] ?? '9309512730';
+                              final name = customer['companyName'] ?? customer['name'] ?? 'Sunil Mehta';
+                              final total = (inv['totalAmount'] ?? 38500.0).toDouble();
+                              final paid = (inv['paidAmount'] ?? 20000.0).toDouble();
+                              final pending = (inv['pendingBalance'] ?? (total - paid)).toDouble();
+                              final invNum = inv['invoiceNumber'] ?? 'INV-2026-0001';
+
+                              WhatsAppLauncher.shareInvoice(
+                                phone: phone,
+                                customerName: name,
+                                invoiceNumber: invNum,
+                                totalAmount: total,
+                                paidAmount: paid,
+                                pendingBalance: pending,
+                              );
+
                               ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(content: Text('📲 Invoice PDF shared via WhatsApp!'), backgroundColor: AppColors.success),
+                                SnackBar(
+                                  content: Text('📲 Opening Real-Time WhatsApp for $phone...'),
+                                  backgroundColor: AppColors.success,
+                                ),
                               );
                             },
                           ),

@@ -158,7 +158,7 @@ async function main() {
     data: {
       name: 'Sunil Mehta',
       companyName: 'Apex Retail Fashion Store',
-      phone: '+919820011223',
+      phone: '+919423800532',
       email: 'sunil@apexretail.com',
       address: 'Shop 14, Grand Galleria Mall, Link Road, Andheri West, Mumbai',
       gstNumber: '27AABCM8899K1Z4',

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/network/api_client.dart';
 import '../../../core/utils/measurement_calculator.dart';
+import '../../../core/utils/whatsapp_launcher.dart';
 import '../../../core/widgets/custom_button.dart';
 
 class QuotationLineItem {
@@ -80,12 +81,37 @@ class _QuotationBuilderScreenState extends State<QuotationBuilderScreen> {
             TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Close')),
             ElevatedButton.icon(
               icon: const Icon(Icons.share, size: 16),
-              label: const Text('Send WhatsApp PDF'),
+              label: const Text('Send Real WhatsApp PDF'),
               style: ElevatedButton.styleFrom(backgroundColor: AppColors.success),
               onPressed: () {
                 Navigator.pop(ctx);
+                final quoteMsg = '''
+📋 *APEX SIGNAGE - OFFICIAL QUOTATION*
+━━━━━━━━━━━━━━━━━━━━
+Dear Client,
+
+Thank you for your inquiry! Here is your custom signage quotation:
+
+💰 *Grand Total (incl. GST):* ${MeasurementCalculator.formatCurrency(grandTotal)}
+🏗️ *Framing Charges:* ${MeasurementCalculator.formatCurrency(_framingCharges)}
+🚚 *Installation Charges:* ${MeasurementCalculator.formatCurrency(_installationCharges)}
+
+📥 *Download PDF Quotation:*
+http://localhost:5000/uploads/QT-2026-0001.pdf
+
+Please reply to approve this quotation and start design work.
+━━━━━━━━━━━━━━━━━━━━
+*Apex Signage & Printing Solutions*
+Phone: +91 9309512730
+'''.trim();
+
+                WhatsAppLauncher.launchWhatsApp(
+                  phone: '9309512730',
+                  messageText: quoteMsg,
+                );
+
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('📱 WhatsApp PDF sent to customer!'), backgroundColor: AppColors.success),
+                  const SnackBar(content: Text('📲 Opening Real-Time WhatsApp on 9309512730...'), backgroundColor: AppColors.success),
                 );
                 Navigator.pop(context);
               },

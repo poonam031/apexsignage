@@ -18,7 +18,7 @@ class ApiResponse<T> {
 }
 
 class ApiClient {
-  static String baseUrl = AppConstants.apiBaseUrl;
+  static String get baseUrl => AppConstants.apiBaseUrl;
 
   static Future<Map<String, String>> _getHeaders() async {
     final token = await LocalStorage.getToken();

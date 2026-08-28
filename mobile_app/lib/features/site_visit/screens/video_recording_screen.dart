@@ -111,7 +111,7 @@ class _VideoRecordingScreenState extends State<VideoRecordingScreen> {
             // Controls & Timer
             Container(
               padding: const EdgeInsets.all(20),
-              color: Colors.grey.shade950,
+              color: const Color(0xFF0F172A),
               child: Column(
                 children: [
                   if (_isRecording)
