@@ -73,6 +73,42 @@ export default function App() {
   // Active Tab State
   const [currentTab, setCurrentTab] = useState('dashboard'); // 'dashboard', 'inventory', 'invoices', 'rate_calc', 'salary'
 
+  // Schedule Site Visit Modal State (Matching User Screenshot)
+  const [siteVisitModalVisible, setSiteVisitModalVisible] = useState(false);
+  const [siteVisitsCount, setSiteVisitsCount] = useState(4);
+  const [clientName, setClientName] = useState('Apex Retail Store');
+  const [clientPhone, setClientPhone] = useState('+91 98200 11223');
+  const [siteAddress, setSiteAddress] = useState('Shop 14, Grand Galleria Mall, Link Road, Andheri West');
+  const [assignedFieldBoy, setAssignedFieldBoy] = useState('Rahul Sharma (Field Boy)');
+  const [visitInstructions, setVisitInstructions] = useState('Measure main facade LED board & take 10-sec site video');
+  const [fieldBoyDropdownOpen, setFieldBoyDropdownOpen] = useState(false);
+
+  const fieldBoysList = [
+    'Rahul Sharma (Field Boy)',
+    'Amit Verma (Field Boy)',
+    'Suresh Patil (Senior Surveyor)',
+    'Deepak Yadav (Field Associate)',
+  ];
+
+  const handleDispatchSiteVisit = () => {
+    if (!clientName.trim() || !clientPhone.trim() || !siteAddress.trim()) {
+      Alert.alert('Validation Error', 'Please fill in client name, phone and address.');
+      return;
+    }
+
+    setSiteVisitsCount((prev) => prev + 1);
+    setSiteVisitModalVisible(false);
+
+    // Trigger WhatsApp notification for field boy dispatch
+    const dispatchMessage = `📋 *NEW SITE VISIT TASK ASSIGNED*\n━━━━━━━━━━━━━━━━━━━━\nAssigned To: *${assignedFieldBoy}*\nClient: *${clientName}*\nPhone: *${clientPhone}*\n📍 Address: *${siteAddress}*\n📝 Notes: ${visitInstructions}\n\n*Apex Signage Operations System*`;
+    Linking.openURL(`whatsapp://send?phone=919423800532&text=${encodeURIComponent(dispatchMessage)}`).catch(() => {});
+
+    Alert.alert(
+      '✅ Task Dispatched!',
+      `Site visit task assigned to ${assignedFieldBoy} with instant WhatsApp notification and GPS map routing!`
+    );
+  };
+
   // Handle Login Execution
   const handleSignIn = (emailParam, passParam) => {
     const email = (emailParam || inputEmail).trim().toLowerCase();
@@ -412,7 +448,7 @@ export default function App() {
   }
 
   // =========================================================================
-  // SCREEN 2: ADMIN DASHBOARD (Clean 1:1 Pixel Match to Screenshot 1 & 2)
+  // SCREEN 2: ADMIN DASHBOARD (With Interactive "Schedule New Site Visit" Modal)
   // =========================================================================
   return (
     <SafeAreaView style={styles.container}>
@@ -450,7 +486,7 @@ export default function App() {
       <ScrollView style={styles.mainScroll} contentContainerStyle={{ paddingBottom: 100 }}>
         
         {/* ================================================================= */}
-        {/* TAB 1: PURE ADMIN DASHBOARD (Exact 1:1 match to Screenshot 1 & 2) */}
+        {/* TAB 1: ADMIN DASHBOARD */}
         {/* ================================================================= */}
         {currentTab === 'dashboard' && (
           <View style={styles.tabContent}>
@@ -517,15 +553,20 @@ export default function App() {
                 <Text style={styles.summaryCardSub}>Waste: 19.0 Sq.Ft</Text>
               </View>
 
-              {/* Card 3: Site Visits */}
-              <View style={styles.summaryCard}>
+              {/* Card 3: Site Visits (Interactive - Opens Schedule New Site Visit Modal!) */}
+              <TouchableOpacity
+                style={[styles.summaryCard, styles.summaryCardClickable]}
+                onPress={() => setSiteVisitModalVisible(true)}
+              >
                 <View style={styles.summaryCardHeader}>
                   <Text style={styles.summaryCardTitle}>Site Visits Today</Text>
-                  <Ionicons name="location-outline" size={18} color="#0284C7" />
+                  <Ionicons name="location-outline" size={18} color="#4338CA" />
                 </View>
-                <Text style={[styles.summaryCardBigVal, { color: '#4338CA' }]}>4</Text>
-                <Text style={styles.summaryCardSub}>Tap to Schedule & Assign</Text>
-              </View>
+                <Text style={[styles.summaryCardBigVal, { color: '#4338CA' }]}>{siteVisitsCount}</Text>
+                <Text style={[styles.summaryCardSub, { color: '#4338CA', fontWeight: '600' }]}>
+                  Tap to Schedule & Assign ➔
+                </Text>
+              </TouchableOpacity>
 
               {/* Card 4: Attendance & Team */}
               <View style={styles.summaryCard}>
@@ -539,7 +580,7 @@ export default function App() {
 
             </View>
 
-            {/* 4. Job Production Pipeline (Live Stages with Delivered Stage) */}
+            {/* 4. Job Production Pipeline (Live Stages) */}
             <Text style={styles.sectionTitle}>Job Production Pipeline (Live Stages)</Text>
             <View style={styles.pipelineCard}>
               
@@ -609,12 +650,11 @@ export default function App() {
         )}
 
         {/* ================================================================= */}
-        {/* TAB 2: INVENTORY (Exact 1:1 match to Screenshot 2) */}
+        {/* TAB 2: INVENTORY */}
         {/* ================================================================= */}
         {currentTab === 'inventory' && (
           <View style={styles.tabContent}>
             
-            {/* Header with Title and Low Stock Counter */}
             <View style={styles.inventoryTopBar}>
               <Text style={styles.invTrackedText}>6 Materials Tracked</Text>
               <View style={styles.invAlertBadge}>
@@ -622,7 +662,6 @@ export default function App() {
               </View>
             </View>
 
-            {/* Material Items List */}
             {inventoryList.map((item) => (
               <View key={item.id} style={styles.invItemCard}>
                 <View style={styles.invItemMain}>
@@ -855,7 +894,155 @@ export default function App() {
 
       </ScrollView>
 
-      {/* Stock In / Out Adjustment Modal */}
+      {/* ================================================================= */}
+      {/* MODAL 1: SCHEDULE NEW SITE VISIT (Exact 1:1 match to Screenshot) */}
+      {/* ================================================================= */}
+      <Modal
+        visible={siteVisitModalVisible}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setSiteVisitModalVisible(false)}
+      >
+        <View style={styles.sheetOverlay}>
+          <KeyboardAvoidingView
+            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+            style={{ width: '100%' }}
+          >
+            <View style={styles.sheetContainer}>
+              {/* Sheet Header */}
+              <View style={styles.sheetHeader}>
+                <View>
+                  <Text style={styles.sheetTitle}>Schedule New Site Visit</Text>
+                  <Text style={styles.sheetSub}>
+                    Assign task to Field Boy with client phone & Google Maps link.
+                  </Text>
+                </View>
+                <TouchableOpacity
+                  style={styles.sheetCloseBtn}
+                  onPress={() => setSiteVisitModalVisible(false)}
+                >
+                  <Ionicons name="close" size={24} color="#64748B" />
+                </TouchableOpacity>
+              </View>
+
+              <ScrollView style={{ maxHeight: 400 }} showsVerticalScrollIndicator={false}>
+                {/* 1. Client / Business Name */}
+                <View style={styles.sheetInputGroup}>
+                  <Text style={styles.sheetInputLabel}>Client / Business Name</Text>
+                  <View style={styles.sheetInputRow}>
+                    <Ionicons name="business-outline" size={20} color="#64748B" style={{ marginRight: 10 }} />
+                    <TextInput
+                      style={styles.sheetTextInput}
+                      value={clientName}
+                      onChangeText={setClientName}
+                      placeholder="e.g. Apex Retail Store"
+                      placeholderTextColor="#94A3B8"
+                    />
+                  </View>
+                </View>
+
+                {/* 2. Client Phone Number */}
+                <View style={[styles.sheetInputGroup, { marginTop: 12 }]}>
+                  <Text style={styles.sheetInputLabel}>Client Phone Number</Text>
+                  <View style={styles.sheetInputRow}>
+                    <Ionicons name="call-outline" size={20} color="#64748B" style={{ marginRight: 10 }} />
+                    <TextInput
+                      style={styles.sheetTextInput}
+                      value={clientPhone}
+                      onChangeText={setClientPhone}
+                      placeholder="+91 98200 11223"
+                      placeholderTextColor="#94A3B8"
+                      keyboardType="phone-pad"
+                    />
+                  </View>
+                </View>
+
+                {/* 3. Site Address (Google Maps) */}
+                <View style={[styles.sheetInputGroup, { marginTop: 12 }]}>
+                  <Text style={styles.sheetInputLabel}>Site Address (Google Maps)</Text>
+                  <View style={styles.sheetInputRow}>
+                    <Ionicons name="location-outline" size={20} color="#64748B" style={{ marginRight: 10 }} />
+                    <TextInput
+                      style={styles.sheetTextInput}
+                      value={siteAddress}
+                      onChangeText={setSiteAddress}
+                      placeholder="Enter site location"
+                      placeholderTextColor="#94A3B8"
+                    />
+                  </View>
+                </View>
+
+                {/* 4. Assign Field Boy Dropdown */}
+                <View style={[styles.sheetInputGroup, { marginTop: 12 }]}>
+                  <Text style={styles.sheetInputLabel}>Assign Field Boy</Text>
+                  <TouchableOpacity
+                    style={styles.sheetInputRow}
+                    onPress={() => setFieldBoyDropdownOpen(!fieldBoyDropdownOpen)}
+                  >
+                    <Ionicons name="person-circle-outline" size={20} color="#64748B" style={{ marginRight: 10 }} />
+                    <Text style={[styles.sheetTextInput, { paddingTop: 8 }]}>{assignedFieldBoy}</Text>
+                    <Ionicons
+                      name={fieldBoyDropdownOpen ? 'chevron-up' : 'chevron-down'}
+                      size={18}
+                      color="#64748B"
+                    />
+                  </TouchableOpacity>
+
+                  {fieldBoyDropdownOpen && (
+                    <View style={styles.dropdownList}>
+                      {fieldBoysList.map((fb) => (
+                        <TouchableOpacity
+                          key={fb}
+                          style={styles.dropdownItem}
+                          onPress={() => {
+                            setAssignedFieldBoy(fb);
+                            setFieldBoyDropdownOpen(false);
+                          }}
+                        >
+                          <Text
+                            style={[
+                              styles.dropdownItemText,
+                              assignedFieldBoy === fb && { color: '#0284C7', fontWeight: 'bold' },
+                            ]}
+                          >
+                            {fb}
+                          </Text>
+                        </TouchableOpacity>
+                      ))}
+                    </View>
+                  )}
+                </View>
+
+                {/* 5. Instructions / Notes */}
+                <View style={[styles.sheetInputGroup, { marginTop: 12, marginBottom: 18 }]}>
+                  <Text style={styles.sheetInputLabel}>Instructions / Notes</Text>
+                  <View style={styles.sheetInputRow}>
+                    <Ionicons name="create-outline" size={20} color="#64748B" style={{ marginRight: 10 }} />
+                    <TextInput
+                      style={styles.sheetTextInput}
+                      value={visitInstructions}
+                      onChangeText={setVisitInstructions}
+                      placeholder="e.g. Measure main facade LED board"
+                      placeholderTextColor="#94A3B8"
+                    />
+                  </View>
+                </View>
+              </ScrollView>
+
+              {/* Primary Action Button: Assign & Dispatch Task to Field Boy */}
+              <TouchableOpacity
+                style={styles.dispatchPrimaryBtn}
+                onPress={handleDispatchSiteVisit}
+              >
+                <Ionicons name="send" size={18} color="#FFFFFF" style={{ marginRight: 8 }} />
+                <Text style={styles.dispatchPrimaryBtnText}>Assign & Dispatch Task to Field Boy</Text>
+              </TouchableOpacity>
+            </View>
+          </KeyboardAvoidingView>
+        </View>
+      </Modal>
+
+      {/* MODAL 2: Stock In / Out Adjustment Modal */}
       <Modal visible={stockModalVisible} transparent animationType="fade">
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
@@ -896,7 +1083,7 @@ export default function App() {
         </View>
       </Modal>
 
-      {/* Bottom Navigation Bar (Exact 1:1 Match to Android Screenshots) */}
+      {/* Bottom Navigation Bar */}
       <View style={styles.bottomNav}>
         
         <TouchableOpacity
@@ -975,7 +1162,7 @@ export default function App() {
 }
 
 const styles = StyleSheet.create({
-  // Login Screen Styles (Exact match to Android Screenshot)
+  // Login Screen Styles
   loginContainer: {
     flex: 1,
     backgroundColor: '#FFFFFF',
@@ -1242,6 +1429,10 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.04,
     shadowRadius: 4,
     elevation: 1,
+  },
+  summaryCardClickable: {
+    borderColor: '#C7D2FE',
+    backgroundColor: '#F5F3FF',
   },
   summaryCardHeader: {
     flexDirection: 'row',
@@ -1590,7 +1781,107 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     fontSize: 13,
   },
-  // Modal Styles
+  // Bottom Sheet / Modal: Schedule New Site Visit (Matching Screenshot)
+  sheetOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.6)',
+    justifyContent: 'flex-end',
+  },
+  sheetContainer: {
+    backgroundColor: '#FFFFFF',
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    padding: 22,
+    paddingBottom: Platform.OS === 'ios' ? 36 : 22,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: -4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 10,
+    elevation: 20,
+  },
+  sheetHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    marginBottom: 16,
+  },
+  sheetTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#0F2744',
+  },
+  sheetSub: {
+    fontSize: 13,
+    color: '#64748B',
+    marginTop: 4,
+  },
+  sheetCloseBtn: {
+    padding: 4,
+  },
+  sheetInputGroup: {
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    borderRadius: 12,
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+  },
+  sheetInputLabel: {
+    fontSize: 11,
+    color: '#64748B',
+    fontWeight: '500',
+    marginBottom: 2,
+  },
+  sheetInputRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    minHeight: 36,
+  },
+  sheetTextInput: {
+    flex: 1,
+    fontSize: 15,
+    color: '#0F172A',
+    fontWeight: '600',
+  },
+  dropdownList: {
+    backgroundColor: '#F8FAFC',
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    marginTop: 8,
+    paddingVertical: 4,
+  },
+  dropdownItem: {
+    paddingVertical: 10,
+    paddingHorizontal: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F1F5F9',
+  },
+  dropdownItemText: {
+    fontSize: 14,
+    color: '#334155',
+  },
+  dispatchPrimaryBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#0F2744',
+    borderRadius: 12,
+    paddingVertical: 15,
+    marginTop: 10,
+    shadowColor: '#0F2744',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.25,
+    shadowRadius: 6,
+    elevation: 6,
+  },
+  dispatchPrimaryBtnText: {
+    color: '#FFFFFF',
+    fontSize: 15,
+    fontWeight: 'bold',
+  },
+
+  // Modal Styles (Stock In / Out)
   modalOverlay: {
     flex: 1,
     backgroundColor: 'rgba(0,0,0,0.6)',
