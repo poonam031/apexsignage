@@ -14,21 +14,24 @@ import {
   ActivityIndicator,
   Modal,
   Dimensions,
+  KeyboardAvoidingView,
+  Platform,
 } from 'react-native';
 import { Ionicons, MaterialCommunityIcons, FontAwesome5, Feather } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import * as Location from 'expo-location';
 
-const BACKEND_URL = 'http://10.186.127.107:5000/api/v1';
+const BACKEND_URL = 'http://172.20.10.2:5000/api/v1';
 
-// Predefined Staff Accounts
+// Predefined Demo Accounts (Matching Flutter AuthProvider exactly)
 const DEMO_USERS = [
   {
     email: 'admin@signage.com',
     password: 'admin123',
     name: 'Rajesh Singhania',
-    role: 'Admin',
-    badgeColor: '#38BDF8',
+    role: 'Super Admin',
+    badgeColor: '#0B2240',
+    dotColor: '#0B2240',
     avatar: '👑',
   },
   {
@@ -36,31 +39,101 @@ const DEMO_USERS = [
     password: 'field123',
     name: 'Amit Verma',
     role: 'Field Boy',
-    badgeColor: '#10B981',
+    badgeColor: '#0284C7',
+    dotColor: '#0284C7',
     avatar: '📸',
-  },
-  {
-    email: 'installer@signage.com',
-    password: 'install123',
-    name: 'Vikram Shinde',
-    role: 'Installation Lead',
-    badgeColor: '#F59E0B',
-    avatar: '🛠️',
   },
   {
     email: 'designer@signage.com',
     password: 'design123',
     name: 'Priya Sharma',
-    role: 'Designer',
-    badgeColor: '#EC4899',
+    role: 'Designer/Op',
+    badgeColor: '#4F46E5',
+    dotColor: '#4F46E5',
     avatar: '🎨',
+  },
+  {
+    email: 'installer@signage.com',
+    password: 'install123',
+    name: 'Vikram Shinde',
+    role: 'Installer Lead',
+    badgeColor: '#0D9488',
+    dotColor: '#0D9488',
+    avatar: '🛠️',
   },
 ];
 
 export default function App() {
-  // Auth State
-  const [currentUser, setCurrentUser] = useState(DEMO_USERS[0]); // Default to Super Admin for immediate access
+  // Authentication State (True = Inside App, False = Login Screen)
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [currentUser, setCurrentUser] = useState(DEMO_USERS[0]);
+  const [inputEmail, setInputEmail] = useState('admin@signage.com');
+  const [inputPassword, setInputPassword] = useState('admin123');
+  const [showPassword, setShowPassword] = useState(false);
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
+
+  // Active Tab State
   const [currentTab, setCurrentTab] = useState('dashboard'); // 'dashboard', 'inventory', 'invoices', 'rate_calc', 'salary'
+
+  // Handle Login Execution
+  const handleSignIn = (emailParam, passParam) => {
+    const email = (emailParam || inputEmail).trim().toLowerCase();
+    const password = passParam || inputPassword;
+
+    if (!email || !password) {
+      Alert.alert('Validation Error', 'Please enter your email address and password.');
+      return;
+    }
+
+    setIsLoggingIn(true);
+    setTimeout(() => {
+      setIsLoggingIn(false);
+      const user = DEMO_USERS.find(
+        (u) => u.email.toLowerCase() === email && u.password === password
+      );
+
+      if (user) {
+        setCurrentUser(user);
+        setIsAuthenticated(true);
+        setCurrentTab('dashboard');
+      } else {
+        // Allow general workspace login even for custom inputs
+        const customUser = {
+          email: email,
+          password: password,
+          name: email.split('@')[0].toUpperCase(),
+          role: 'Custom User',
+          badgeColor: '#0284C7',
+          dotColor: '#0284C7',
+          avatar: '👤',
+        };
+        setCurrentUser(customUser);
+        setIsAuthenticated(true);
+        setCurrentTab('dashboard');
+      }
+    }, 300);
+  };
+
+  // Handle Real Logout
+  const handleLogout = () => {
+    Alert.alert('Logout Confirmation', 'Are you sure you want to log out of Apex Signage?', [
+      { text: 'Cancel', style: 'cancel' },
+      {
+        text: 'Log Out',
+        style: 'destructive',
+        onPress: () => {
+          setIsAuthenticated(false);
+          setInputPassword('');
+        },
+      },
+    ]);
+  };
+
+  // Quick Role Chip Selector
+  const onQuickRoleSelect = (user) => {
+    setInputEmail(user.email);
+    setInputPassword(user.password);
+  };
 
   // Inventory State
   const [inventoryList, setInventoryList] = useState([
@@ -203,7 +276,7 @@ export default function App() {
   // WhatsApp Dispatch
   const sendInvoiceWhatsApp = async (inv) => {
     const formattedPhone = '919423800532';
-    const message = `🧾 *APEX SIGNAGE & PRINTING - INVOICE*\n━━━━━━━━━━━━━━━━━━━━\nDear *${inv.companyName}*,\n\nPlease find your official tax invoice details below:\n\n📄 *Invoice #:* ${inv.invoiceNumber}\n📅 *Date:* ${inv.date}\n💰 *Total Billed:* ₹${inv.totalAmount.toLocaleString()}\n✅ *Paid Amount:* ₹${inv.paidAmount.toLocaleString()}\n⚠️ *Balance Due:* ₹${inv.balanceDue.toLocaleString()}\n\n📥 *Download PDF Invoice:* http://10.186.127.107:5000/uploads/${inv.invoiceNumber}.pdf\n💳 *UPI Payment:* paytmqr.apexsignage@icici\n\nThank you for choosing Apex Signage!\n━━━━━━━━━━━━━━━━━━━━\n*Apex Signage & Printing Solutions*\nPhone: +91 9423800532`;
+    const message = `🧾 *APEX SIGNAGE & PRINTING - INVOICE*\n━━━━━━━━━━━━━━━━━━━━\nDear *${inv.companyName}*,\n\nPlease find your official tax invoice details below:\n\n📄 *Invoice #:* ${inv.invoiceNumber}\n📅 *Date:* ${inv.date}\n💰 *Total Billed:* ₹${inv.totalAmount.toLocaleString()}\n✅ *Paid Amount:* ₹${inv.paidAmount.toLocaleString()}\n⚠️ *Balance Due:* ₹${inv.balanceDue.toLocaleString()}\n\n📥 *Download PDF Invoice:* http://172.20.10.2:5000/uploads/${inv.invoiceNumber}.pdf\n💳 *UPI Payment:* paytmqr.apexsignage@icici\n\nThank you for choosing Apex Signage!\n━━━━━━━━━━━━━━━━━━━━\n*Apex Signage & Printing Solutions*\nPhone: +91 9423800532`;
 
     const nativeUrl = `whatsapp://send?phone=${formattedPhone}&text=${encodeURIComponent(message)}`;
     const webUrl = `https://api.whatsapp.com/send?phone=${formattedPhone}&text=${encodeURIComponent(message)}`;
@@ -233,25 +306,122 @@ export default function App() {
     }
   };
 
-  // Handle Logout
-  const handleLogout = () => {
-    Alert.alert('Logout', 'Log out of Apex Signage Admin?', [
-      { text: 'Cancel', style: 'cancel' },
-      {
-        text: 'Log Out',
-        style: 'destructive',
-        onPress: () => {
-          Alert.alert('Logged Out', 'Switched to guest mode.');
-        },
-      },
-    ]);
-  };
+  // =========================================================================
+  // SCREEN 1: LOGIN / AUTHENTICATION (Exact 1:1 Pixel Match to Screenshot 2)
+  // =========================================================================
+  if (!isAuthenticated) {
+    return (
+      <SafeAreaView style={styles.loginContainer}>
+        <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          style={{ flex: 1 }}
+        >
+          <ScrollView
+            contentContainerStyle={styles.loginScrollContent}
+            keyboardShouldPersistTaps="handled"
+          >
+            {/* Dark Blue Header Card with Printer Icon */}
+            <View style={styles.loginHeaderBox}>
+              <Ionicons name="print-outline" size={42} color="#FFFFFF" />
+            </View>
 
+            {/* App Title & Subtitle */}
+            <Text style={styles.loginMainTitle}>Apex Signage & Print</Text>
+            <Text style={styles.loginSubtitle}>Production & Field Operations System</Text>
+
+            {/* Email or Phone Input */}
+            <View style={styles.loginInputCard}>
+              <Text style={styles.loginInputLabel}>Email Address or Phone</Text>
+              <View style={styles.loginInputRow}>
+                <Ionicons name="person-outline" size={20} color="#64748B" style={{ marginRight: 10 }} />
+                <TextInput
+                  style={styles.loginTextInput}
+                  value={inputEmail}
+                  onChangeText={setInputEmail}
+                  placeholder="Enter email or phone"
+                  placeholderTextColor="#94A3B8"
+                  autoCapitalize="none"
+                  keyboardType="email-address"
+                />
+              </View>
+            </View>
+
+            {/* Password Input */}
+            <View style={[styles.loginInputCard, { marginTop: 14 }]}>
+              <Text style={styles.loginInputLabel}>Password</Text>
+              <View style={styles.loginInputRow}>
+                <Ionicons name="lock-closed-outline" size={20} color="#64748B" style={{ marginRight: 10 }} />
+                <TextInput
+                  style={styles.loginTextInput}
+                  value={inputPassword}
+                  onChangeText={setInputPassword}
+                  placeholder="Enter password"
+                  placeholderTextColor="#94A3B8"
+                  secureTextEntry={!showPassword}
+                />
+                <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
+                  <Ionicons
+                    name={showPassword ? 'eye-off-outline' : 'eye-outline'}
+                    size={22}
+                    color="#64748B"
+                  />
+                </TouchableOpacity>
+              </View>
+            </View>
+
+            {/* Big Sign In Button */}
+            <TouchableOpacity
+              style={styles.signInPrimaryBtn}
+              onPress={() => handleSignIn()}
+              disabled={isLoggingIn}
+            >
+              {isLoggingIn ? (
+                <ActivityIndicator color="#FFFFFF" />
+              ) : (
+                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                  <Ionicons name="arrow-forward-outline" size={20} color="#FFFFFF" style={{ marginRight: 8 }} />
+                  <Text style={styles.signInPrimaryBtnText}>Sign In to Workspace</Text>
+                </View>
+              )}
+            </TouchableOpacity>
+
+            {/* Divider */}
+            <View style={styles.loginDivider} />
+
+            {/* Quick Switch Role Label */}
+            <Text style={styles.quickSwitchHeading}>Quick Switch Role (Demo Credentials):</Text>
+
+            {/* 4 Role Chips */}
+            <View style={styles.roleChipsWrap}>
+              {DEMO_USERS.map((user) => (
+                <TouchableOpacity
+                  key={user.email}
+                  style={[
+                    styles.roleChip,
+                    inputEmail === user.email && styles.roleChipActive,
+                  ]}
+                  onPress={() => onQuickRoleSelect(user)}
+                >
+                  <View style={[styles.chipDot, { backgroundColor: user.dotColor }]} />
+                  <Text style={styles.chipText}>{user.role}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          </ScrollView>
+        </KeyboardAvoidingView>
+      </SafeAreaView>
+    );
+  }
+
+  // =========================================================================
+  // SCREEN 2: MAIN DASHBOARD & TABS (With Working Real Logout Button)
+  // =========================================================================
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor="#0B1C33" />
+      <StatusBar barStyle="light-content" backgroundColor="#0F2744" />
 
-      {/* Top Header Bar (Exact match to Android Navbar) */}
+      {/* Top Header Bar */}
       <View style={styles.appBar}>
         <View style={styles.appBarLeft}>
           <Ionicons name="print" size={22} color="#FFFFFF" style={{ marginRight: 8 }} />
@@ -272,6 +442,7 @@ export default function App() {
           >
             <Ionicons name="person-circle-outline" size={22} color="#FFFFFF" />
           </TouchableOpacity>
+          {/* REAL LOGOUT BUTTON THAT BRINGS BACK SCREEN 1 */}
           <TouchableOpacity style={styles.appBarIconBtn} onPress={handleLogout}>
             <Ionicons name="log-out-outline" size={22} color="#FFFFFF" />
           </TouchableOpacity>
@@ -282,7 +453,7 @@ export default function App() {
       <ScrollView style={styles.mainScroll} contentContainerStyle={{ paddingBottom: 100 }}>
         
         {/* ================================================================= */}
-        {/* TAB 1: DASHBOARD (Exact 1:1 match to Screenshot 1) */}
+        {/* TAB 1: DASHBOARD */}
         {/* ================================================================= */}
         {currentTab === 'dashboard' && (
           <View style={styles.tabContent}>
@@ -431,7 +602,7 @@ export default function App() {
         )}
 
         {/* ================================================================= */}
-        {/* TAB 2: INVENTORY (Exact 1:1 match to Screenshot 2) */}
+        {/* TAB 2: INVENTORY */}
         {/* ================================================================= */}
         {currentTab === 'inventory' && (
           <View style={styles.tabContent}>
@@ -718,7 +889,7 @@ export default function App() {
         </View>
       </Modal>
 
-      {/* Bottom Navigation Bar (Exact 1:1 Match to Android Screenshots) */}
+      {/* Bottom Navigation Bar */}
       <View style={styles.bottomNav}>
         
         <TouchableOpacity
@@ -797,6 +968,136 @@ export default function App() {
 }
 
 const styles = StyleSheet.create({
+  // Login Screen Styles (Exact match to Screenshot 2)
+  loginContainer: {
+    flex: 1,
+    backgroundColor: '#FFFFFF',
+  },
+  loginScrollContent: {
+    paddingHorizontal: 24,
+    paddingTop: 40,
+    paddingBottom: 40,
+    alignItems: 'center',
+  },
+  loginHeaderBox: {
+    width: 80,
+    height: 80,
+    borderRadius: 20,
+    backgroundColor: '#0F2744',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 20,
+    shadowColor: '#0F2744',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.25,
+    shadowRadius: 10,
+    elevation: 8,
+  },
+  loginMainTitle: {
+    fontSize: 25,
+    fontWeight: '800',
+    color: '#0F2744',
+    textAlign: 'center',
+    letterSpacing: -0.5,
+  },
+  loginSubtitle: {
+    fontSize: 14,
+    color: '#64748B',
+    marginTop: 6,
+    marginBottom: 28,
+    textAlign: 'center',
+  },
+  loginInputCard: {
+    width: '100%',
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    borderRadius: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+  },
+  loginInputLabel: {
+    fontSize: 11,
+    color: '#64748B',
+    fontWeight: '500',
+    marginBottom: 2,
+  },
+  loginInputRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    height: 38,
+  },
+  loginTextInput: {
+    flex: 1,
+    fontSize: 15,
+    color: '#0F172A',
+    fontWeight: '600',
+  },
+  signInPrimaryBtn: {
+    width: '100%',
+    backgroundColor: '#0F2744',
+    borderRadius: 12,
+    paddingVertical: 15,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 22,
+    shadowColor: '#0F2744',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 6,
+    elevation: 4,
+  },
+  signInPrimaryBtnText: {
+    color: '#FFFFFF',
+    fontSize: 15,
+    fontWeight: 'bold',
+  },
+  loginDivider: {
+    width: '100%',
+    height: 1,
+    backgroundColor: '#E2E8F0',
+    marginTop: 32,
+    marginBottom: 16,
+  },
+  quickSwitchHeading: {
+    fontSize: 12,
+    fontWeight: 'bold',
+    color: '#64748B',
+    marginBottom: 12,
+  },
+  roleChipsWrap: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+    gap: 8,
+  },
+  roleChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#F8FAFC',
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 20,
+  },
+  roleChipActive: {
+    borderColor: '#0284C7',
+    backgroundColor: '#F0F9FF',
+  },
+  chipDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    marginRight: 6,
+  },
+  chipText: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#334155',
+  },
+
+  // Main App Styles
   container: {
     flex: 1,
     backgroundColor: '#F8FAFC',
