@@ -36,7 +36,7 @@ class ApiClient {
     try {
       final url = Uri.parse('$baseUrl$endpoint');
       final headers = await _getHeaders();
-      final response = await http.get(url, headers: headers);
+      final response = await http.get(url, headers: headers).timeout(const Duration(seconds: 3));
 
       if (response.statusCode >= 200 && response.statusCode < 300) {
         final body = jsonDecode(response.body);
@@ -58,7 +58,7 @@ class ApiClient {
     try {
       final url = Uri.parse('$baseUrl$endpoint');
       final headers = await _getHeaders();
-      final response = await http.post(url, headers: headers, body: jsonEncode(body));
+      final response = await http.post(url, headers: headers, body: jsonEncode(body)).timeout(const Duration(seconds: 3));
 
       if (response.statusCode >= 200 && response.statusCode < 300) {
         final data = jsonDecode(response.body);
@@ -80,7 +80,7 @@ class ApiClient {
     try {
       final url = Uri.parse('$baseUrl$endpoint');
       final headers = await _getHeaders();
-      final response = await http.put(url, headers: headers, body: jsonEncode(body));
+      final response = await http.put(url, headers: headers, body: jsonEncode(body)).timeout(const Duration(seconds: 3));
 
       if (response.statusCode >= 200 && response.statusCode < 300) {
         final data = jsonDecode(response.body);
