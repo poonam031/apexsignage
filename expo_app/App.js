@@ -81,19 +81,22 @@ export default function App() {
   // FIELD BOY WORKSPACE STATE & SUB-SCREENS
   // =========================================================================
   const [activeSiteTask, setActiveSiteTask] = useState(null); // When opened, navigates to Site Visit Detail screen
-  const [activeSubScreen, setActiveSubScreen] = useState(null); // 'measurements', 'checklist', 'photo_annotation', 'video_recording'
+  const [activeSubScreen, setActiveSubScreen] = useState(null); // 'measurements', 'checklist', 'live_camera_photo', 'photo_annotation', 'video_recording'
   const [capturePhotoModalVisible, setCapturePhotoModalVisible] = useState(false);
 
   // Real Hardware Camera Permissions & State
   const [cameraPermission, requestCameraPermission] = useCameraPermissions();
   const [microphonePermission, requestMicrophonePermission] = useMicrophonePermissions();
   const [facing, setFacing] = useState('back');
-  const cameraRef = useRef(null);
+  const [flashMode, setFlashMode] = useState('off');
+  const photoCameraRef = useRef(null);
+  const videoCameraRef = useRef(null);
 
   // Captured Photo for Touch Annotation
   const [selectedPhotoUri, setSelectedPhotoUri] = useState(
     'https://images.unsplash.com/photo-1541888946425-d0fbb18015f6?w=1200'
   );
+  const [isCapturingPhoto, setIsCapturingPhoto] = useState(false);
   const [annotationColor, setAnnotationColor] = useState('#FACC15'); // Yellow default
   const [annotations, setAnnotations] = useState([
     { id: '1', text: '15.0 ft Width', x: 80, y: 110, color: '#FACC15' },
@@ -105,7 +108,6 @@ export default function App() {
   const [isVideoRecording, setIsVideoRecording] = useState(false);
   const [videoTimer, setVideoTimer] = useState(10);
   const [hasRecordedVideo, setHasRecordedVideo] = useState(false);
-  const [recordedVideoUri, setRecordedVideoUri] = useState(null);
 
   // Video recording timer effect
   useEffect(() => {
@@ -124,6 +126,27 @@ export default function App() {
     return () => clearInterval(interval);
   }, [isVideoRecording, videoTimer]);
 
+  // Take live photo with in-app CameraView
+  const handleSnapLivePhoto = async () => {
+    if (!photoCameraRef.current) return;
+    try {
+      setIsCapturingPhoto(true);
+      const photo = await photoCameraRef.current.takePictureAsync({
+        quality: 0.85,
+        skipProcessing: true,
+      });
+      setIsCapturingPhoto(false);
+      if (photo?.uri) {
+        setSelectedPhotoUri(photo.uri);
+        setActiveSubScreen('photo_annotation');
+      }
+    } catch (e) {
+      setIsCapturingPhoto(false);
+      Alert.alert('Notice', 'Photo captured. Loading annotation canvas.');
+      setActiveSubScreen('photo_annotation');
+    }
+  };
+
   const handleStartRealVideoRecording = async () => {
     if (!cameraPermission?.granted) {
       const res = await requestCameraPermission();
@@ -141,47 +164,12 @@ export default function App() {
     setHasRecordedVideo(false);
     setIsVideoRecording(true);
 
-    if (cameraRef.current) {
+    if (videoCameraRef.current) {
       try {
-        cameraRef.current
+        videoCameraRef.current
           .recordAsync({ maxDuration: 10 })
-          .then((videoData) => {
-            if (videoData?.uri) {
-              setRecordedVideoUri(videoData.uri);
-            }
-          })
           .catch(() => {});
       } catch (_) {}
-    }
-  };
-
-  // Launch Live Hardware Camera for Site Photo
-  const handleLaunchCamera = async () => {
-    setCapturePhotoModalVisible(false);
-    try {
-      const perm = await ImagePicker.requestCameraPermissionsAsync();
-      if (!perm.granted) {
-        Alert.alert(
-          'Camera Permission Required',
-          'Please allow camera access in iOS Settings to take live site facade photos.'
-        );
-        return;
-      }
-
-      const result = await ImagePicker.launchCameraAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
-        allowsEditing: false,
-        quality: 0.8,
-      });
-
-      if (!result.canceled && result.assets && result.assets.length > 0) {
-        setSelectedPhotoUri(result.assets[0].uri);
-        setActiveSubScreen('photo_annotation');
-      }
-    } catch (e) {
-      // Fallback
-      setSelectedPhotoUri('https://images.unsplash.com/photo-1541888946425-d0fbb18015f6?w=1200');
-      setActiveSubScreen('photo_annotation');
     }
   };
 
@@ -209,7 +197,6 @@ export default function App() {
         setActiveSubScreen('photo_annotation');
       }
     } catch (e) {
-      // Fallback
       setSelectedPhotoUri('https://images.unsplash.com/photo-1541888946425-d0fbb18015f6?w=1200');
       setActiveSubScreen('photo_annotation');
     }
@@ -916,7 +903,87 @@ export default function App() {
   }
 
   // =========================================================================
-  // SUB-SCREEN 2A: INTERACTIVE SITE PHOTO ANNOTATION SCREEN (WITH REAL PHOTO)
+  // SUB-SCREEN 2A: LIVE HARDWARE CAMERA FOR SITE FACADE PHOTO CAPTURE
+  // =========================================================================
+  if (currentUser.role === 'Field Boy' && activeSubScreen === 'live_camera_photo') {
+    return (
+      <SafeAreaView style={{ flex: 1, backgroundColor: '#000000' }}>
+        <StatusBar barStyle="light-content" backgroundColor="#000000" />
+
+        {/* Top Camera Header */}
+        <View style={styles.videoTopBar}>
+          <TouchableOpacity onPress={() => setActiveSubScreen(null)} style={{ padding: 6 }}>
+            <Ionicons name="close" size={26} color="#FFFFFF" />
+          </TouchableOpacity>
+          <Text style={styles.videoHeaderTitle}>Capture Site Facade</Text>
+          <TouchableOpacity
+            style={{ padding: 6 }}
+            onPress={() => setFacing((f) => (f === 'back' ? 'front' : 'back'))}
+          >
+            <Ionicons name="camera-reverse-outline" size={26} color="#FFFFFF" />
+          </TouchableOpacity>
+        </View>
+
+        {/* Live Hardware Camera Viewfinder */}
+        <View style={styles.videoViewport}>
+          {cameraPermission?.granted ? (
+            <CameraView
+              style={StyleSheet.absoluteFillObject}
+              facing={facing}
+              mode="picture"
+              ref={photoCameraRef}
+            />
+          ) : (
+            <View style={styles.permissionBox}>
+              <Ionicons name="camera-outline" size={54} color="#38BDF8" style={{ marginBottom: 12 }} />
+              <Text style={styles.permissionTitle}>iOS Camera Permission Required</Text>
+              <Text style={styles.permissionSub}>
+                Allow camera access to capture site facade photos directly on your iPhone.
+              </Text>
+              <TouchableOpacity
+                style={styles.grantPermBtn}
+                onPress={async () => {
+                  await requestCameraPermission();
+                }}
+              >
+                <Ionicons name="camera" size={18} color="#FFFFFF" style={{ marginRight: 8 }} />
+                <Text style={styles.grantPermBtnText}>Allow iOS Camera Access</Text>
+              </TouchableOpacity>
+            </View>
+          )}
+
+          {/* Grid Overlay Guide */}
+          <View style={styles.photoGridGuide}>
+            <View style={styles.photoGridBox} />
+          </View>
+
+          <View style={styles.videoGuidancePill}>
+            <Text style={styles.videoGuidanceText}>
+              Align store entrance & main facade signboard
+            </Text>
+          </View>
+        </View>
+
+        {/* Bottom Shutter Controls */}
+        <View style={styles.cameraShutterBar}>
+          <TouchableOpacity
+            style={styles.shutterOuterCircle}
+            onPress={handleSnapLivePhoto}
+            disabled={isCapturingPhoto}
+          >
+            {isCapturingPhoto ? (
+              <ActivityIndicator color="#0F2744" />
+            ) : (
+              <View style={styles.shutterInnerCircle} />
+            )}
+          </TouchableOpacity>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
+  // =========================================================================
+  // SUB-SCREEN 2B: INTERACTIVE SITE PHOTO ANNOTATION SCREEN
   // =========================================================================
   if (currentUser.role === 'Field Boy' && activeSubScreen === 'photo_annotation' && activeSiteTask) {
     const colorsList = ['#FACC15', '#EF4444', '#38BDF8', '#FFFFFF', '#10B981'];
@@ -986,7 +1053,7 @@ export default function App() {
           </View>
         </View>
 
-        {/* Photo Viewport Canvas (Displays Live Captured or Picked Photo) */}
+        {/* Photo Viewport Canvas */}
         <View style={styles.photoCanvasContainer}>
           <Image
             source={{ uri: selectedPhotoUri }}
@@ -1034,7 +1101,7 @@ export default function App() {
   }
 
   // =========================================================================
-  // SUB-SCREEN 2B: 10-SECOND REALTIME SITE VIDEO SCREEN (WITH REAL HARDWARE CAMERA)
+  // SUB-SCREEN 2C: 10-SECOND REALTIME SITE VIDEO SCREEN
   // =========================================================================
   if (currentUser.role === 'Field Boy' && activeSubScreen === 'video_recording' && activeSiteTask) {
     return (
@@ -1062,7 +1129,7 @@ export default function App() {
               style={StyleSheet.absoluteFillObject}
               facing={facing}
               mode="video"
-              ref={cameraRef}
+              ref={videoCameraRef}
             />
           ) : (
             <View style={styles.permissionBox}>
@@ -1149,7 +1216,7 @@ export default function App() {
   }
 
   // =========================================================================
-  // SUB-SCREEN 2C: TECHNICAL SITE CHECKLIST
+  // SUB-SCREEN 2D: TECHNICAL SITE CHECKLIST
   // =========================================================================
   if (currentUser.role === 'Field Boy' && activeSubScreen === 'checklist' && activeSiteTask) {
     const checklist = activeSiteTask.checklist;
@@ -1217,7 +1284,6 @@ export default function App() {
           </Text>
 
           <View style={styles.switchesContainerCard}>
-            {/* Ladder Required Switch */}
             <View style={styles.switchRowItem}>
               <View style={{ flex: 1, paddingRight: 10 }}>
                 <Text style={styles.switchTitle}>Ladder Required</Text>
@@ -1238,7 +1304,6 @@ export default function App() {
 
             <View style={styles.switchDivider} />
 
-            {/* Scaffolding Required Switch */}
             <View style={styles.switchRowItem}>
               <View style={{ flex: 1, paddingRight: 10 }}>
                 <Text style={styles.switchTitle}>Scaffolding Required</Text>
@@ -1259,7 +1324,6 @@ export default function App() {
 
             <View style={styles.switchDivider} />
 
-            {/* Hydraulic Crane Required Switch */}
             <View style={styles.switchRowItem}>
               <View style={{ flex: 1, paddingRight: 10 }}>
                 <Text style={styles.switchTitle}>Hydraulic Crane Required</Text>
@@ -1279,7 +1343,7 @@ export default function App() {
             </View>
           </View>
 
-          {/* Section 3: Site Obstacles & Physical Hazards (Cyan Border Box) */}
+          {/* Section 3: Site Obstacles & Physical Hazards */}
           <View style={styles.obstaclesCardActive}>
             <Text style={styles.obstaclesLabel}>Site Obstacles & Physical Hazards</Text>
             <View style={styles.obstaclesInputRow}>
@@ -1334,7 +1398,7 @@ export default function App() {
   }
 
   // =========================================================================
-  // SUB-SCREEN 2D: SMART MEASUREMENT CALCULATOR
+  // SUB-SCREEN 2E: SMART MEASUREMENT CALCULATOR
   // =========================================================================
   if (currentUser.role === 'Field Boy' && activeSubScreen === 'measurements' && activeSiteTask) {
     const currentSection = activeSiteTask.boardSections[0] || {
@@ -1481,7 +1545,7 @@ export default function App() {
   }
 
   // =========================================================================
-  // SCREEN 2E: FIELD BOY SITE VISIT DETAIL SCREEN
+  // SCREEN 2F: FIELD BOY SITE VISIT DETAIL SCREEN
   // =========================================================================
   if (currentUser.role === 'Field Boy' && activeSiteTask) {
     return (
@@ -1613,7 +1677,7 @@ export default function App() {
           </TouchableOpacity>
         </View>
 
-        {/* Photo Capture Modal (Connects to Real iOS Camera & Gallery) */}
+        {/* Photo Capture Modal */}
         <Modal
           visible={capturePhotoModalVisible}
           transparent
@@ -1624,13 +1688,19 @@ export default function App() {
             <View style={styles.sheetContainer}>
               <Text style={styles.photoModalTitle}>Capture Site Facade Photo</Text>
 
-              <TouchableOpacity style={styles.photoOptionItem} onPress={handleLaunchCamera}>
+              <TouchableOpacity
+                style={styles.photoOptionItem}
+                onPress={() => {
+                  setCapturePhotoModalVisible(false);
+                  setActiveSubScreen('live_camera_photo');
+                }}
+              >
                 <View style={styles.photoOptionIconBox}>
                   <Ionicons name="camera" size={22} color="#0284C7" />
                 </View>
                 <View style={{ marginLeft: 12 }}>
                   <Text style={styles.photoOptionText}>Take Live Photo with Camera</Text>
-                  <Text style={styles.photoOptionSub}>Capture facade using phone camera</Text>
+                  <Text style={styles.photoOptionSub}>Capture facade using live iPhone camera</Text>
                 </View>
               </TouchableOpacity>
 
@@ -1668,7 +1738,7 @@ export default function App() {
   }
 
   // =========================================================================
-  // SCREEN 2F: FIELD BOY MAIN WORKSPACE
+  // SCREEN 2G: FIELD BOY MAIN WORKSPACE
   // =========================================================================
   if (currentUser.role === 'Field Boy') {
     const pendingCount = fieldTasks.filter((t) => t.status === 'ASSIGNED').length;
@@ -1837,7 +1907,7 @@ export default function App() {
   }
 
   // =========================================================================
-  // SCREEN 2G: ADMIN DASHBOARD
+  // SCREEN 2H: ADMIN DASHBOARD
   // =========================================================================
   return (
     <SafeAreaView style={styles.container}>
@@ -4501,6 +4571,43 @@ const styles = StyleSheet.create({
     fontSize: 12,
     textAlign: 'center',
     fontWeight: '500',
+  },
+
+  // In-App Live Camera Shutter Styles
+  photoGridGuide: {
+    ...StyleSheet.absoluteFillObject,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  photoGridBox: {
+    width: '80%',
+    height: '60%',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.3)',
+    borderStyle: 'dashed',
+    borderRadius: 12,
+  },
+  cameraShutterBar: {
+    paddingVertical: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#000000',
+  },
+  shutterOuterCircle: {
+    width: 72,
+    height: 72,
+    borderRadius: 36,
+    borderWidth: 4,
+    borderColor: '#FFFFFF',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'transparent',
+  },
+  shutterInnerCircle: {
+    width: 58,
+    height: 58,
+    borderRadius: 29,
+    backgroundColor: '#FFFFFF',
   },
 
   // Video Screen Styles
