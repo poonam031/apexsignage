@@ -215,7 +215,7 @@ export default function App() {
       boardSections: [
         {
           id: 'b-1',
-          name: 'Board 1: Main Entrance LED Board',
+          name: '1 Board Section(s) Configured',
           length: '15.0',
           height: '4.0',
           material: 'ACP Sheet',
@@ -1374,7 +1374,7 @@ export default function App() {
   // =========================================================================
   if (currentUser.role === 'Field Boy' && activeSubScreen === 'measurements' && activeSiteTask) {
     const currentSection = activeSiteTask.boardSections[0] || {
-      name: 'Board 1: Main Entrance LED Board',
+      name: '1 Board Section(s) Configured',
       length: '15.0',
       height: '4.0',
       material: 'ACP Sheet',
@@ -1516,117 +1516,147 @@ export default function App() {
   }
 
   // =========================================================================
-  // SCREEN 2F: FIELD BOY SITE VISIT DETAIL SCREEN
+  // SCREEN 2F: FIELD BOY SITE VISIT DETAIL SCREEN (EXACT MATCH TO SCREENSHOT)
   // =========================================================================
   if (currentUser.role === 'Field Boy' && activeSiteTask) {
     return (
       <View style={styles.rootFullContainer}>
+        {/* Top Dark Navy Safe Area */}
         <SafeAreaView style={{ flex: 0, backgroundColor: '#0F2744' }}>
           <StatusBar barStyle="light-content" backgroundColor="#0F2744" />
         </SafeAreaView>
 
-        <View style={styles.appBar}>
-          <View style={styles.appBarLeft}>
-            <TouchableOpacity onPress={() => setActiveSiteTask(null)} style={{ marginRight: 10 }}>
+        {/* Top Navigation Bar with Back Arrow & Synced Badge */}
+        <View style={styles.taskDetailAppBar}>
+          <View style={styles.taskDetailAppBarLeft}>
+            <TouchableOpacity onPress={() => setActiveSiteTask(null)} style={{ padding: 4, marginRight: 8 }}>
               <Ionicons name="arrow-back" size={24} color="#FFFFFF" />
             </TouchableOpacity>
-            <Text style={styles.appBarTitle}>{activeSiteTask.title}</Text>
+            <Text style={styles.taskDetailAppBarTitle} numberOfLines={1}>
+              {activeSiteTask.title}
+            </Text>
           </View>
-          <View style={styles.syncedBadge}>
-            <Ionicons name="cloud-done" size={14} color="#10B981" style={{ marginRight: 4 }} />
-            <Text style={styles.syncedBadgeText}>Synced</Text>
+
+          <View style={styles.taskDetailSyncedBadge}>
+            <Ionicons name="cloud-done" size={14} color="#34D399" style={{ marginRight: 4 }} />
+            <Text style={styles.taskDetailSyncedBadgeText}>Synced</Text>
           </View>
         </View>
 
+        {/* Body Content */}
         <View style={styles.appBodyWrapper}>
-          <ScrollView style={styles.mainScroll} contentContainerStyle={styles.scrollContentInset}>
-            <View style={styles.taskDetailClientCard}>
-              <View style={styles.taskDetailClientHeader}>
-                <Text style={styles.taskDetailClientName}>{activeSiteTask.clientName}</Text>
-                <View style={styles.taskAssignedPill}>
-                  <Text style={styles.taskAssignedPillText}>{activeSiteTask.status}</Text>
+          <ScrollView
+            style={styles.mainScroll}
+            contentContainerStyle={styles.taskDetailScrollContent}
+            showsVerticalScrollIndicator={false}
+          >
+            {/* Top Client Information Card */}
+            <View style={styles.taskClientCardExact}>
+              <View style={styles.taskClientHeaderRow}>
+                <Text style={styles.taskClientNameExact}>{activeSiteTask.clientName}</Text>
+                <View style={styles.taskClientAssignedBadge}>
+                  <Text style={styles.taskClientAssignedBadgeText}>{activeSiteTask.status}</Text>
                 </View>
               </View>
-              <Text style={styles.taskDetailAddress}>{activeSiteTask.address}</Text>
 
-              <View style={styles.taskActionBtnsRow}>
+              <Text style={styles.taskClientAddressExact}>{activeSiteTask.address}</Text>
+
+              {/* Call Client & Navigate Map Action Buttons */}
+              <View style={styles.taskClientBtnRow}>
                 <TouchableOpacity
-                  style={styles.callClientBtn}
+                  style={styles.callClientWhiteBtn}
                   onPress={() => Linking.openURL(`tel:${activeSiteTask.clientPhone}`)}
+                  activeOpacity={0.7}
                 >
-                  <Ionicons name="call-outline" size={18} color="#0F2744" style={{ marginRight: 6 }} />
-                  <Text style={styles.callClientBtnText}>Call Client</Text>
+                  <Ionicons name="call-outline" size={17} color="#0F2744" style={{ marginRight: 8 }} />
+                  <Text style={styles.callClientWhiteBtnText}>Call Client</Text>
                 </TouchableOpacity>
 
                 <TouchableOpacity
-                  style={styles.navigateMapBtn}
+                  style={styles.navigateMapBlueBtn}
                   onPress={() =>
                     Linking.openURL(
                       `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(activeSiteTask.address)}`
                     )
                   }
+                  activeOpacity={0.7}
                 >
-                  <Ionicons name="navigate" size={18} color="#FFFFFF" style={{ marginRight: 6 }} />
-                  <Text style={styles.navigateMapBtnText}>Navigate Map</Text>
+                  <Ionicons name="navigate" size={17} color="#FFFFFF" style={{ marginRight: 8 }} />
+                  <Text style={styles.navigateMapBlueBtnText}>Navigate Map</Text>
                 </TouchableOpacity>
               </View>
             </View>
 
-            <Text style={styles.moduleSectionHeading}>📏 1. Digital Smart Measurements</Text>
-            <TouchableOpacity style={styles.moduleCard} onPress={() => setActiveSubScreen('measurements')}>
+            {/* MODULE 1: Digital Smart Measurements */}
+            <Text style={styles.taskModuleHeading}>📏 1. Digital Smart Measurements</Text>
+            <TouchableOpacity
+              style={styles.taskModuleCard}
+              onPress={() => setActiveSubScreen('measurements')}
+              activeOpacity={0.7}
+            >
               <View style={{ flex: 1 }}>
-                <Text style={styles.moduleCardTitle}>1 Board Section(s) Configured</Text>
-                <Text style={styles.moduleCardSub}>Total: 60.0 Sq.Ft (5.57 Sq.Meters)</Text>
+                <Text style={styles.taskModuleTitle}>1 Board Section(s) Configured</Text>
+                <Text style={styles.taskModuleSubTeal}>Total: 60.0 Sq.Ft (5.57 Sq.Meters)</Text>
               </View>
               <Ionicons name="chevron-forward" size={20} color="#94A3B8" />
             </TouchableOpacity>
 
-            <Text style={styles.moduleSectionHeading}>✏️ 2. Site Photograph & Touch Annotation</Text>
-            <TouchableOpacity style={styles.moduleCard} onPress={() => setCapturePhotoModalVisible(true)}>
-              <View style={styles.moduleIconBoxCyan}>
+            {/* MODULE 2: Site Photograph & Touch Annotation */}
+            <Text style={styles.taskModuleHeading}>✏️ 2. Site Photograph & Touch Annotation</Text>
+            <TouchableOpacity
+              style={styles.taskModuleCard}
+              onPress={() => setCapturePhotoModalVisible(true)}
+              activeOpacity={0.7}
+            >
+              <View style={styles.taskIconBoxCyan}>
                 <Ionicons name="camera-outline" size={22} color="#0284C7" />
               </View>
-              <View style={{ flex: 1, marginLeft: 12 }}>
-                <Text style={styles.moduleCardTitle}>Capture & Annotate Site Photo</Text>
-                <Text style={styles.moduleCardSub}>
-                  {activeSiteTask.hasPhoto ? '✅ 1 Annotated Facade Photo attached' : 'Draw width/height directly on site photo'}
-                </Text>
+              <View style={{ flex: 1, marginLeft: 14 }}>
+                <Text style={styles.taskModuleTitle}>Capture & Annotate Site Photo</Text>
+                <Text style={styles.taskModuleSub}>Draw width/height directly on site photo</Text>
               </View>
               <Ionicons name="chevron-forward" size={20} color="#94A3B8" />
             </TouchableOpacity>
 
-            <Text style={styles.moduleSectionHeading}>🎥 3. Site Video Clip (10 Seconds)</Text>
-            <TouchableOpacity style={styles.moduleCard} onPress={() => setActiveSubScreen('video_recording')}>
-              <View style={styles.moduleIconBoxPurple}>
-                <Ionicons name="videocam-outline" size={22} color="#8B5CF6" />
-              </View>
-              <View style={{ flex: 1, marginLeft: 12 }}>
-                <Text style={styles.moduleCardTitle}>Record 10-Second Site Video</Text>
-                <Text style={styles.moduleCardSub}>
-                  {activeSiteTask.hasVideo ? '✅ 10s Clearance Video saved' : 'Required to assess surrounding trees & road clearance'}
-                </Text>
-              </View>
-              <Ionicons name="chevron-forward" size={20} color="#94A3B8" />
-            </TouchableOpacity>
-
-            <Text style={styles.moduleSectionHeading}>📋 4. Technical Checklist</Text>
-            <TouchableOpacity style={styles.moduleCard} onPress={() => setActiveSubScreen('checklist')}>
-              <View style={{ flex: 1 }}>
-                <Text style={styles.moduleCardTitle}>{activeSiteTask.checklist.mountingHeight}</Text>
-                <Text style={styles.moduleCardSub}>
-                  Power: {activeSiteTask.checklist.powerDistance}ft • Ladder: {activeSiteTask.checklist.ladderRequired ? 'Yes' : 'No'} • Crane:{' '}
-                  {activeSiteTask.checklist.craneRequired ? 'Yes' : 'No'}
-                </Text>
-              </View>
-              <Ionicons name="chevron-forward" size={20} color="#94A3B8" />
-            </TouchableOpacity>
-
+            {/* MODULE 3: Site Video Clip (10 Seconds) */}
+            <Text style={styles.taskModuleHeading}>🎥 3. Site Video Clip (10 Seconds)</Text>
             <TouchableOpacity
-              style={[styles.submitSiteVisitPrimaryBtn, { marginTop: 14 }]}
+              style={styles.taskModuleCard}
+              onPress={() => setActiveSubScreen('video_recording')}
+              activeOpacity={0.7}
+            >
+              <View style={styles.taskIconBoxPurple}>
+                <Ionicons name="videocam-outline" size={22} color="#9333EA" />
+              </View>
+              <View style={{ flex: 1, marginLeft: 14 }}>
+                <Text style={styles.taskModuleTitle}>Record 10-Second Site Video</Text>
+                <Text style={styles.taskModuleSub}>Required to assess surrounding trees & road clearance</Text>
+              </View>
+              <Ionicons name="chevron-forward" size={20} color="#94A3B8" />
+            </TouchableOpacity>
+
+            {/* MODULE 4: Technical Checklist */}
+            <Text style={styles.taskModuleHeading}>📋 4. Technical Checklist</Text>
+            <TouchableOpacity
+              style={styles.taskModuleCard}
+              onPress={() => setActiveSubScreen('checklist')}
+              activeOpacity={0.7}
+            >
+              <View style={{ flex: 1 }}>
+                <Text style={styles.taskModuleTitle}>Ground Floor Facade (12 ft)</Text>
+                <Text style={styles.taskModuleSub}>Power: 10.0ft • Ladder: Yes • Crane: No</Text>
+              </View>
+              <Ionicons name="chevron-forward" size={20} color="#94A3B8" />
+            </TouchableOpacity>
+
+            {/* Bottom Submit & Sync Button */}
+            <TouchableOpacity
+              style={styles.taskSubmitSyncPrimaryBtn}
               onPress={() => handleSubmitSiteVisit(activeSiteTask)}
+              activeOpacity={0.8}
             >
               <Ionicons name="cloud-upload-outline" size={20} color="#FFFFFF" style={{ marginRight: 8 }} />
-              <Text style={styles.submitSiteVisitPrimaryText}>Submit & Sync to Designer</Text>
+              <Text style={styles.taskSubmitSyncPrimaryBtnText}>Submit & Sync to Designer</Text>
             </TouchableOpacity>
           </ScrollView>
         </View>
@@ -1704,7 +1734,7 @@ export default function App() {
   }
 
   // =========================================================================
-  // SCREEN 2G: FIELD BOY MAIN WORKSPACE (MATCHING EXACT SCREENSHOT DESIGN)
+  // SCREEN 2G: FIELD BOY MAIN WORKSPACE
   // =========================================================================
   if (currentUser.role === 'Field Boy') {
     const pendingCount = fieldTasks.filter((t) => t.status === 'ASSIGNED').length;
@@ -3907,7 +3937,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
 
-  // FIELD BOY WORKSPACE EXACT STYLES
+  // FIELD BOY WORKSPACE STYLES
   fieldBoyScrollContent: {
     paddingHorizontal: 16,
     paddingTop: 16,
@@ -4035,59 +4065,92 @@ const styles = StyleSheet.create({
     color: '#0F2744',
   },
 
-  syncedBadge: {
+  // SITE DETAIL SCREEN STYLES (MATCHING USER SCREENSHOT EXACTLY)
+  taskDetailAppBar: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    backgroundColor: '#0F2744',
+    paddingHorizontal: 16,
+    paddingTop: Platform.OS === 'android' ? 12 : 6,
+    paddingBottom: 14,
+  },
+  taskDetailAppBarLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+  },
+  taskDetailAppBarTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#FFFFFF',
+    marginLeft: 4,
+    flex: 1,
+  },
+  taskDetailSyncedBadge: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#064E3B',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 6,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#047857',
   },
-  syncedBadgeText: {
+  taskDetailSyncedBadgeText: {
     color: '#34D399',
     fontSize: 11,
     fontWeight: 'bold',
   },
-  taskDetailClientCard: {
+  taskDetailScrollContent: {
+    padding: 16,
+    paddingBottom: Platform.OS === 'ios' ? 44 : 28,
+  },
+  taskClientCardExact: {
     backgroundColor: '#FFFFFF',
     borderRadius: 14,
     padding: 16,
     borderWidth: 1,
     borderColor: '#E2E8F0',
-    marginBottom: 16,
+    marginBottom: 18,
   },
-  taskDetailClientHeader: {
+  taskClientHeaderRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: 4,
   },
-  taskDetailClientName: {
-    fontSize: 16,
+  taskClientNameExact: {
+    fontSize: 17,
     fontWeight: 'bold',
     color: '#0F172A',
   },
-  taskAssignedPill: {
-    backgroundColor: '#FEF3C7',
+  taskClientAssignedBadge: {
+    backgroundColor: '#FFFBEB',
+    borderWidth: 1,
+    borderColor: '#FDE68A',
     paddingHorizontal: 8,
     paddingVertical: 3,
     borderRadius: 6,
   },
-  taskAssignedPillText: {
+  taskClientAssignedBadgeText: {
     color: '#D97706',
-    fontSize: 10,
+    fontSize: 11,
     fontWeight: 'bold',
+    letterSpacing: 0.5,
   },
-  taskDetailAddress: {
-    fontSize: 12,
+  taskClientAddressExact: {
+    fontSize: 13,
     color: '#64748B',
-    marginBottom: 14,
+    marginBottom: 16,
+    marginTop: 2,
+    lineHeight: 18,
   },
-  taskActionBtnsRow: {
+  taskClientBtnRow: {
     flexDirection: 'row',
-    gap: 10,
+    gap: 12,
   },
-  callClientBtn: {
+  callClientWhiteBtn: {
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
@@ -4095,84 +4158,99 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
     borderWidth: 1,
     borderColor: '#CBD5E1',
-    paddingVertical: 10,
-    borderRadius: 8,
+    paddingVertical: 12,
+    borderRadius: 10,
   },
-  callClientBtnText: {
-    fontSize: 13,
+  callClientWhiteBtnText: {
+    fontSize: 14,
     fontWeight: 'bold',
     color: '#0F2744',
   },
-  navigateMapBtn: {
+  navigateMapBlueBtn: {
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#3B82F6',
-    paddingVertical: 10,
-    borderRadius: 8,
+    backgroundColor: '#3B5998',
+    paddingVertical: 12,
+    borderRadius: 10,
   },
-  navigateMapBtnText: {
-    fontSize: 13,
+  navigateMapBlueBtnText: {
+    fontSize: 14,
     fontWeight: 'bold',
     color: '#FFFFFF',
   },
-  moduleSectionHeading: {
-    fontSize: 13,
+  taskModuleHeading: {
+    fontSize: 14,
     fontWeight: 'bold',
     color: '#0F172A',
-    marginBottom: 8,
     marginTop: 6,
+    marginBottom: 8,
   },
-  moduleCard: {
+  taskModuleCard: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#FFFFFF',
-    borderRadius: 12,
-    padding: 14,
+    borderRadius: 14,
+    padding: 16,
     borderWidth: 1,
     borderColor: '#E2E8F0',
-    marginBottom: 12,
+    marginBottom: 14,
   },
-  moduleIconBoxCyan: {
-    width: 44,
-    height: 44,
-    borderRadius: 10,
+  taskIconBoxCyan: {
+    width: 46,
+    height: 46,
+    borderRadius: 12,
     backgroundColor: '#E0F2FE',
     alignItems: 'center',
     justifyContent: 'center',
   },
-  moduleIconBoxPurple: {
-    width: 44,
-    height: 44,
-    borderRadius: 10,
+  taskIconBoxPurple: {
+    width: 46,
+    height: 46,
+    borderRadius: 12,
     backgroundColor: '#F3E8FF',
     alignItems: 'center',
     justifyContent: 'center',
   },
-  moduleCardTitle: {
-    fontSize: 14,
+  taskModuleTitle: {
+    fontSize: 15,
     fontWeight: 'bold',
     color: '#0F172A',
   },
-  moduleCardSub: {
+  taskModuleSubTeal: {
+    fontSize: 13,
+    color: '#0F2744',
+    fontWeight: '600',
+    marginTop: 3,
+  },
+  taskModuleSub: {
     fontSize: 12,
     color: '#64748B',
-    marginTop: 2,
+    marginTop: 3,
+    lineHeight: 16,
   },
-  submitSiteVisitPrimaryBtn: {
+  taskSubmitSyncPrimaryBtn: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: '#0F2744',
-    paddingVertical: 14,
     borderRadius: 12,
+    paddingVertical: 16,
+    marginTop: 10,
+    marginBottom: 20,
+    shadowColor: '#0F2744',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.25,
+    shadowRadius: 6,
+    elevation: 4,
   },
-  submitSiteVisitPrimaryText: {
+  taskSubmitSyncPrimaryBtnText: {
     color: '#FFFFFF',
     fontSize: 15,
     fontWeight: 'bold',
   },
+
   checklistSectionHeading: {
     fontSize: 16,
     fontWeight: 'bold',
