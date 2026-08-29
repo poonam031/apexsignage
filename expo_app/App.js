@@ -334,9 +334,7 @@ export default function App() {
     return 'Cheque / Demand Draft';
   };
 
-  // =========================================================================
-  // ADVANCED RATE & QUOTATION BUILDER STATE (Exact match to User Screenshots)
-  // =========================================================================
+  // Automatic Rate & Quotation Builder State
   const customerOptions = [
     'Sunil Mehta (Apex Retail Store)',
     'Rajesh Sharma (Grand Hotel Suites)',
@@ -350,7 +348,6 @@ export default function App() {
   const [customerDropdownOpen, setCustomerDropdownOpen] = useState(false);
   const [includeGst, setIncludeGst] = useState(true);
 
-  // Line items state
   const [lineItems, setLineItems] = useState([
     {
       id: 'item-1',
@@ -371,7 +368,6 @@ export default function App() {
   const [framingCharge, setFramingCharge] = useState('2500.0');
   const [installationCharge, setInstallationCharge] = useState('2000.0');
 
-  // Helper calculations
   const calculateItemValues = (item) => {
     const l = parseFloat(item.length) || 0;
     const h = parseFloat(item.height) || 0;
@@ -435,6 +431,40 @@ export default function App() {
       '📄 Quotation Generated!',
       `Quotation for ₹${grandTotalQuotation.toFixed(2)} generated with official branded PDF and dispatched to client WhatsApp!`
     );
+  };
+
+  // =========================================================================
+  // SALARY SLIP STATE (Exact 1:1 match to Screenshot)
+  // =========================================================================
+  const [payslipDownloadedToast, setPayslipDownloadedToast] = useState(false);
+
+  const staffSalaryData = {
+    companyName: 'APEX SIGNAGE SOLUTIONS',
+    companyAddress: 'Plot 42, Industrial Area Phase 2, Mumbai',
+    employeeName: 'Amit Verma',
+    employeeRole: 'Designer & Operator',
+    monthYear: 'August 2026',
+    presentDays: 29,
+    totalDays: 30,
+    lateMarks: 2,
+    overtimeHours: 8.0,
+    basicPay: 28000,
+    overtimePay: 800,
+    bonus: 3000,
+    deductions: 0,
+    netPayable: 31800,
+  };
+
+  const handleDownloadPayslip = () => {
+    setPayslipDownloadedToast(true);
+
+    const salaryMsg = `📄 *APEX SIGNAGE SOLUTIONS - SALARY SLIP*\n━━━━━━━━━━━━━━━━━━━━\n*Employee:* ${staffSalaryData.employeeName} (${staffSalaryData.employeeRole})\n*Month:* ${staffSalaryData.monthYear}\n\n📅 *Attendance:* ${staffSalaryData.presentDays}/${staffSalaryData.totalDays} Days | ${staffSalaryData.overtimeHours} hrs OT\n\n💵 *Basic Pay:* ₹${staffSalaryData.basicPay.toLocaleString()}\n⏱️ *Overtime Pay:* +₹${staffSalaryData.overtimePay.toLocaleString()}\n🏆 *Bonus:* +₹${staffSalaryData.bonus.toLocaleString()}\n\n💰 *NET SALARY PAID:* *₹${staffSalaryData.netPayable.toLocaleString()}*\n\n📥 *Download PDF Slip:* http://172.20.10.2:5000/uploads/SAL-2026-08-AMIT.pdf\n━━━━━━━━━━━━━━━━━━━━\n*Apex Signage HR & Accounts*`;
+
+    Linking.openURL(`whatsapp://send?phone=919423800532&text=${encodeURIComponent(salaryMsg)}`).catch(() => {});
+
+    setTimeout(() => {
+      setPayslipDownloadedToast(false);
+    }, 4000);
   };
 
   // WhatsApp Dispatch Engine
@@ -636,7 +666,7 @@ export default function App() {
   }
 
   // =========================================================================
-  // SCREEN 2: MAIN APP (Pure Admin Dashboard, Inventory, Invoices, Rate Calc)
+  // SCREEN 2: MAIN APP (Pure Admin Dashboard, Inventory, Invoices, Rate Calc, Salary)
   // =========================================================================
   return (
     <SafeAreaView style={styles.container}>
@@ -969,17 +999,15 @@ export default function App() {
         )}
 
         {/* ================================================================= */}
-        {/* TAB 4: AUTOMATIC RATE & QUOTATION BUILDER (Exact 1:1 match) */}
+        {/* TAB 4: AUTOMATIC RATE & QUOTATION BUILDER */}
         {/* ================================================================= */}
         {currentTab === 'rate_calc' && (
           <View style={styles.tabContent}>
             
-            {/* Top Subheader */}
             <Text style={styles.calcScreenMainHeading}>
               Automatic Rate & Quotation Builder
             </Text>
 
-            {/* 1. Customer Selector Card (Active Blue Outline) */}
             <View style={styles.customerSelectCard}>
               <Text style={styles.customerSelectLabel}>Select Customer / Client</Text>
               <TouchableOpacity
@@ -1020,7 +1048,6 @@ export default function App() {
               )}
             </View>
 
-            {/* 2. Include GST Switch */}
             <View style={styles.gstToggleCard}>
               <View style={{ flex: 1 }}>
                 <Text style={styles.gstToggleTitle}>Include GST (18% Tax Invoice)</Text>
@@ -1036,7 +1063,6 @@ export default function App() {
               />
             </View>
 
-            {/* 3. Section Header with Add Item button */}
             <View style={styles.lineItemsHeaderRow}>
               <Text style={styles.lineItemsSectionTitle}>Signage Boards / Line Items</Text>
               <TouchableOpacity
@@ -1048,12 +1074,10 @@ export default function App() {
               </TouchableOpacity>
             </View>
 
-            {/* 4. Line Items List */}
-            {lineItems.map((item, index) => {
+            {lineItems.map((item) => {
               const { sqft, amount } = calculateItemValues(item);
               return (
                 <View key={item.id} style={styles.lineItemCard}>
-                  {/* Description Row with Delete Icon */}
                   <View style={styles.lineItemDescGroup}>
                     <View style={{ flex: 1 }}>
                       <Text style={styles.inputInnerLabel}>Item Description</Text>
@@ -1072,7 +1096,6 @@ export default function App() {
                     </TouchableOpacity>
                   </View>
 
-                  {/* 3 Column Inputs: Length, Height, Rate */}
                   <View style={styles.dimensionsRow}>
                     <View style={styles.dimCol}>
                       <Text style={styles.dimLabel}>Length (ft)</Text>
@@ -1105,7 +1128,6 @@ export default function App() {
                     </View>
                   </View>
 
-                  {/* Footer Row: Total SqFt and Line Total */}
                   <View style={styles.lineItemFooterRow}>
                     <Text style={styles.lineItemSqFtText}>{sqft.toFixed(1)} Sq.Ft</Text>
                     <Text style={styles.lineItemTotalAmount}>₹{amount.toFixed(2)}</Text>
@@ -1114,7 +1136,6 @@ export default function App() {
               );
             })}
 
-            {/* 5. Framing & Installation 2-Column Charges */}
             <View style={styles.extraChargesRow}>
               <View style={styles.extraChargeCol}>
                 <Text style={styles.extraChargeLabel}>Framing / MS (₹)</Text>
@@ -1137,7 +1158,6 @@ export default function App() {
               </View>
             </View>
 
-            {/* 6. Calculation Breakdown Box */}
             <View style={styles.breakdownCard}>
               <View style={styles.breakdownLine}>
                 <Text style={styles.breakdownLineLabel}>Subtotal Items</Text>
@@ -1160,13 +1180,11 @@ export default function App() {
               </View>
             </View>
 
-            {/* 7. Grand Total Banner */}
             <View style={styles.grandTotalBar}>
               <Text style={styles.grandTotalBarLabel}>GRAND TOTAL:</Text>
               <Text style={styles.grandTotalBarVal}>₹{grandTotalQuotation.toFixed(2)}</Text>
             </View>
 
-            {/* 8. Generate Branded PDF Quotation Primary Button */}
             <TouchableOpacity
               style={styles.generatePdfQuotationBtn}
               onPress={handleGeneratePdfQuotation}
@@ -1181,50 +1199,145 @@ export default function App() {
         )}
 
         {/* ================================================================= */}
-        {/* TAB 5: SALARY SLIPS & ATTENDANCE */}
+        {/* TAB 5: MONTHLY SALARY SLIP (Exact 1:1 match to Screenshot) */}
         {/* ================================================================= */}
         {currentTab === 'salary' && (
           <View style={styles.tabContent}>
-            <Text style={styles.sectionTitle}>Staff Attendance & Salary Slips</Text>
+            
+            {/* Top Subheader */}
+            <Text style={styles.calcScreenMainHeading}>Monthly Salary Slip</Text>
 
-            <View style={styles.salaryCard}>
-              <View style={styles.salaryCardTop}>
+            {/* Main Payslip Card */}
+            <View style={styles.payslipCard}>
+              
+              {/* Company Header */}
+              <View style={styles.payslipCompanyHeader}>
+                <Text style={styles.payslipCompanyName}>
+                  {staffSalaryData.companyName}
+                </Text>
+                <Text style={styles.payslipCompanyAddress}>
+                  {staffSalaryData.companyAddress}
+                </Text>
+              </View>
+
+              <View style={styles.payslipDivider} />
+
+              {/* Employee Info Header Row */}
+              <View style={styles.payslipEmployeeRow}>
                 <View>
-                  <Text style={styles.staffName}>Amit Verma (Field Boy)</Text>
-                  <Text style={styles.staffDesignation}>26 Days Present • 4 Days OT</Text>
+                  <Text style={styles.payslipEmpName}>
+                    {staffSalaryData.employeeName}
+                  </Text>
+                  <Text style={styles.payslipEmpRole}>
+                    {staffSalaryData.employeeRole}
+                  </Text>
                 </View>
-                <View style={styles.statusPaidPill}>
-                  <Text style={styles.statusPaidPillText}>READY</Text>
+
+                <View style={styles.payslipMonthBadge}>
+                  <Text style={styles.payslipMonthBadgeText}>
+                    {staffSalaryData.monthYear}
+                  </Text>
                 </View>
               </View>
 
-              <View style={styles.salaryGrid}>
-                <View style={styles.salaryCol}>
-                  <Text style={styles.salaryColLabel}>Basic Pay</Text>
-                  <Text style={styles.salaryColVal}>₹18,000</Text>
+              {/* Attendance & Summary 3-Column Box */}
+              <View style={styles.attendanceBox}>
+                <View style={styles.attendanceCol}>
+                  <Text style={styles.attendanceLabel}>Present Days</Text>
+                  <Text style={styles.attendanceVal}>
+                    {staffSalaryData.presentDays} / {staffSalaryData.totalDays}
+                  </Text>
                 </View>
-                <View style={styles.salaryCol}>
-                  <Text style={styles.salaryColLabel}>Overtime</Text>
-                  <Text style={[styles.salaryColVal, { color: '#10B981' }]}>+₹2,400</Text>
+
+                <View style={styles.attendanceCol}>
+                  <Text style={styles.attendanceLabel}>Late Marks</Text>
+                  <Text style={styles.attendanceVal}>
+                    {staffSalaryData.lateMarks}
+                  </Text>
                 </View>
-                <View style={styles.salaryCol}>
-                  <Text style={styles.salaryColLabel}>Net Payout</Text>
-                  <Text style={[styles.salaryColVal, { color: '#0284C7' }]}>₹20,400</Text>
+
+                <View style={styles.attendanceCol}>
+                  <Text style={styles.attendanceLabel}>Overtime</Text>
+                  <Text style={styles.attendanceVal}>
+                    {staffSalaryData.overtimeHours.toFixed(1)} hrs
+                  </Text>
                 </View>
               </View>
 
-              <TouchableOpacity
-                style={styles.downloadSalaryBtn}
-                onPress={() => Alert.alert('📄 Salary Slip', 'Salary slip PDF generated for Amit Verma.')}
-              >
-                <Ionicons name="download-outline" size={18} color="#0F172A" style={{ marginRight: 6 }} />
-                <Text style={styles.downloadSalaryText}>Download Monthly Pay Slip PDF</Text>
-              </TouchableOpacity>
+              {/* Earnings & Incentives Table */}
+              <Text style={styles.earningsHeading}>Earnings & Incentives</Text>
+
+              <View style={styles.salaryBreakdownTable}>
+                
+                <View style={styles.salaryRow}>
+                  <Text style={styles.salaryRowLabel}>Basic Monthly Pay</Text>
+                  <Text style={styles.salaryRowVal}>
+                    ₹{staffSalaryData.basicPay}
+                  </Text>
+                </View>
+
+                <View style={styles.salaryRow}>
+                  <Text style={styles.salaryRowLabel}>Overtime Pay</Text>
+                  <Text style={styles.salaryRowVal}>
+                    + ₹{staffSalaryData.overtimePay}
+                  </Text>
+                </View>
+
+                <View style={styles.salaryRow}>
+                  <Text style={styles.salaryRowLabel}>
+                    Employee of Month Bonus 🏆
+                  </Text>
+                  <Text style={[styles.salaryRowVal, { color: '#10B981' }]}>
+                    + ₹{staffSalaryData.bonus}
+                  </Text>
+                </View>
+
+                <View style={styles.salaryRow}>
+                  <Text style={styles.salaryRowLabel}>Late Mark Deductions</Text>
+                  <Text style={[styles.salaryRowVal, { color: '#EF4444' }]}>
+                    - ₹{staffSalaryData.deductions}
+                  </Text>
+                </View>
+
+                <View style={styles.payslipDivider} />
+
+                {/* Net Salary Payable */}
+                <View style={styles.netSalaryRow}>
+                  <Text style={styles.netSalaryLabel}>NET SALARY PAYABLE:</Text>
+                  <Text style={styles.netSalaryVal}>
+                    ₹{staffSalaryData.netPayable}
+                  </Text>
+                </View>
+
+              </View>
+
             </View>
+
+            {/* Action Button: Download Payslip PDF */}
+            <TouchableOpacity
+              style={styles.downloadPayslipBtn}
+              onPress={handleDownloadPayslip}
+            >
+              <Ionicons name="document-text-outline" size={20} color="#FFFFFF" style={{ marginRight: 8 }} />
+              <Text style={styles.downloadPayslipBtnText}>
+                Download Payslip PDF
+              </Text>
+            </TouchableOpacity>
+
           </View>
         )}
 
       </ScrollView>
+
+      {/* Floating SnackBar Toast (Exact match to Screenshot) */}
+      {payslipDownloadedToast && (
+        <View style={styles.floatingToast}>
+          <Ionicons name="document-text" size={18} color="#FFFFFF" style={{ marginRight: 8 }} />
+          <Text style={styles.floatingToastText}>
+            Payslip PDF downloaded successfully!
+          </Text>
+        </View>
+      )}
 
       {/* ================================================================= */}
       {/* MODAL 1: SCHEDULE NEW SITE VISIT */}
@@ -2213,9 +2326,7 @@ const styles = StyleSheet.create({
     fontSize: 13,
   },
 
-  // =========================================================================
-  // AUTOMATIC RATE & QUOTATION BUILDER STYLES (Exact match to Screenshots)
-  // =========================================================================
+  // Automatic Rate & Quotation Builder Styles
   calcScreenMainHeading: {
     fontSize: 18,
     fontWeight: 'bold',
@@ -2468,75 +2579,171 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
 
-  // Salary Tab
-  salaryCard: {
+  // =========================================================================
+  // MONTHLY SALARY SLIP STYLES (Exact match to Screenshot)
+  // =========================================================================
+  payslipCard: {
     backgroundColor: '#FFFFFF',
-    borderRadius: 14,
-    padding: 16,
+    borderRadius: 16,
+    padding: 20,
     borderWidth: 1,
     borderColor: '#E2E8F0',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 2,
+    marginBottom: 20,
   },
-  salaryCardTop: {
+  payslipCompanyHeader: {
+    alignItems: 'center',
+  },
+  payslipCompanyName: {
+    fontSize: 16,
+    fontWeight: '900',
+    color: '#0F2744',
+    letterSpacing: 0.5,
+  },
+  payslipCompanyAddress: {
+    fontSize: 12,
+    color: '#64748B',
+    marginTop: 4,
+  },
+  payslipDivider: {
+    width: '100%',
+    height: 1,
+    backgroundColor: '#F1F5F9',
+    marginVertical: 16,
+  },
+  payslipEmployeeRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    marginBottom: 12,
+    alignItems: 'center',
+    marginBottom: 16,
   },
-  staffName: {
-    fontSize: 15,
+  payslipEmpName: {
+    fontSize: 16,
     fontWeight: 'bold',
     color: '#0F172A',
   },
-  staffDesignation: {
-    fontSize: 12,
+  payslipEmpRole: {
+    fontSize: 13,
     color: '#64748B',
     marginTop: 2,
   },
-  statusPaidPill: {
-    backgroundColor: '#DCFCE7',
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: 6,
+  payslipMonthBadge: {
+    backgroundColor: '#F1F5F9',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 8,
   },
-  statusPaidPillText: {
-    color: '#10B981',
-    fontSize: 11,
-    fontWeight: 'bold',
+  payslipMonthBadgeText: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#0F2744',
   },
-  salaryGrid: {
+  attendanceBox: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    paddingVertical: 10,
-    borderTopWidth: 1,
-    borderBottomWidth: 1,
-    borderColor: '#F1F5F9',
-    marginBottom: 14,
+    backgroundColor: '#F8FAFC',
+    borderRadius: 10,
+    paddingVertical: 12,
+    paddingHorizontal: 8,
+    marginBottom: 20,
   },
-  salaryCol: {
-    alignItems: 'flex-start',
+  attendanceCol: {
+    alignItems: 'center',
+    flex: 1,
   },
-  salaryColLabel: {
+  attendanceLabel: {
     fontSize: 11,
     color: '#64748B',
-    marginBottom: 2,
+    marginBottom: 4,
   },
-  salaryColVal: {
-    fontSize: 15,
+  attendanceVal: {
+    fontSize: 14,
     fontWeight: 'bold',
     color: '#0F172A',
   },
-  downloadSalaryBtn: {
+  earningsHeading: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: '#0F2744',
+    marginBottom: 12,
+  },
+  salaryBreakdownTable: {
+    width: '100%',
+  },
+  salaryRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingVertical: 7,
+  },
+  salaryRowLabel: {
+    fontSize: 14,
+    color: '#334155',
+  },
+  salaryRowVal: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: '#0F172A',
+  },
+  netSalaryRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingTop: 4,
+  },
+  netSalaryLabel: {
+    fontSize: 13,
+    fontWeight: '800',
+    color: '#0F2744',
+  },
+  netSalaryVal: {
+    fontSize: 22,
+    fontWeight: '900',
+    color: '#0F2744',
+  },
+  downloadPayslipBtn: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#F1F5F9',
-    paddingVertical: 10,
-    borderRadius: 8,
+    backgroundColor: '#0F2744',
+    borderRadius: 12,
+    paddingVertical: 14,
+    shadowColor: '#0F2744',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 6,
+    elevation: 4,
   },
-  downloadSalaryText: {
-    color: '#0F172A',
-    fontWeight: '600',
+  downloadPayslipBtnText: {
+    color: '#FFFFFF',
+    fontSize: 15,
+    fontWeight: 'bold',
+  },
+  floatingToast: {
+    position: 'absolute',
+    bottom: 60,
+    left: 20,
+    right: 20,
+    backgroundColor: '#1E293B',
+    borderRadius: 8,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 6,
+    elevation: 10,
+    zIndex: 999,
+  },
+  floatingToastText: {
+    color: '#FFFFFF',
     fontSize: 13,
+    fontWeight: '600',
   },
 
   // Bottom Sheet: Schedule New Site Visit
