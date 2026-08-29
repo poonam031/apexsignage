@@ -163,10 +163,10 @@ export default function App() {
   // Inventory Filter State
   const [filterLowStockOnly, setFilterLowStockOnly] = useState(false);
 
-  // Stock Movement Modal State (Exact match to User Screenshot 1 & 2)
+  // Stock Movement Modal State
   const [selectedMaterial, setSelectedMaterial] = useState(null);
   const [stockMovementModalVisible, setStockMovementModalVisible] = useState(false);
-  const [transactionType, setTransactionType] = useState('STOCK_IN'); // 'STOCK_IN', 'STOCK_OUT', 'ADJUSTMENT'
+  const [transactionType, setTransactionType] = useState('STOCK_IN');
   const [transactionDropdownOpen, setTransactionDropdownOpen] = useState(false);
   const [stockQty, setStockQty] = useState('5');
   const [stockReason, setStockReason] = useState('Restock shipment received from supplier');
@@ -225,13 +225,13 @@ export default function App() {
     return 'Manual Count Adjustment';
   };
 
-  // Invoices State
+  // Invoices State (Matching Flutter Invoices Module)
   const [invoices, setInvoices] = useState([
     {
       id: 'inv-101',
       invoiceNumber: 'INV-2026-0001',
       customerName: 'Sunil Mehta',
-      companyName: 'Apex Retail Fashion Store',
+      companyName: 'Apex Retail Store',
       phone: '9423800532',
       totalAmount: 38500,
       paidAmount: 20000,
@@ -264,6 +264,75 @@ export default function App() {
       date: '25 Aug 2026',
     },
   ]);
+
+  // Record Payment Modal State (Matching User Screenshot)
+  const [selectedInvoice, setSelectedInvoice] = useState(null);
+  const [recordPaymentModalVisible, setRecordPaymentModalVisible] = useState(false);
+  const [paymentAmount, setPaymentAmount] = useState('18500.0');
+  const [paymentMethod, setPaymentMethod] = useState('UPI'); // 'UPI', 'BANK_TRANSFER', 'CASH', 'CHEQUE'
+  const [paymentMethodDropdownOpen, setPaymentMethodDropdownOpen] = useState(false);
+  const [paymentRef, setPaymentRef] = useState('UPI/HDFC/998822');
+
+  const openRecordPaymentModal = (inv) => {
+    setSelectedInvoice(inv);
+    setPaymentAmount(inv.balanceDue > 0 ? `${inv.balanceDue.toFixed(1)}` : '0.0');
+    setPaymentMethod('UPI');
+    setPaymentRef('UPI/HDFC/998822');
+    setPaymentMethodDropdownOpen(false);
+    setRecordPaymentModalVisible(true);
+  };
+
+  const handleConfirmPayment = () => {
+    if (!selectedInvoice) return;
+    const amount = parseFloat(paymentAmount) || 0;
+    if (amount <= 0) {
+      Alert.alert('Invalid Amount', 'Please enter a valid received payment amount.');
+      return;
+    }
+
+    setInvoices((prev) =>
+      prev.map((inv) => {
+        if (inv.id === selectedInvoice.id) {
+          const newPaid = inv.paidAmount + amount;
+          const newBalance = Math.max(0, inv.totalAmount - newPaid);
+          const newStatus = newBalance === 0 ? 'PAID FULL' : 'PARTIALLY PAID';
+          return {
+            ...inv,
+            paidAmount: newPaid,
+            balanceDue: newBalance,
+            status: newStatus,
+          };
+        }
+        return inv;
+      })
+    );
+
+    setRecordPaymentModalVisible(false);
+
+    // Prompt WhatsApp receipt dispatch
+    const receiptMessage = `🧾 *APEX SIGNAGE - PAYMENT RECEIPT*\n━━━━━━━━━━━━━━━━━━━━\nDear *${selectedInvoice.companyName}*,\n\nWe have successfully received your payment:\n\n📄 *Invoice #:* ${selectedInvoice.invoiceNumber}\n💰 *Amount Received:* ₹${amount.toLocaleString()}\n💳 *Method:* ${getPaymentMethodLabel()}\n🔢 *Ref / UTR:* ${paymentRef}\n\n*Apex Signage Accounts Team* (+91 9423800532)`;
+
+    Alert.alert(
+      '✅ Payment Recorded!',
+      `Received ₹${amount.toLocaleString()} for ${selectedInvoice.invoiceNumber}. Would you like to share the receipt via WhatsApp?`,
+      [
+        { text: 'Done', style: 'cancel' },
+        {
+          text: 'Send WhatsApp Receipt',
+          onPress: () => {
+            Linking.openURL(`whatsapp://send?phone=919423800532&text=${encodeURIComponent(receiptMessage)}`).catch(() => {});
+          },
+        },
+      ]
+    );
+  };
+
+  const getPaymentMethodLabel = () => {
+    if (paymentMethod === 'UPI') return 'UPI (GPay / PhonePe / Paytm)';
+    if (paymentMethod === 'BANK_TRANSFER') return 'Bank Transfer (NEFT/RTGS)';
+    if (paymentMethod === 'CASH') return 'Cash Payment';
+    return 'Cheque / Demand Draft';
+  };
 
   // Rate Calculator State
   const [calcWidth, setCalcWidth] = useState('12');
@@ -482,7 +551,7 @@ export default function App() {
   }
 
   // =========================================================================
-  // SCREEN 2: MAIN APP WITH PURE ADMIN DASHBOARD & ADVANCED INVENTORY
+  // SCREEN 2: MAIN APP (Pure Admin Dashboard, Inventory & Invoices)
   // =========================================================================
   return (
     <SafeAreaView style={styles.container}>
@@ -679,12 +748,11 @@ export default function App() {
         )}
 
         {/* ================================================================= */}
-        {/* TAB 2: REAL-TIME MATERIAL INVENTORY (Exact match to Screenshots) */}
+        {/* TAB 2: REAL-TIME MATERIAL INVENTORY */}
         {/* ================================================================= */}
         {currentTab === 'inventory' && (
           <View style={styles.tabContent}>
             
-            {/* Top Subheader with Title & Filter Funnel Icon */}
             <View style={styles.inventorySubHeader}>
               <Text style={styles.invSubHeaderTitle}>Real-Time Material Inventory</Text>
               <TouchableOpacity
@@ -699,7 +767,6 @@ export default function App() {
               </TouchableOpacity>
             </View>
 
-            {/* Counter Bar: 6 Materials Tracked & 2 Low Stock Alerts Banner */}
             <View style={styles.inventoryTopBar}>
               <Text style={styles.invTrackedText}>
                 {displayedInventory.length} Materials Tracked {filterLowStockOnly && '(Low Stock Only)'}
@@ -714,11 +781,9 @@ export default function App() {
               )}
             </View>
 
-            {/* Material Items List */}
             {displayedInventory.map((item) => (
               <View key={item.id} style={styles.invItemCard}>
                 <View style={styles.invItemMain}>
-                  {/* Left Column: Name and Stock Level */}
                   <View style={{ flex: 1, paddingRight: 10 }}>
                     <Text style={styles.invItemName}>{item.name}</Text>
                     <Text
@@ -731,7 +796,6 @@ export default function App() {
                     </Text>
                   </View>
 
-                  {/* Right Column: LOW STOCK Badge above Stock In / Out button */}
                   <View style={styles.invItemRightCol}>
                     {item.isLow && (
                       <View style={styles.lowStockTag}>
@@ -753,7 +817,7 @@ export default function App() {
         )}
 
         {/* ================================================================= */}
-        {/* TAB 3: INVOICES & PAYMENT LEDGER */}
+        {/* TAB 3: INVOICES & PAYMENT LEDGER (With Working Record Payment) */}
         {/* ================================================================= */}
         {currentTab === 'invoices' && (
           <View style={styles.tabContent}>
@@ -798,13 +862,15 @@ export default function App() {
                 </View>
 
                 <View style={styles.invActionsRow}>
+                  {/* Record Payment Button (Opens Record Payment Dialog!) */}
                   <TouchableOpacity
                     style={styles.recordPaymentBtn}
-                    onPress={() => Alert.alert('💳 Payment', `Record payment for ${inv.invoiceNumber}`)}
+                    onPress={() => openRecordPaymentModal(inv)}
                   >
                     <Text style={styles.recordPaymentText}>Record Payment</Text>
                   </TouchableOpacity>
 
+                  {/* 1-Click WhatsApp Invoice */}
                   <TouchableOpacity
                     style={styles.shareWhatsAppBtn}
                     onPress={() => sendInvoiceWhatsApp(inv)}
@@ -946,7 +1012,7 @@ export default function App() {
       </ScrollView>
 
       {/* ================================================================= */}
-      {/* MODAL 1: SCHEDULE NEW SITE VISIT (Dashboard) */}
+      {/* MODAL 1: SCHEDULE NEW SITE VISIT */}
       {/* ================================================================= */}
       <Modal
         visible={siteVisitModalVisible}
@@ -1087,7 +1153,7 @@ export default function App() {
       </Modal>
 
       {/* ================================================================= */}
-      {/* MODAL 2: STOCK MOVEMENT MODAL (Exact 1:1 match to Screenshot 1 & 2) */}
+      {/* MODAL 2: STOCK MOVEMENT MODAL */}
       {/* ================================================================= */}
       <Modal
         visible={stockMovementModalVisible}
@@ -1101,12 +1167,10 @@ export default function App() {
             style={{ width: '100%', alignItems: 'center' }}
           >
             <View style={styles.stockModalCard}>
-              {/* Modal Title */}
               <Text style={styles.stockModalTitle}>
                 Stock Movement: {selectedMaterial?.name}
               </Text>
 
-              {/* 1. Transaction Type Dropdown */}
               <View style={[styles.modalInputGroup, { marginTop: 14 }]}>
                 <Text style={styles.modalInputLabel}>Transaction Type</Text>
                 <TouchableOpacity
@@ -1165,7 +1229,6 @@ export default function App() {
                 )}
               </View>
 
-              {/* 2. Quantity (UNIT) Field */}
               <View style={[styles.modalInputGroup, { marginTop: 12 }]}>
                 <Text style={styles.modalInputLabel}>
                   Quantity ({selectedMaterial?.unit})
@@ -1180,7 +1243,6 @@ export default function App() {
                 />
               </View>
 
-              {/* 3. Reason / Bill No Field */}
               <View style={[styles.modalInputGroup, { marginTop: 12, marginBottom: 20 }]}>
                 <Text style={styles.modalInputLabel}>Reason / Bill No</Text>
                 <TextInput
@@ -1192,7 +1254,6 @@ export default function App() {
                 />
               </View>
 
-              {/* Cancel Button */}
               <TouchableOpacity
                 style={styles.stockModalCancelBtn}
                 onPress={() => setStockMovementModalVisible(false)}
@@ -1200,12 +1261,148 @@ export default function App() {
                 <Text style={styles.stockModalCancelText}>Cancel</Text>
               </TouchableOpacity>
 
-              {/* Confirm Primary Navy Blue Button */}
               <TouchableOpacity
                 style={styles.stockModalConfirmBtn}
                 onPress={handleStockMovementConfirm}
               >
                 <Text style={styles.stockModalConfirmText}>Confirm</Text>
+              </TouchableOpacity>
+            </View>
+          </KeyboardAvoidingView>
+        </View>
+      </Modal>
+
+      {/* ================================================================= */}
+      {/* MODAL 3: RECORD PAYMENT MODAL (Exact 1:1 match to Screenshot) */}
+      {/* ================================================================= */}
+      <Modal
+        visible={recordPaymentModalVisible}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setRecordPaymentModalVisible(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <KeyboardAvoidingView
+            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+            style={{ width: '100%', alignItems: 'center' }}
+          >
+            <View style={styles.stockModalCard}>
+              {/* Modal Title */}
+              <Text style={styles.stockModalTitle}>
+                Record Payment: {selectedInvoice?.invoiceNumber}
+              </Text>
+
+              {/* 1. Amount Received (₹) */}
+              <View style={[styles.modalInputGroup, { marginTop: 14 }]}>
+                <Text style={styles.modalInputLabel}>Amount Received (₹)</Text>
+                <TextInput
+                  style={styles.modalTextInput}
+                  value={paymentAmount}
+                  onChangeText={setPaymentAmount}
+                  keyboardType="numeric"
+                  placeholder="Enter amount received"
+                  placeholderTextColor="#94A3B8"
+                />
+              </View>
+
+              {/* 2. Payment Method Dropdown */}
+              <View style={[styles.modalInputGroup, { marginTop: 12 }]}>
+                <Text style={styles.modalInputLabel}>Payment Method</Text>
+                <TouchableOpacity
+                  style={styles.modalSelectRow}
+                  onPress={() => setPaymentMethodDropdownOpen(!paymentMethodDropdownOpen)}
+                >
+                  <Text style={styles.modalSelectText}>{getPaymentMethodLabel()}</Text>
+                  <Ionicons
+                    name={paymentMethodDropdownOpen ? 'chevron-up' : 'chevron-down'}
+                    size={18}
+                    color="#475569"
+                  />
+                </TouchableOpacity>
+
+                {paymentMethodDropdownOpen && (
+                  <View style={styles.modalDropdownOptions}>
+                    <TouchableOpacity
+                      style={styles.modalDropdownOptionItem}
+                      onPress={() => {
+                        setPaymentMethod('UPI');
+                        setPaymentRef('UPI/HDFC/998822');
+                        setPaymentMethodDropdownOpen(false);
+                      }}
+                    >
+                      <Text style={[styles.modalOptionText, paymentMethod === 'UPI' && styles.modalOptionActive]}>
+                        UPI (GPay / PhonePe / Paytm)
+                      </Text>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                      style={styles.modalDropdownOptionItem}
+                      onPress={() => {
+                        setPaymentMethod('BANK_TRANSFER');
+                        setPaymentRef('NEFT/AXIS/774411');
+                        setPaymentMethodDropdownOpen(false);
+                      }}
+                    >
+                      <Text style={[styles.modalOptionText, paymentMethod === 'BANK_TRANSFER' && styles.modalOptionActive]}>
+                        Bank Transfer (NEFT/RTGS)
+                      </Text>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                      style={styles.modalDropdownOptionItem}
+                      onPress={() => {
+                        setPaymentMethod('CASH');
+                        setPaymentRef('CASH/RECEIPT-01');
+                        setPaymentMethodDropdownOpen(false);
+                      }}
+                    >
+                      <Text style={[styles.modalOptionText, paymentMethod === 'CASH' && styles.modalOptionActive]}>
+                        Cash Payment
+                      </Text>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                      style={[styles.modalDropdownOptionItem, { borderBottomWidth: 0 }]}
+                      onPress={() => {
+                        setPaymentMethod('CHEQUE');
+                        setPaymentRef('CHQ/SBI/123456');
+                        setPaymentMethodDropdownOpen(false);
+                      }}
+                    >
+                      <Text style={[styles.modalOptionText, paymentMethod === 'CHEQUE' && styles.modalOptionActive]}>
+                        Cheque / Demand Draft
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
+                )}
+              </View>
+
+              {/* 3. Transaction Ref / UTR No */}
+              <View style={[styles.modalInputGroup, { marginTop: 12, marginBottom: 20 }]}>
+                <Text style={styles.modalInputLabel}>Transaction Ref / UTR No</Text>
+                <TextInput
+                  style={styles.modalTextInput}
+                  value={paymentRef}
+                  onChangeText={setPaymentRef}
+                  placeholder="e.g. UPI/HDFC/998822"
+                  placeholderTextColor="#94A3B8"
+                />
+              </View>
+
+              {/* Cancel Button */}
+              <TouchableOpacity
+                style={styles.stockModalCancelBtn}
+                onPress={() => setRecordPaymentModalVisible(false)}
+              >
+                <Text style={styles.stockModalCancelText}>Cancel</Text>
+              </TouchableOpacity>
+
+              {/* Confirm Payment Primary Button */}
+              <TouchableOpacity
+                style={styles.stockModalConfirmBtn}
+                onPress={handleConfirmPayment}
+              >
+                <Text style={styles.stockModalConfirmText}>Confirm Payment</Text>
               </TouchableOpacity>
             </View>
           </KeyboardAvoidingView>
@@ -1935,7 +2132,7 @@ const styles = StyleSheet.create({
     fontSize: 13,
   },
 
-  // Bottom Sheet: Schedule New Site Visit (Dashboard)
+  // Bottom Sheet: Schedule New Site Visit
   sheetOverlay: {
     flex: 1,
     backgroundColor: 'rgba(0,0,0,0.6)',
@@ -2035,7 +2232,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
 
-  // Modal: Stock Movement (Exact 1:1 match to Screenshot 1 & 2)
+  // Modal: Stock Movement & Record Payment (Exact 1:1 match)
   modalOverlay: {
     flex: 1,
     backgroundColor: 'rgba(0,0,0,0.6)',
