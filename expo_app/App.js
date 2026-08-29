@@ -1236,7 +1236,7 @@ export default function App() {
         </View>
 
         <View style={styles.appBodyWrapper}>
-          <ScrollView style={styles.mainScroll} contentContainerStyle={{ padding: 16, paddingBottom: 40 }}>
+          <ScrollView style={styles.mainScroll} contentContainerStyle={{ padding: 16, paddingBottom: 110 }}>
             {/* Section 1: Installation & Safety Assessment */}
             <Text style={styles.checklistSectionHeading}>Installation & Safety Assessment</Text>
             <Text style={styles.checklistSectionSub}>
@@ -1426,7 +1426,7 @@ export default function App() {
         </View>
 
         <View style={styles.appBodyWrapper}>
-          <ScrollView style={styles.mainScroll} contentContainerStyle={{ padding: 16, paddingBottom: 40 }}>
+          <ScrollView style={styles.mainScroll} contentContainerStyle={{ padding: 16, paddingBottom: 110 }}>
             <View style={styles.calcFormulaBox}>
               <Ionicons name="sparkles" size={18} color="#0284C7" style={{ marginRight: 8 }} />
               <View style={{ flex: 1 }}>
@@ -1567,7 +1567,7 @@ export default function App() {
         </View>
 
         <View style={styles.appBodyWrapper}>
-          <ScrollView style={styles.mainScroll} contentContainerStyle={{ padding: 16, paddingBottom: 40 }}>
+          <ScrollView style={styles.mainScroll} contentContainerStyle={{ padding: 16, paddingBottom: 110 }}>
             {/* Client Details Card */}
             <View style={styles.taskDetailClientCard}>
               <View style={styles.taskDetailClientHeader}>
@@ -1783,58 +1783,8 @@ export default function App() {
           </View>
         </View>
 
-        {/* Top Scrollable Tab Bar for Field Boy */}
-        <View style={styles.topTabBarWrapper}>
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={styles.topTabBarContent}
-          >
-            <TouchableOpacity
-              style={[styles.topTabPill, fieldBoyTab === 'tasks' && styles.topTabPillActive]}
-              onPress={() => setFieldBoyTab('tasks')}
-            >
-              <Ionicons name="grid" size={15} color={fieldBoyTab === 'tasks' ? '#FFFFFF' : '#94A3B8'} style={{ marginRight: 6 }} />
-              <Text style={[styles.topTabPillText, fieldBoyTab === 'tasks' && styles.topTabPillTextActive]}>Tasks ({fieldTasks.length})</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={[styles.topTabPill, fieldBoyTab === 'attendance' && styles.topTabPillActive]}
-              onPress={() => {
-                setFieldBoyTab('attendance');
-                Alert.alert('📍 Field Attendance', 'Geofence Verified: Punched in at Andheri West site (09:15 AM)');
-              }}
-            >
-              <Ionicons name="location-outline" size={15} color={fieldBoyTab === 'attendance' ? '#FFFFFF' : '#94A3B8'} style={{ marginRight: 6 }} />
-              <Text style={[styles.topTabPillText, fieldBoyTab === 'attendance' && styles.topTabPillTextActive]}>Attendance</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={[styles.topTabPill, fieldBoyTab === 'expenses' && styles.topTabPillActive]}
-              onPress={() => {
-                setFieldBoyTab('expenses');
-                Alert.alert('💳 Petty Cash', 'Fuel claim ₹150 approved.');
-              }}
-            >
-              <Ionicons name="wallet-outline" size={15} color={fieldBoyTab === 'expenses' ? '#FFFFFF' : '#94A3B8'} style={{ marginRight: 6 }} />
-              <Text style={[styles.topTabPillText, fieldBoyTab === 'expenses' && styles.topTabPillTextActive]}>Expenses</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={[styles.topTabPill, fieldBoyTab === 'points' && styles.topTabPillActive]}
-              onPress={() => {
-                setFieldBoyTab('points');
-                Alert.alert('🏆 Performance Points', 'Total 450 Points (Rank #1 Field Boy this month)');
-              }}
-            >
-              <Ionicons name="trophy-outline" size={15} color={fieldBoyTab === 'points' ? '#FFFFFF' : '#94A3B8'} style={{ marginRight: 6 }} />
-              <Text style={[styles.topTabPillText, fieldBoyTab === 'points' && styles.topTabPillTextActive]}>Points</Text>
-            </TouchableOpacity>
-          </ScrollView>
-        </View>
-
         <View style={styles.appBodyWrapper}>
-          <ScrollView style={styles.mainScroll} contentContainerStyle={{ padding: 16, paddingBottom: 40 }}>
+          <ScrollView style={styles.mainScroll} contentContainerStyle={{ padding: 16, paddingBottom: 110 }}>
             <View style={styles.fieldBoyStatusRow}>
               <View style={styles.fieldBoyStatusCard}>
                 <Ionicons name="time-outline" size={20} color="#F59E0B" />
@@ -1918,6 +1868,50 @@ export default function App() {
               </TouchableOpacity>
             ))}
           </ScrollView>
+
+          {/* Bottom Navigation for Field Boy with iOS Safe Area Padding */}
+          <View style={styles.bottomNav}>
+            <TouchableOpacity
+              style={styles.navItem}
+              onPress={() => setFieldBoyTab('tasks')}
+            >
+              <Ionicons name="grid" size={22} color={fieldBoyTab === 'tasks' ? '#0284C7' : '#64748B'} />
+              <Text style={[styles.navLabel, fieldBoyTab === 'tasks' && styles.navLabelActive]}>Tasks</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.navItem}
+              onPress={() => {
+                setFieldBoyTab('attendance');
+                Alert.alert('📍 Field Attendance', 'Geofence Verified: Punched in at Andheri West site (09:15 AM)');
+              }}
+            >
+              <Ionicons name="location-outline" size={22} color={fieldBoyTab === 'attendance' ? '#0284C7' : '#64748B'} />
+              <Text style={[styles.navLabel, fieldBoyTab === 'attendance' && styles.navLabelActive]}>Attendance</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.navItem}
+              onPress={() => {
+                setFieldBoyTab('expenses');
+                Alert.alert('💳 Petty Cash', 'Fuel claim ₹150 approved.');
+              }}
+            >
+              <Ionicons name="wallet-outline" size={22} color={fieldBoyTab === 'expenses' ? '#0284C7' : '#64748B'} />
+              <Text style={[styles.navLabel, fieldBoyTab === 'expenses' && styles.navLabelActive]}>Expenses</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.navItem}
+              onPress={() => {
+                setFieldBoyTab('points');
+                Alert.alert('🏆 Performance Points', 'Total 450 Points (Rank #1 Field Boy this month)');
+              }}
+            >
+              <Ionicons name="trophy-outline" size={22} color={fieldBoyTab === 'points' ? '#0284C7' : '#64748B'} />
+              <Text style={[styles.navLabel, fieldBoyTab === 'points' && styles.navLabelActive]}>Points</Text>
+            </TouchableOpacity>
+          </View>
         </View>
       </SafeAreaView>
     );
@@ -1954,58 +1948,9 @@ export default function App() {
         </View>
       </View>
 
-      {/* Top Scrollable Tab Bar for Admin */}
-      <View style={styles.topTabBarWrapper}>
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.topTabBarContent}
-        >
-          <TouchableOpacity
-            style={[styles.topTabPill, currentTab === 'dashboard' && styles.topTabPillActive]}
-            onPress={() => setCurrentTab('dashboard')}
-          >
-            <Ionicons name="bar-chart" size={15} color={currentTab === 'dashboard' ? '#FFFFFF' : '#94A3B8'} style={{ marginRight: 6 }} />
-            <Text style={[styles.topTabPillText, currentTab === 'dashboard' && styles.topTabPillTextActive]}>Dashboard</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={[styles.topTabPill, currentTab === 'inventory' && styles.topTabPillActive]}
-            onPress={() => setCurrentTab('inventory')}
-          >
-            <Ionicons name="cube-outline" size={15} color={currentTab === 'inventory' ? '#FFFFFF' : '#94A3B8'} style={{ marginRight: 6 }} />
-            <Text style={[styles.topTabPillText, currentTab === 'inventory' && styles.topTabPillTextActive]}>Inventory</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={[styles.topTabPill, currentTab === 'invoices' && styles.topTabPillActive]}
-            onPress={() => setCurrentTab('invoices')}
-          >
-            <Ionicons name="receipt-outline" size={15} color={currentTab === 'invoices' ? '#FFFFFF' : '#94A3B8'} style={{ marginRight: 6 }} />
-            <Text style={[styles.topTabPillText, currentTab === 'invoices' && styles.topTabPillTextActive]}>Invoices</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={[styles.topTabPill, currentTab === 'rate_calc' && styles.topTabPillActive]}
-            onPress={() => setCurrentTab('rate_calc')}
-          >
-            <Ionicons name="calculator-outline" size={15} color={currentTab === 'rate_calc' ? '#FFFFFF' : '#94A3B8'} style={{ marginRight: 6 }} />
-            <Text style={[styles.topTabPillText, currentTab === 'rate_calc' && styles.topTabPillTextActive]}>Rate Calc</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={[styles.topTabPill, currentTab === 'salary' && styles.topTabPillActive]}
-            onPress={() => setCurrentTab('salary')}
-          >
-            <Ionicons name="document-text-outline" size={15} color={currentTab === 'salary' ? '#FFFFFF' : '#94A3B8'} style={{ marginRight: 6 }} />
-            <Text style={[styles.topTabPillText, currentTab === 'salary' && styles.topTabPillTextActive]}>Salary Slips</Text>
-          </TouchableOpacity>
-        </ScrollView>
-      </View>
-
       {/* Main Content Area */}
       <View style={styles.appBodyWrapper}>
-        <ScrollView style={styles.mainScroll} contentContainerStyle={{ paddingBottom: 40 }}>
+        <ScrollView style={styles.mainScroll} contentContainerStyle={{ paddingBottom: 110 }}>
           
           {/* TAB 1: ADMIN DASHBOARD */}
           {currentTab === 'dashboard' && (
@@ -2601,6 +2546,49 @@ export default function App() {
             </Text>
           </View>
         )}
+
+        {/* Admin Bottom Navigation Bar with iOS Safe Area Padding */}
+        <View style={styles.bottomNav}>
+          <TouchableOpacity
+            style={styles.navItem}
+            onPress={() => setCurrentTab('dashboard')}
+          >
+            <Ionicons name="bar-chart" size={22} color={currentTab === 'dashboard' ? '#0284C7' : '#64748B'} />
+            <Text style={[styles.navLabel, currentTab === 'dashboard' && styles.navLabelActive]}>Dashboard</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.navItem}
+            onPress={() => setCurrentTab('inventory')}
+          >
+            <Ionicons name="cube-outline" size={22} color={currentTab === 'inventory' ? '#0284C7' : '#64748B'} />
+            <Text style={[styles.navLabel, currentTab === 'inventory' && styles.navLabelActive]}>Inventory</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.navItem}
+            onPress={() => setCurrentTab('invoices')}
+          >
+            <Ionicons name="receipt-outline" size={22} color={currentTab === 'invoices' ? '#0284C7' : '#64748B'} />
+            <Text style={[styles.navLabel, currentTab === 'invoices' && styles.navLabelActive]}>Invoices</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.navItem}
+            onPress={() => setCurrentTab('rate_calc')}
+          >
+            <Ionicons name="calculator-outline" size={22} color={currentTab === 'rate_calc' ? '#0284C7' : '#64748B'} />
+            <Text style={[styles.navLabel, currentTab === 'rate_calc' && styles.navLabelActive]}>Rate Calc</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.navItem}
+            onPress={() => setCurrentTab('salary')}
+          >
+            <Ionicons name="document-text-outline" size={22} color={currentTab === 'salary' ? '#0284C7' : '#64748B'} />
+            <Text style={[styles.navLabel, currentTab === 'salary' && styles.navLabelActive]}>Salary Slips</Text>
+          </TouchableOpacity>
+        </View>
       </View>
 
       {/* Schedule Site Visit Modal (Admin) */}
@@ -3161,7 +3149,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#0F2744',
     paddingHorizontal: 18,
     paddingTop: Platform.OS === 'android' ? 12 : 6,
-    paddingBottom: 12,
+    paddingBottom: 14,
   },
   appBarLeft: {
     flexDirection: 'row',
@@ -3181,39 +3169,6 @@ const styles = StyleSheet.create({
   appBarIconBtn: {
     padding: 4,
   },
-
-  // Modern Top Pill Tab Bar (Replaces Sticky Bottom Bar)
-  topTabBarWrapper: {
-    backgroundColor: '#0F2744',
-    paddingBottom: 10,
-    paddingHorizontal: 12,
-  },
-  topTabBarContent: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  topTabPill: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: 'rgba(255, 255, 255, 0.12)',
-    paddingHorizontal: 14,
-    paddingVertical: 7,
-    borderRadius: 20,
-  },
-  topTabPillActive: {
-    backgroundColor: '#0284C7',
-  },
-  topTabPillText: {
-    fontSize: 13,
-    fontWeight: '600',
-    color: '#94A3B8',
-  },
-  topTabPillTextActive: {
-    color: '#FFFFFF',
-    fontWeight: 'bold',
-  },
-
   mainScroll: {
     flex: 1,
     backgroundColor: '#F8FAFC',
@@ -3955,7 +3910,7 @@ const styles = StyleSheet.create({
   },
   floatingToast: {
     position: 'absolute',
-    bottom: 20,
+    bottom: 80,
     left: 20,
     right: 20,
     backgroundColor: '#1E293B',
@@ -5004,6 +4959,41 @@ const styles = StyleSheet.create({
   stockModalConfirmText: {
     color: '#FFFFFF',
     fontSize: 15,
+    fontWeight: 'bold',
+  },
+  bottomNav: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    backgroundColor: '#FFFFFF',
+    paddingTop: 10,
+    paddingBottom: Platform.OS === 'ios' ? 24 : 10,
+    borderTopWidth: 1,
+    borderTopColor: '#E2E8F0',
+    elevation: 8,
+    shadowColor: '#000',
+    shadowOpacity: 0.06,
+    shadowRadius: 6,
+    shadowOffset: { width: 0, height: -2 },
+  },
+  navItem: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    minWidth: 56,
+  },
+  navLabel: {
+    fontSize: 10,
+    color: '#64748B',
+    marginTop: 3,
+    fontWeight: '600',
+  },
+  navLabelActive: {
+    color: '#0284C7',
     fontWeight: 'bold',
   },
 });
