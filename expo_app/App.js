@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   StyleSheet,
   Text,
@@ -22,7 +22,7 @@ import { Ionicons, MaterialCommunityIcons, FontAwesome5, Feather } from '@expo/v
 
 const BACKEND_URL = 'http://172.20.10.2:5000/api/v1';
 
-// Predefined Demo Accounts (Matching Flutter AuthProvider exactly)
+// Predefined Demo Accounts (Matching Flutter AuthProvider)
 const DEMO_USERS = [
   {
     email: 'admin@signage.com',
@@ -71,10 +71,117 @@ export default function App() {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoggingIn, setIsLoggingIn] = useState(false);
 
-  // Active Tab State
-  const [currentTab, setCurrentTab] = useState('dashboard'); // 'dashboard', 'inventory', 'invoices', 'rate_calc', 'salary'
+  // Active Tab State for Admin & Field Boy
+  const [currentTab, setCurrentTab] = useState('dashboard'); // 'dashboard', 'inventory', 'invoices', 'rate_calc', 'salary' (Admin)
+  const [fieldBoyTab, setFieldBoyTab] = useState('tasks'); // 'tasks', 'attendance', 'expenses', 'points' (Field Boy)
 
-  // Schedule Site Visit Modal State
+  // =========================================================================
+  // FIELD BOY WORKSPACE STATE & SUB-SCREENS
+  // =========================================================================
+  const [activeSiteTask, setActiveSiteTask] = useState(null); // When opened, navigates to Site Visit Detail screen
+  const [activeSubScreen, setActiveSubScreen] = useState(null); // 'measurements', 'photo', 'video', 'checklist'
+  const [capturePhotoModalVisible, setCapturePhotoModalVisible] = useState(false);
+  const [selectedPhotoSource, setSelectedPhotoSource] = useState(null); // 'sample', 'live', 'gallery'
+  const [isVideoRecording, setIsVideoRecording] = useState(false);
+  const [videoTimer, setVideoTimer] = useState(10);
+  const [videoRecorded, setVideoRecorded] = useState(false);
+
+  // Field Boy Assigned Tasks
+  const [fieldTasks, setFieldTasks] = useState([
+    {
+      id: 'sv-101',
+      title: 'Apex Retail Fashion Store',
+      clientName: 'Sunil Mehta',
+      clientPhone: '+919820011223',
+      address: 'Shop 14, Grand Galleria Mall, Link Road, Andheri West',
+      status: 'ASSIGNED',
+      measurementsCount: 0,
+      boardSections: [
+        {
+          id: 'b-1',
+          name: 'Board 1: Main Entrance LED Board',
+          length: '15.0',
+          height: '4.0',
+          material: 'ACP Sheet',
+          gauge: '1" x 1" (18 Gauge)',
+        },
+      ],
+      checklist: {
+        facadeType: 'Ground Floor Facade (12 ft)',
+        powerDistance: '10.0ft',
+        ladder: 'Yes',
+        crane: 'No',
+      },
+      hasPhoto: false,
+      hasVideo: false,
+    },
+    {
+      id: 'sv-102',
+      title: 'CarePlus Multispeciality Hospital',
+      clientName: 'Dr. Priya Nair',
+      clientPhone: '+919830022334',
+      address: 'Plot 7, Sector 15, Vashi, Navi Mumbai',
+      status: 'SUBMITTED',
+      measurementsCount: 1,
+      boardSections: [
+        {
+          id: 'b-1',
+          name: 'Main Emergency Glow Sign',
+          length: '20.0',
+          height: '5.0',
+          material: 'Acrylic 3D Letter',
+          gauge: '1.5" x 1.5" (16 Gauge)',
+        },
+      ],
+      checklist: {
+        facadeType: '1st Floor Cantilever (18 ft)',
+        powerDistance: '5.0ft',
+        ladder: 'Yes',
+        crane: 'Yes',
+      },
+      hasPhoto: true,
+      hasVideo: true,
+    },
+  ]);
+
+  // Video recording timer effect
+  useEffect(() => {
+    let interval = null;
+    if (isVideoRecording && videoTimer > 0) {
+      interval = setInterval(() => {
+        setVideoTimer((prev) => prev - 1);
+      }, 1000);
+    } else if (videoTimer === 0 && isVideoRecording) {
+      setIsVideoRecording(false);
+      setVideoRecorded(true);
+      Alert.alert('✅ 10s Video Captured', 'Site video clip saved and attached to task!');
+      setActiveSubScreen(null);
+      if (activeSiteTask) {
+        activeSiteTask.hasVideo = true;
+      }
+    }
+    return () => clearInterval(interval);
+  }, [isVideoRecording, videoTimer]);
+
+  const handleStartVideoRecording = () => {
+    setVideoTimer(10);
+    setIsVideoRecording(true);
+  };
+
+  const handleSubmitSiteVisit = (task) => {
+    setFieldTasks((prev) =>
+      prev.map((t) => (t.id === task.id ? { ...t, status: 'SUBMITTED', measurementsCount: t.boardSections.length } : t))
+    );
+
+    const syncMsg = `📋 *APEX SIGNAGE - SITE SURVEY SUBMITTED*\n━━━━━━━━━━━━━━━━━━━━\nTask: *${task.title}*\nClient: *${task.clientName}* (${task.clientPhone})\n📍 Location: *${task.address}*\n\n📐 *Measurements:* ${task.boardSections.length} Board(s) Configured (Total: 60.0 Sq.Ft)\n📷 *Site Photos:* 1 Annotated Facade Photo attached\n🎥 *Video:* 10-Second Clearance Video attached\n\n*Synced live to Production & Designers!*`;
+
+    Linking.openURL(`whatsapp://send?phone=919423800532&text=${encodeURIComponent(syncMsg)}`).catch(() => {});
+
+    Alert.alert('✅ Site Visit Submitted!', 'Measurements & photos synced to Office & Designers live!');
+    setActiveSiteTask(null);
+  };
+
+  // Schedule Site Visit Modal State (Admin)
   const [siteVisitModalVisible, setSiteVisitModalVisible] = useState(false);
   const [siteVisitsCount, setSiteVisitsCount] = useState(4);
   const [clientName, setClientName] = useState('Apex Retail Store');
@@ -100,6 +207,36 @@ export default function App() {
     setSiteVisitsCount((prev) => prev + 1);
     setSiteVisitModalVisible(false);
 
+    // Also add to Field Boy's task list!
+    const newTask = {
+      id: `sv-${Date.now()}`,
+      title: clientName,
+      clientName: clientName,
+      clientPhone: clientPhone,
+      address: siteAddress,
+      status: 'ASSIGNED',
+      measurementsCount: 0,
+      boardSections: [
+        {
+          id: 'b-1',
+          name: 'Board 1: Main Facade Board',
+          length: '12.0',
+          height: '4.0',
+          material: 'ACP Sheet',
+          gauge: '1" x 1" (18 Gauge)',
+        },
+      ],
+      checklist: {
+        facadeType: 'Ground Floor Facade (10 ft)',
+        powerDistance: '8.0ft',
+        ladder: 'Yes',
+        crane: 'No',
+      },
+      hasPhoto: false,
+      hasVideo: false,
+    };
+    setFieldTasks([newTask, ...fieldTasks]);
+
     const dispatchMessage = `📋 *NEW SITE VISIT TASK ASSIGNED*\n━━━━━━━━━━━━━━━━━━━━\nAssigned To: *${assignedFieldBoy}*\nClient: *${clientName}*\nPhone: *${clientPhone}*\n📍 Address: *${siteAddress}*\n📝 Notes: ${visitInstructions}\n\n*Apex Signage Operations System*`;
     Linking.openURL(`whatsapp://send?phone=919423800532&text=${encodeURIComponent(dispatchMessage)}`).catch(() => {});
 
@@ -109,7 +246,7 @@ export default function App() {
     );
   };
 
-  // Inventory State (Matching Flutter Inventory Module)
+  // Inventory State
   const [inventoryList, setInventoryList] = useState([
     {
       id: 'inv-1',
@@ -161,10 +298,7 @@ export default function App() {
     },
   ]);
 
-  // Inventory Filter State
   const [filterLowStockOnly, setFilterLowStockOnly] = useState(false);
-
-  // Stock Movement Modal State
   const [selectedMaterial, setSelectedMaterial] = useState(null);
   const [stockMovementModalVisible, setStockMovementModalVisible] = useState(false);
   const [transactionType, setTransactionType] = useState('STOCK_IN');
@@ -266,7 +400,6 @@ export default function App() {
     },
   ]);
 
-  // Record Payment Modal State
   const [selectedInvoice, setSelectedInvoice] = useState(null);
   const [recordPaymentModalVisible, setRecordPaymentModalVisible] = useState(false);
   const [paymentAmount, setPaymentAmount] = useState('18500.0');
@@ -334,7 +467,7 @@ export default function App() {
     return 'Cheque / Demand Draft';
   };
 
-  // Automatic Rate & Quotation Builder State
+  // Rate & Quotation Builder State
   const customerOptions = [
     'Sunil Mehta (Apex Retail Store)',
     'Rajesh Sharma (Grand Hotel Suites)',
@@ -433,9 +566,7 @@ export default function App() {
     );
   };
 
-  // =========================================================================
-  // SALARY SLIP STATE (Exact 1:1 match to Screenshot)
-  // =========================================================================
+  // Salary Slip State
   const [payslipDownloadedToast, setPayslipDownloadedToast] = useState(false);
 
   const staffSalaryData = {
@@ -520,7 +651,11 @@ export default function App() {
       if (user) {
         setCurrentUser(user);
         setIsAuthenticated(true);
-        setCurrentTab('dashboard');
+        if (user.role === 'Field Boy') {
+          setFieldBoyTab('tasks');
+        } else {
+          setCurrentTab('dashboard');
+        }
       } else {
         const customUser = {
           email: email,
@@ -548,6 +683,8 @@ export default function App() {
         onPress: () => {
           setIsAuthenticated(false);
           setInputPassword('');
+          setActiveSiteTask(null);
+          setActiveSubScreen(null);
         },
       },
     ]);
@@ -666,7 +803,598 @@ export default function App() {
   }
 
   // =========================================================================
-  // SCREEN 2: MAIN APP (Pure Admin Dashboard, Inventory, Invoices, Rate Calc, Salary)
+  // SCREEN 2A: FIELD BOY SUB-SCREEN: 10-SECOND REALTIME SITE VIDEO
+  // =========================================================================
+  if (currentUser.role === 'Field Boy' && activeSubScreen === 'video') {
+    return (
+      <SafeAreaView style={{ flex: 1, backgroundColor: '#000000' }}>
+        <StatusBar barStyle="light-content" backgroundColor="#000000" />
+        
+        {/* Top Video Header */}
+        <View style={styles.videoTopBar}>
+          <TouchableOpacity onPress={() => setActiveSubScreen(null)} style={{ padding: 6 }}>
+            <Ionicons name="arrow-back" size={24} color="#FFFFFF" />
+          </TouchableOpacity>
+          <Text style={styles.videoHeaderTitle}>10-Second Realtime Site Video</Text>
+          <TouchableOpacity style={{ padding: 6 }}>
+            <Ionicons name="camera-reverse-outline" size={24} color="#FFFFFF" />
+          </TouchableOpacity>
+        </View>
+
+        {/* Live Camera Viewfinder Simulated Viewport */}
+        <View style={styles.videoViewport}>
+          <Image
+            source={{ uri: 'https://images.unsplash.com/photo-1541888946425-d0fbb18015f6?w=1000' }}
+            style={styles.videoFeedImage}
+            blurRadius={isVideoRecording ? 0 : 2}
+          />
+          
+          {/* Recording Timer & Overlay */}
+          {isVideoRecording && (
+            <View style={styles.recordingTimerBadge}>
+              <View style={styles.redRecordingDot} />
+              <Text style={styles.recordingTimerText}>00:{videoTimer < 10 ? `0${videoTimer}` : videoTimer}</Text>
+            </View>
+          )}
+
+          <View style={styles.videoGuidancePill}>
+            <Text style={styles.videoGuidanceText}>
+              Pan across facade, electrical & road clearance
+            </Text>
+          </View>
+        </View>
+
+        {/* Bottom Record Action Bar */}
+        <View style={styles.videoBottomBar}>
+          <TouchableOpacity
+            style={[styles.recordVideoPrimaryBtn, isVideoRecording && { backgroundColor: '#DC2626' }]}
+            onPress={handleStartVideoRecording}
+            disabled={isVideoRecording}
+          >
+            <View style={styles.recordVideoInnerCircle} />
+            <Text style={styles.recordVideoBtnText}>
+              {isVideoRecording ? `Recording... (${videoTimer}s)` : 'Start 10s Realtime Video'}
+            </Text>
+          </TouchableOpacity>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
+  // =========================================================================
+  // SCREEN 2B: FIELD BOY SUB-SCREEN: SMART MEASUREMENT CALCULATOR
+  // =========================================================================
+  if (currentUser.role === 'Field Boy' && activeSubScreen === 'measurements' && activeSiteTask) {
+    const currentSection = activeSiteTask.boardSections[0] || {
+      name: 'Board 1: Main Entrance LED Board',
+      length: '15.0',
+      height: '4.0',
+      material: 'ACP Sheet',
+      gauge: '1" x 1" (18 Gauge)',
+    };
+    const l = parseFloat(currentSection.length) || 0;
+    const h = parseFloat(currentSection.height) || 0;
+    const sqft = l * h;
+    const sqm = sqft * 0.092903;
+
+    return (
+      <SafeAreaView style={styles.container}>
+        <StatusBar barStyle="light-content" backgroundColor="#0F2744" />
+        
+        {/* App Bar */}
+        <View style={styles.appBar}>
+          <View style={styles.appBarLeft}>
+            <TouchableOpacity onPress={() => setActiveSubScreen(null)} style={{ marginRight: 10 }}>
+              <Ionicons name="arrow-back" size={24} color="#FFFFFF" />
+            </TouchableOpacity>
+            <Text style={styles.appBarTitle}>Smart Measurement Calculator</Text>
+          </View>
+        </View>
+
+        <ScrollView style={styles.mainScroll} contentContainerStyle={{ padding: 16, paddingBottom: 100 }}>
+          {/* Blue Formula Tip Box */}
+          <View style={styles.calcFormulaBox}>
+            <Ionicons name="sparkles" size={18} color="#0284C7" style={{ marginRight: 8 }} />
+            <View style={{ flex: 1 }}>
+              <Text style={styles.calcFormulaText}>
+                Auto-Calculates: Sq.Ft = Length × Height
+              </Text>
+              <Text style={styles.calcFormulaSub}>
+                Sq.Meter = Sq.Ft × 0.092903
+              </Text>
+            </View>
+          </View>
+
+          {/* Board 1 Measurement Card */}
+          <View style={styles.measureCard}>
+            <View style={styles.measureInputGroup}>
+              <Text style={styles.measureInputLabel}>Board / Section Name</Text>
+              <TextInput
+                style={styles.measureTextInput}
+                value={currentSection.name}
+                onChangeText={(text) => {
+                  currentSection.name = text;
+                  setActiveSiteTask({ ...activeSiteTask });
+                }}
+              />
+            </View>
+
+            <View style={styles.measureDimensionsRow}>
+              <View style={styles.measureDimCol}>
+                <Text style={styles.measureInputLabel}>Length (ft)</Text>
+                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                  <TextInput
+                    style={[styles.measureTextInput, { flex: 1 }]}
+                    keyboardType="numeric"
+                    value={currentSection.length}
+                    onChangeText={(text) => {
+                      currentSection.length = text;
+                      setActiveSiteTask({ ...activeSiteTask });
+                    }}
+                  />
+                  <Text style={styles.unitSuffix}>ft</Text>
+                </View>
+              </View>
+
+              <Text style={styles.multiplySign}>×</Text>
+
+              <View style={styles.measureDimCol}>
+                <Text style={styles.measureInputLabel}>Height (ft)</Text>
+                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                  <TextInput
+                    style={[styles.measureTextInput, { flex: 1 }]}
+                    keyboardType="numeric"
+                    value={currentSection.height}
+                    onChangeText={(text) => {
+                      currentSection.height = text;
+                      setActiveSiteTask({ ...activeSiteTask });
+                    }}
+                  />
+                  <Text style={styles.unitSuffix}>ft</Text>
+                </View>
+              </View>
+            </View>
+
+            {/* Area Result Banner */}
+            <View style={styles.areaResultBox}>
+              <Text style={styles.areaResultLabel}>Area Result:</Text>
+              <Text style={styles.areaResultVal}>
+                {sqft.toFixed(2)} Sq.Ft | {sqm.toFixed(3)} Sq.M
+              </Text>
+            </View>
+
+            {/* Material Specification */}
+            <View style={[styles.measureInputGroup, { marginTop: 12 }]}>
+              <Text style={styles.measureInputLabel}>Material Specification</Text>
+              <TouchableOpacity style={styles.measureDropdownRow}>
+                <Text style={styles.measureDropdownVal}>{currentSection.material}</Text>
+                <Ionicons name="chevron-down" size={18} color="#64748B" />
+              </TouchableOpacity>
+            </View>
+
+            {/* MS Pipe Structure Gauge */}
+            <View style={[styles.measureInputGroup, { marginTop: 12 }]}>
+              <Text style={styles.measureInputLabel}>MS Pipe Structure Gauge</Text>
+              <TouchableOpacity style={styles.measureDropdownRow}>
+                <Text style={styles.measureDropdownVal}>{currentSection.gauge}</Text>
+                <Ionicons name="chevron-down" size={18} color="#64748B" />
+              </TouchableOpacity>
+            </View>
+          </View>
+
+          {/* Add Another Board Button */}
+          <TouchableOpacity
+            style={styles.addBoardOutlineBtn}
+            onPress={() => Alert.alert('Add Section', 'Added Section 2 for Front Facade')}
+          >
+            <Ionicons name="add-circle-outline" size={20} color="#0F2744" style={{ marginRight: 6 }} />
+            <Text style={styles.addBoardOutlineText}>Add Another Board / Section</Text>
+          </TouchableOpacity>
+        </ScrollView>
+
+        {/* Bottom Save Bar */}
+        <View style={styles.measureBottomStickyBar}>
+          <View style={styles.measureTotalAreaRow}>
+            <Text style={styles.measureTotalAreaLabel}>TOTAL AREA:</Text>
+            <Text style={styles.measureTotalAreaVal}>
+              {sqft.toFixed(2)} Sq.Ft <Text style={{ fontSize: 12, color: '#64748B' }}>({sqm.toFixed(3)} Sq.Meters)</Text>
+            </Text>
+          </View>
+          <TouchableOpacity
+            style={styles.saveMeasurementsBtn}
+            onPress={() => {
+              activeSiteTask.measurementsCount = 1;
+              Alert.alert('✅ Saved', 'Measurements saved successfully!');
+              setActiveSubScreen(null);
+            }}
+          >
+            <Ionicons name="checkmark" size={20} color="#FFFFFF" style={{ marginRight: 8 }} />
+            <Text style={styles.saveMeasurementsBtnText}>Save 1 Board Measurements</Text>
+          </TouchableOpacity>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
+  // =========================================================================
+  // SCREEN 2C: FIELD BOY SITE VISIT DETAIL SCREEN
+  // =========================================================================
+  if (currentUser.role === 'Field Boy' && activeSiteTask) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <StatusBar barStyle="light-content" backgroundColor="#0F2744" />
+
+        {/* Header Bar */}
+        <View style={styles.appBar}>
+          <View style={styles.appBarLeft}>
+            <TouchableOpacity onPress={() => setActiveSiteTask(null)} style={{ marginRight: 10 }}>
+              <Ionicons name="arrow-back" size={24} color="#FFFFFF" />
+            </TouchableOpacity>
+            <Text style={styles.appBarTitle}>{activeSiteTask.title}</Text>
+          </View>
+          <View style={styles.syncedBadge}>
+            <Ionicons name="cloud-done" size={14} color="#10B981" style={{ marginRight: 4 }} />
+            <Text style={styles.syncedBadgeText}>Synced</Text>
+          </View>
+        </View>
+
+        <ScrollView style={styles.mainScroll} contentContainerStyle={{ padding: 16, paddingBottom: 100 }}>
+          {/* Client Details Card */}
+          <View style={styles.taskDetailClientCard}>
+            <View style={styles.taskDetailClientHeader}>
+              <Text style={styles.taskDetailClientName}>{activeSiteTask.clientName}</Text>
+              <View style={styles.taskAssignedPill}>
+                <Text style={styles.taskAssignedPillText}>{activeSiteTask.status}</Text>
+              </View>
+            </View>
+            <Text style={styles.taskDetailAddress}>{activeSiteTask.address}</Text>
+
+            {/* 2 Action Buttons: Call Client & Navigate Map */}
+            <View style={styles.taskActionBtnsRow}>
+              <TouchableOpacity
+                style={styles.callClientBtn}
+                onPress={() => Linking.openURL(`tel:${activeSiteTask.clientPhone}`)}
+              >
+                <Ionicons name="call-outline" size={18} color="#0F2744" style={{ marginRight: 6 }} />
+                <Text style={styles.callClientBtnText}>Call Client</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={styles.navigateMapBtn}
+                onPress={() =>
+                  Linking.openURL(
+                    `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(activeSiteTask.address)}`
+                  )
+                }
+              >
+                <Ionicons name="navigate" size={18} color="#FFFFFF" style={{ marginRight: 6 }} />
+                <Text style={styles.navigateMapBtnText}>Navigate Map</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+
+          {/* Module 1: 📏 Digital Smart Measurements */}
+          <Text style={styles.moduleSectionHeading}>📏 1. Digital Smart Measurements</Text>
+          <TouchableOpacity
+            style={styles.moduleCard}
+            onPress={() => setActiveSubScreen('measurements')}
+          >
+            <View style={{ flex: 1 }}>
+              <Text style={styles.moduleCardTitle}>1 Board Section(s) Configured</Text>
+              <Text style={styles.moduleCardSub}>Total: 60.0 Sq.Ft (5.57 Sq.Meters)</Text>
+            </View>
+            <Ionicons name="chevron-forward" size={20} color="#94A3B8" />
+          </TouchableOpacity>
+
+          {/* Module 2: ✏️ Site Photograph & Touch Annotation */}
+          <Text style={styles.moduleSectionHeading}>✏️ 2. Site Photograph & Touch Annotation</Text>
+          <TouchableOpacity
+            style={styles.moduleCard}
+            onPress={() => setCapturePhotoModalVisible(true)}
+          >
+            <View style={styles.moduleIconBoxCyan}>
+              <Ionicons name="camera-outline" size={22} color="#0284C7" />
+            </View>
+            <View style={{ flex: 1, marginLeft: 12 }}>
+              <Text style={styles.moduleCardTitle}>Capture & Annotate Site Photo</Text>
+              <Text style={styles.moduleCardSub}>Draw width/height directly on site photo</Text>
+            </View>
+            <Ionicons name="chevron-forward" size={20} color="#94A3B8" />
+          </TouchableOpacity>
+
+          {/* Module 3: 🎥 Site Video Clip (10 Seconds) */}
+          <Text style={styles.moduleSectionHeading}>🎥 3. Site Video Clip (10 Seconds)</Text>
+          <TouchableOpacity
+            style={styles.moduleCard}
+            onPress={() => setActiveSubScreen('video')}
+          >
+            <View style={styles.moduleIconBoxPurple}>
+              <Ionicons name="videocam-outline" size={22} color="#8B5CF6" />
+            </View>
+            <View style={{ flex: 1, marginLeft: 12 }}>
+              <Text style={styles.moduleCardTitle}>Record 10-Second Site Video</Text>
+              <Text style={styles.moduleCardSub}>Required to assess surrounding trees & road clearance</Text>
+            </View>
+            <Ionicons name="chevron-forward" size={20} color="#94A3B8" />
+          </TouchableOpacity>
+
+          {/* Module 4: 📋 Technical Checklist */}
+          <Text style={styles.moduleSectionHeading}>📋 4. Technical Checklist</Text>
+          <TouchableOpacity
+            style={styles.moduleCard}
+            onPress={() =>
+              Alert.alert('Technical Checklist', 'Facade Height: 12ft • Power: 10ft • Ladder: Yes • Crane: No')
+            }
+          >
+            <View style={{ flex: 1 }}>
+              <Text style={styles.moduleCardTitle}>{activeSiteTask.checklist.facadeType}</Text>
+              <Text style={styles.moduleCardSub}>
+                Power: {activeSiteTask.checklist.powerDistance} • Ladder: {activeSiteTask.checklist.ladder} • Crane:{' '}
+                {activeSiteTask.checklist.crane}
+              </Text>
+            </View>
+            <Ionicons name="chevron-forward" size={20} color="#94A3B8" />
+          </TouchableOpacity>
+        </ScrollView>
+
+        {/* Bottom Submit Button */}
+        <View style={styles.detailBottomBar}>
+          <TouchableOpacity
+            style={styles.submitSiteVisitPrimaryBtn}
+            onPress={() => handleSubmitSiteVisit(activeSiteTask)}
+          >
+            <Ionicons name="cloud-upload-outline" size={20} color="#FFFFFF" style={{ marginRight: 8 }} />
+            <Text style={styles.submitSiteVisitPrimaryText}>Submit & Sync to Designer</Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* Photo Capture Modal (Exact match to Screenshot 4) */}
+        <Modal
+          visible={capturePhotoModalVisible}
+          transparent
+          animationType="slide"
+          onRequestClose={() => setCapturePhotoModalVisible(false)}
+        >
+          <View style={styles.sheetOverlay}>
+            <View style={styles.sheetContainer}>
+              <Text style={styles.photoModalTitle}>Capture Site Facade Photo</Text>
+
+              <TouchableOpacity
+                style={styles.photoOptionItem}
+                onPress={() => {
+                  setCapturePhotoModalVisible(false);
+                  Alert.alert('📸 Live Camera', 'Photo captured and annotated with 15ft x 4ft markers!');
+                  activeSiteTask.hasPhoto = true;
+                }}
+              >
+                <View style={styles.photoOptionIconBox}>
+                  <Ionicons name="camera" size={22} color="#0284C7" />
+                </View>
+                <View style={{ marginLeft: 12 }}>
+                  <Text style={styles.photoOptionText}>Take Live Photo with Camera</Text>
+                  <Text style={styles.photoOptionSub}>Capture facade using phone camera</Text>
+                </View>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={styles.photoOptionItem}
+                onPress={() => {
+                  setCapturePhotoModalVisible(false);
+                  Alert.alert('🖼️ Gallery', 'Selected photo loaded and annotated!');
+                  activeSiteTask.hasPhoto = true;
+                }}
+              >
+                <View style={[styles.photoOptionIconBox, { backgroundColor: '#E2E8F0' }]}>
+                  <Ionicons name="images" size={22} color="#475569" />
+                </View>
+                <View style={{ marginLeft: 12 }}>
+                  <Text style={styles.photoOptionText}>Choose from Gallery</Text>
+                  <Text style={styles.photoOptionSub}>Select existing photo from phone</Text>
+                </View>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={styles.photoOptionItem}
+                onPress={() => {
+                  setCapturePhotoModalVisible(false);
+                  Alert.alert('🏬 Sample Loaded', 'Sample retail store facade photo attached!');
+                  activeSiteTask.hasPhoto = true;
+                }}
+              >
+                <View style={[styles.photoOptionIconBox, { backgroundColor: '#F1F5F9' }]}>
+                  <Ionicons name="business" size={22} color="#64748B" />
+                </View>
+                <View style={{ marginLeft: 12 }}>
+                  <Text style={styles.photoOptionText}>Use Sample Retail Facade Photo</Text>
+                  <Text style={styles.photoOptionSub}>Pre-loaded building sample for quick demo</Text>
+                </View>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </Modal>
+      </SafeAreaView>
+    );
+  }
+
+  // =========================================================================
+  // SCREEN 2D: FIELD BOY MAIN WORKSPACE (Exact 1:1 match to Screenshot 1)
+  // =========================================================================
+  if (currentUser.role === 'Field Boy') {
+    const pendingCount = fieldTasks.filter((t) => t.status === 'ASSIGNED').length;
+    const inProgressCount = fieldTasks.filter((t) => t.status === 'IN_PROGRESS').length;
+    const submittedCount = fieldTasks.filter((t) => t.status === 'SUBMITTED').length;
+
+    return (
+      <SafeAreaView style={styles.container}>
+        <StatusBar barStyle="light-content" backgroundColor="#0F2744" />
+
+        {/* Top Header Bar */}
+        <View style={styles.appBar}>
+          <View style={styles.appBarLeft}>
+            <Ionicons name="print" size={22} color="#FFFFFF" style={{ marginRight: 8 }} />
+            <Text style={styles.appBarTitle}>Field Boy Workspace</Text>
+          </View>
+
+          <View style={styles.appBarRight}>
+            <TouchableOpacity style={styles.appBarIconBtn}>
+              <Ionicons name="bar-chart" size={20} color="#FFFFFF" />
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.appBarIconBtn}
+              onPress={() => {
+                const nextIndex = (DEMO_USERS.findIndex((u) => u.role === currentUser.role) + 1) % DEMO_USERS.length;
+                setCurrentUser(DEMO_USERS[nextIndex]);
+                Alert.alert('Role Switched', `Active Profile: ${DEMO_USERS[nextIndex].name} (${DEMO_USERS[nextIndex].role})`);
+              }}
+            >
+              <Ionicons name="person-circle-outline" size={22} color="#FFFFFF" />
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.appBarIconBtn} onPress={handleLogout}>
+              <Ionicons name="log-out-outline" size={22} color="#FFFFFF" />
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        <ScrollView style={styles.mainScroll} contentContainerStyle={{ padding: 16, paddingBottom: 100 }}>
+          {/* Top 3 Status Counter Cards */}
+          <View style={styles.fieldBoyStatusRow}>
+            {/* 1. Pending */}
+            <View style={styles.fieldBoyStatusCard}>
+              <Ionicons name="time-outline" size={20} color="#F59E0B" />
+              <Text style={[styles.fieldBoyStatusBigVal, { color: '#F59E0B' }]}>{pendingCount}</Text>
+              <Text style={styles.fieldBoyStatusSub}>Pending</Text>
+            </View>
+
+            {/* 2. In-Progress */}
+            <View style={styles.fieldBoyStatusCard}>
+              <Ionicons name="resize-outline" size={20} color="#0284C7" />
+              <Text style={[styles.fieldBoyStatusBigVal, { color: '#0284C7' }]}>{inProgressCount}</Text>
+              <Text style={styles.fieldBoyStatusSub}>In-Progress</Text>
+            </View>
+
+            {/* 3. Submitted */}
+            <View style={styles.fieldBoyStatusCard}>
+              <Ionicons name="cloud-done-outline" size={20} color="#10B981" />
+              <Text style={[styles.fieldBoyStatusBigVal, { color: '#10B981' }]}>{submittedCount}</Text>
+              <Text style={styles.fieldBoyStatusSub}>Submitted</Text>
+            </View>
+          </View>
+
+          {/* Blue Tip Banner */}
+          <View style={styles.fieldBoyTipBanner}>
+            <Ionicons name="hand-left-outline" size={22} color="#0284C7" style={{ marginRight: 10 }} />
+            <Text style={styles.fieldBoyTipText}>
+              Ready for site visit? Tap a task to start measurements & photo annotations.
+            </Text>
+          </View>
+
+          {/* Section: My Assigned Site Tasks */}
+          <Text style={styles.sectionTitle}>My Assigned Site Tasks</Text>
+
+          {fieldTasks.map((task) => (
+            <TouchableOpacity
+              key={task.id}
+              style={styles.fieldTaskCard}
+              onPress={() => setActiveSiteTask(task)}
+            >
+              <View style={styles.fieldTaskHeader}>
+                <Text style={styles.fieldTaskTitle}>{task.title}</Text>
+                <View
+                  style={[
+                    styles.fieldTaskStatusBadge,
+                    task.status === 'SUBMITTED' ? styles.statusBadgeGreen : styles.statusBadgeAmber,
+                  ]}
+                >
+                  <Text
+                    style={[
+                      styles.fieldTaskStatusText,
+                      task.status === 'SUBMITTED' ? { color: '#10B981' } : { color: '#D97706' },
+                    ]}
+                  >
+                    {task.status}
+                  </Text>
+                </View>
+              </View>
+
+              <View style={styles.fieldTaskMetaRow}>
+                <Ionicons name="person-outline" size={14} color="#64748B" style={{ marginRight: 4 }} />
+                <Text style={styles.fieldTaskMetaText}>{task.clientName}</Text>
+                <Ionicons name="call-outline" size={14} color="#64748B" style={{ marginLeft: 12, marginRight: 4 }} />
+                <Text style={styles.fieldTaskMetaText}>{task.clientPhone}</Text>
+              </View>
+
+              <View style={[styles.fieldTaskMetaRow, { marginTop: 6 }]}>
+                <Ionicons name="location-outline" size={14} color="#64748B" style={{ marginRight: 4 }} />
+                <Text style={[styles.fieldTaskMetaText, { flex: 1 }]}>{task.address}</Text>
+              </View>
+
+              <View style={styles.fieldTaskFooter}>
+                <Text
+                  style={[
+                    styles.fieldTaskMeasurementStatus,
+                    task.measurementsCount > 0 && { color: '#10B981' },
+                  ]}
+                >
+                  {task.measurementsCount > 0 ? `${task.measurementsCount} Board(s) measured` : 'No measurements recorded'}
+                </Text>
+                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                  <Text style={styles.openFormText}>Open Form</Text>
+                  <Ionicons name="chevron-forward" size={14} color="#0F2744" />
+                </View>
+              </View>
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
+
+        {/* Field Boy Bottom Navigation Bar */}
+        <View style={styles.bottomNav}>
+          <TouchableOpacity
+            style={[styles.navItem, fieldBoyTab === 'tasks' && styles.navItemActive]}
+            onPress={() => setFieldBoyTab('tasks')}
+          >
+            <Ionicons name="grid" size={22} color={fieldBoyTab === 'tasks' ? '#0284C7' : '#64748B'} />
+            <Text style={[styles.navLabel, fieldBoyTab === 'tasks' && styles.navLabelActive]}>Tasks</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[styles.navItem, fieldBoyTab === 'attendance' && styles.navItemActive]}
+            onPress={() => {
+              setFieldBoyTab('attendance');
+              Alert.alert('📍 Field Attendance', 'Geofence Verified: Punched in at Andheri West site (09:15 AM)');
+            }}
+          >
+            <Ionicons name="location-outline" size={22} color={fieldBoyTab === 'attendance' ? '#0284C7' : '#64748B'} />
+            <Text style={[styles.navLabel, fieldBoyTab === 'attendance' && styles.navLabelActive]}>Attendance</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[styles.navItem, fieldBoyTab === 'expenses' && styles.navItemActive]}
+            onPress={() => {
+              setFieldBoyTab('expenses');
+              Alert.alert('💳 Petty Cash', 'Fuel claim ₹150 approved.');
+            }}
+          >
+            <Ionicons name="wallet-outline" size={22} color={fieldBoyTab === 'expenses' ? '#0284C7' : '#64748B'} />
+            <Text style={[styles.navLabel, fieldBoyTab === 'expenses' && styles.navLabelActive]}>Expenses</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[styles.navItem, fieldBoyTab === 'points' && styles.navItemActive]}
+            onPress={() => {
+              setFieldBoyTab('points');
+              Alert.alert('🏆 Performance Points', 'Total 450 Points (Rank #1 Field Boy this month)');
+            }}
+          >
+            <Ionicons name="trophy-outline" size={22} color={fieldBoyTab === 'points' ? '#0284C7' : '#64748B'} />
+            <Text style={[styles.navLabel, fieldBoyTab === 'points' && styles.navLabelActive]}>Points</Text>
+          </TouchableOpacity>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
+  // =========================================================================
+  // SCREEN 2E: ADMIN DASHBOARD / INVENTORY / INVOICES / RATE CALC / SALARY
   // =========================================================================
   return (
     <SafeAreaView style={styles.container}>
@@ -702,13 +1430,9 @@ export default function App() {
       {/* Main Content Area */}
       <ScrollView style={styles.mainScroll} contentContainerStyle={{ paddingBottom: 120 }}>
         
-        {/* ================================================================= */}
         {/* TAB 1: ADMIN DASHBOARD */}
-        {/* ================================================================= */}
         {currentTab === 'dashboard' && (
           <View style={styles.tabContent}>
-            
-            {/* 1. Total Billed Revenue Hero Banner */}
             <View style={styles.revenueCard}>
               <View style={styles.revenueCardHeader}>
                 <Text style={styles.revenueLabel}>Total Billed Revenue</Text>
@@ -735,7 +1459,6 @@ export default function App() {
               </View>
             </View>
 
-            {/* 2. Low Stock Warning Alert Banner */}
             <TouchableOpacity style={styles.stockAlertBanner} onPress={() => setCurrentTab('inventory')}>
               <Ionicons name="warning-outline" size={24} color="#D97706" style={{ marginRight: 10 }} />
               <View style={{ flex: 1 }}>
@@ -746,10 +1469,8 @@ export default function App() {
               </View>
             </TouchableOpacity>
 
-            {/* 3. Today's Production & Field Summary 2x2 Grid */}
             <Text style={styles.sectionTitle}>Today's Production & Field Summary</Text>
             <View style={styles.summaryGrid}>
-              
               <View style={styles.summaryCard}>
                 <View style={styles.summaryCardHeader}>
                   <Text style={styles.summaryCardTitle}>Active Jobs</Text>
@@ -790,13 +1511,10 @@ export default function App() {
                 <Text style={[styles.summaryCardBigVal, { color: '#10B981' }]}>8 / 9</Text>
                 <Text style={styles.summaryCardSub}>★ 4.9 Rating</Text>
               </View>
-
             </View>
 
-            {/* 4. Job Production Pipeline */}
             <Text style={styles.sectionTitle}>Job Production Pipeline (Live Stages)</Text>
             <View style={styles.pipelineCard}>
-              
               <View style={styles.pipelineRow}>
                 <View style={styles.pipelineLeft}>
                   <Ionicons name="resize-outline" size={18} color="#1E293B" style={{ marginRight: 10 }} />
@@ -856,18 +1574,13 @@ export default function App() {
                   <Text style={[styles.pipelineBadgeText, { color: '#10B981' }]}>1 active</Text>
                 </View>
               </View>
-
             </View>
-
           </View>
         )}
 
-        {/* ================================================================= */}
         {/* TAB 2: REAL-TIME MATERIAL INVENTORY */}
-        {/* ================================================================= */}
         {currentTab === 'inventory' && (
           <View style={styles.tabContent}>
-            
             <View style={styles.inventorySubHeader}>
               <Text style={styles.invSubHeaderTitle}>Real-Time Material Inventory</Text>
               <TouchableOpacity
@@ -927,13 +1640,10 @@ export default function App() {
                 </View>
               </View>
             ))}
-
           </View>
         )}
 
-        {/* ================================================================= */}
         {/* TAB 3: INVOICES & PAYMENT LEDGER */}
-        {/* ================================================================= */}
         {currentTab === 'invoices' && (
           <View style={styles.tabContent}>
             <Text style={styles.sectionTitle}>Invoices & Payment Ledger</Text>
@@ -994,16 +1704,12 @@ export default function App() {
                 </View>
               </View>
             ))}
-
           </View>
         )}
 
-        {/* ================================================================= */}
         {/* TAB 4: AUTOMATIC RATE & QUOTATION BUILDER */}
-        {/* ================================================================= */}
         {currentTab === 'rate_calc' && (
           <View style={styles.tabContent}>
-            
             <Text style={styles.calcScreenMainHeading}>
               Automatic Rate & Quotation Builder
             </Text>
@@ -1065,10 +1771,7 @@ export default function App() {
 
             <View style={styles.lineItemsHeaderRow}>
               <Text style={styles.lineItemsSectionTitle}>Signage Boards / Line Items</Text>
-              <TouchableOpacity
-                style={styles.addItemBtn}
-                onPress={handleAddLineItem}
-              >
+              <TouchableOpacity style={styles.addItemBtn} onPress={handleAddLineItem}>
                 <Ionicons name="add" size={18} color="#0284C7" style={{ marginRight: 4 }} />
                 <Text style={styles.addItemBtnText}>Add Item</Text>
               </TouchableOpacity>
@@ -1194,23 +1897,15 @@ export default function App() {
                 Generate Branded PDF Quotation
               </Text>
             </TouchableOpacity>
-
           </View>
         )}
 
-        {/* ================================================================= */}
-        {/* TAB 5: MONTHLY SALARY SLIP (Exact 1:1 match to Screenshot) */}
-        {/* ================================================================= */}
+        {/* TAB 5: MONTHLY SALARY SLIP */}
         {currentTab === 'salary' && (
           <View style={styles.tabContent}>
-            
-            {/* Top Subheader */}
             <Text style={styles.calcScreenMainHeading}>Monthly Salary Slip</Text>
 
-            {/* Main Payslip Card */}
             <View style={styles.payslipCard}>
-              
-              {/* Company Header */}
               <View style={styles.payslipCompanyHeader}>
                 <Text style={styles.payslipCompanyName}>
                   {staffSalaryData.companyName}
@@ -1222,7 +1917,6 @@ export default function App() {
 
               <View style={styles.payslipDivider} />
 
-              {/* Employee Info Header Row */}
               <View style={styles.payslipEmployeeRow}>
                 <View>
                   <Text style={styles.payslipEmpName}>
@@ -1240,7 +1934,6 @@ export default function App() {
                 </View>
               </View>
 
-              {/* Attendance & Summary 3-Column Box */}
               <View style={styles.attendanceBox}>
                 <View style={styles.attendanceCol}>
                   <Text style={styles.attendanceLabel}>Present Days</Text>
@@ -1264,11 +1957,9 @@ export default function App() {
                 </View>
               </View>
 
-              {/* Earnings & Incentives Table */}
               <Text style={styles.earningsHeading}>Earnings & Incentives</Text>
 
               <View style={styles.salaryBreakdownTable}>
-                
                 <View style={styles.salaryRow}>
                   <Text style={styles.salaryRowLabel}>Basic Monthly Pay</Text>
                   <Text style={styles.salaryRowVal}>
@@ -1301,19 +1992,15 @@ export default function App() {
 
                 <View style={styles.payslipDivider} />
 
-                {/* Net Salary Payable */}
                 <View style={styles.netSalaryRow}>
                   <Text style={styles.netSalaryLabel}>NET SALARY PAYABLE:</Text>
                   <Text style={styles.netSalaryVal}>
                     ₹{staffSalaryData.netPayable}
                   </Text>
                 </View>
-
               </View>
-
             </View>
 
-            {/* Action Button: Download Payslip PDF */}
             <TouchableOpacity
               style={styles.downloadPayslipBtn}
               onPress={handleDownloadPayslip}
@@ -1323,13 +2010,12 @@ export default function App() {
                 Download Payslip PDF
               </Text>
             </TouchableOpacity>
-
           </View>
         )}
 
       </ScrollView>
 
-      {/* Floating SnackBar Toast (Exact match to Screenshot) */}
+      {/* Floating SnackBar Toast */}
       {payslipDownloadedToast && (
         <View style={styles.floatingToast}>
           <Ionicons name="document-text" size={18} color="#FFFFFF" style={{ marginRight: 8 }} />
@@ -1339,9 +2025,7 @@ export default function App() {
         </View>
       )}
 
-      {/* ================================================================= */}
-      {/* MODAL 1: SCHEDULE NEW SITE VISIT */}
-      {/* ================================================================= */}
+      {/* Schedule Site Visit Modal (Admin) */}
       <Modal
         visible={siteVisitModalVisible}
         transparent
@@ -1480,9 +2164,7 @@ export default function App() {
         </View>
       </Modal>
 
-      {/* ================================================================= */}
-      {/* MODAL 2: STOCK MOVEMENT MODAL */}
-      {/* ================================================================= */}
+      {/* Stock Movement Modal (Admin) */}
       <Modal
         visible={stockMovementModalVisible}
         transparent
@@ -1600,9 +2282,7 @@ export default function App() {
         </View>
       </Modal>
 
-      {/* ================================================================= */}
-      {/* MODAL 3: RECORD PAYMENT MODAL */}
-      {/* ================================================================= */}
+      {/* Record Payment Modal (Admin) */}
       <Modal
         visible={recordPaymentModalVisible}
         transparent
@@ -1731,79 +2411,47 @@ export default function App() {
         </View>
       </Modal>
 
-      {/* Bottom Navigation Bar */}
+      {/* Admin Bottom Navigation Bar */}
       <View style={styles.bottomNav}>
-        
         <TouchableOpacity
           style={[styles.navItem, currentTab === 'dashboard' && styles.navItemActive]}
           onPress={() => setCurrentTab('dashboard')}
         >
-          <Ionicons
-            name="bar-chart"
-            size={22}
-            color={currentTab === 'dashboard' ? '#0284C7' : '#64748B'}
-          />
-          <Text style={[styles.navLabel, currentTab === 'dashboard' && styles.navLabelActive]}>
-            Dashboard
-          </Text>
+          <Ionicons name="bar-chart" size={22} color={currentTab === 'dashboard' ? '#0284C7' : '#64748B'} />
+          <Text style={[styles.navLabel, currentTab === 'dashboard' && styles.navLabelActive]}>Dashboard</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
           style={[styles.navItem, currentTab === 'inventory' && styles.navItemActive]}
           onPress={() => setCurrentTab('inventory')}
         >
-          <Ionicons
-            name="cube-outline"
-            size={22}
-            color={currentTab === 'inventory' ? '#0284C7' : '#64748B'}
-          />
-          <Text style={[styles.navLabel, currentTab === 'inventory' && styles.navLabelActive]}>
-            Inventory
-          </Text>
+          <Ionicons name="cube-outline" size={22} color={currentTab === 'inventory' ? '#0284C7' : '#64748B'} />
+          <Text style={[styles.navLabel, currentTab === 'inventory' && styles.navLabelActive]}>Inventory</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
           style={[styles.navItem, currentTab === 'invoices' && styles.navItemActive]}
           onPress={() => setCurrentTab('invoices')}
         >
-          <Ionicons
-            name="receipt-outline"
-            size={22}
-            color={currentTab === 'invoices' ? '#0284C7' : '#64748B'}
-          />
-          <Text style={[styles.navLabel, currentTab === 'invoices' && styles.navLabelActive]}>
-            Invoices
-          </Text>
+          <Ionicons name="receipt-outline" size={22} color={currentTab === 'invoices' ? '#0284C7' : '#64748B'} />
+          <Text style={[styles.navLabel, currentTab === 'invoices' && styles.navLabelActive]}>Invoices</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
           style={[styles.navItem, currentTab === 'rate_calc' && styles.navItemActive]}
           onPress={() => setCurrentTab('rate_calc')}
         >
-          <Ionicons
-            name="calculator-outline"
-            size={22}
-            color={currentTab === 'rate_calc' ? '#0284C7' : '#64748B'}
-          />
-          <Text style={[styles.navLabel, currentTab === 'rate_calc' && styles.navLabelActive]}>
-            Rate Calc
-          </Text>
+          <Ionicons name="calculator-outline" size={22} color={currentTab === 'rate_calc' ? '#0284C7' : '#64748B'} />
+          <Text style={[styles.navLabel, currentTab === 'rate_calc' && styles.navLabelActive]}>Rate Calc</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
           style={[styles.navItem, currentTab === 'salary' && styles.navItemActive]}
           onPress={() => setCurrentTab('salary')}
         >
-          <Ionicons
-            name="document-text-outline"
-            size={22}
-            color={currentTab === 'salary' ? '#0284C7' : '#64748B'}
-          />
-          <Text style={[styles.navLabel, currentTab === 'salary' && styles.navLabelActive]}>
-            Salary Slips
-          </Text>
+          <Ionicons name="document-text-outline" size={22} color={currentTab === 'salary' ? '#0284C7' : '#64748B'} />
+          <Text style={[styles.navLabel, currentTab === 'salary' && styles.navLabelActive]}>Salary Slips</Text>
         </TouchableOpacity>
-
       </View>
     </SafeAreaView>
   );
@@ -2579,9 +3227,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
 
-  // =========================================================================
-  // MONTHLY SALARY SLIP STYLES (Exact match to Screenshot)
-  // =========================================================================
+  // Monthly Salary Slip Styles
   payslipCard: {
     backgroundColor: '#FFFFFF',
     borderRadius: 16,
@@ -2746,7 +3392,543 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
 
-  // Bottom Sheet: Schedule New Site Visit
+  // =========================================================================
+  // FIELD BOY WORKSPACE SPECIFIC STYLES (Exact match to Screenshots)
+  // =========================================================================
+  fieldBoyStatusRow: {
+    flexDirection: 'row',
+    gap: 10,
+    marginBottom: 14,
+  },
+  fieldBoyStatusCard: {
+    flex: 1,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 14,
+    padding: 12,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    alignItems: 'flex-start',
+  },
+  fieldBoyStatusBigVal: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    marginTop: 6,
+    marginBottom: 2,
+  },
+  fieldBoyStatusSub: {
+    fontSize: 11,
+    color: '#64748B',
+    fontWeight: '500',
+  },
+  fieldBoyTipBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#E0F2FE',
+    borderWidth: 1,
+    borderColor: '#BAE6FD',
+    borderRadius: 12,
+    padding: 14,
+    marginBottom: 18,
+  },
+  fieldBoyTipText: {
+    flex: 1,
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#0369A1',
+    lineHeight: 18,
+  },
+  fieldTaskCard: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 14,
+    padding: 16,
+    marginBottom: 14,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+  },
+  fieldTaskHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  fieldTaskTitle: {
+    fontSize: 15,
+    fontWeight: 'bold',
+    color: '#0F172A',
+    flex: 1,
+  },
+  fieldTaskStatusBadge: {
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 6,
+  },
+  statusBadgeAmber: {
+    backgroundColor: '#FEF3C7',
+  },
+  statusBadgeGreen: {
+    backgroundColor: '#DCFCE7',
+  },
+  fieldTaskStatusText: {
+    fontSize: 11,
+    fontWeight: 'bold',
+  },
+  fieldTaskMetaRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  fieldTaskMetaText: {
+    fontSize: 12,
+    color: '#64748B',
+  },
+  fieldTaskFooter: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginTop: 12,
+    paddingTop: 10,
+    borderTopWidth: 1,
+    borderTopColor: '#F1F5F9',
+  },
+  fieldTaskMeasurementStatus: {
+    fontSize: 12,
+    color: '#94A3B8',
+    fontWeight: '500',
+  },
+  openFormText: {
+    fontSize: 12,
+    fontWeight: 'bold',
+    color: '#0F2744',
+    marginRight: 2,
+  },
+
+  // Site Visit Detail Screen Styles
+  syncedBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#064E3B',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 6,
+  },
+  syncedBadgeText: {
+    color: '#34D399',
+    fontSize: 11,
+    fontWeight: 'bold',
+  },
+  taskDetailClientCard: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 14,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    marginBottom: 16,
+  },
+  taskDetailClientHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 4,
+  },
+  taskDetailClientName: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#0F172A',
+  },
+  taskAssignedPill: {
+    backgroundColor: '#FEF3C7',
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 6,
+  },
+  taskAssignedPillText: {
+    color: '#D97706',
+    fontSize: 10,
+    fontWeight: 'bold',
+  },
+  taskDetailAddress: {
+    fontSize: 12,
+    color: '#64748B',
+    marginBottom: 14,
+  },
+  taskActionBtnsRow: {
+    flexDirection: 'row',
+    gap: 10,
+  },
+  callClientBtn: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#CBD5E1',
+    paddingVertical: 10,
+    borderRadius: 8,
+  },
+  callClientBtnText: {
+    fontSize: 13,
+    fontWeight: 'bold',
+    color: '#0F2744',
+  },
+  navigateMapBtn: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#3B82F6',
+    paddingVertical: 10,
+    borderRadius: 8,
+  },
+  navigateMapBtnText: {
+    fontSize: 13,
+    fontWeight: 'bold',
+    color: '#FFFFFF',
+  },
+  moduleSectionHeading: {
+    fontSize: 13,
+    fontWeight: 'bold',
+    color: '#0F172A',
+    marginBottom: 8,
+    marginTop: 6,
+  },
+  moduleCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FFFFFF',
+    borderRadius: 12,
+    padding: 14,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    marginBottom: 12,
+  },
+  moduleIconBoxCyan: {
+    width: 44,
+    height: 44,
+    borderRadius: 10,
+    backgroundColor: '#E0F2FE',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  moduleIconBoxPurple: {
+    width: 44,
+    height: 44,
+    borderRadius: 10,
+    backgroundColor: '#F3E8FF',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  moduleCardTitle: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: '#0F172A',
+  },
+  moduleCardSub: {
+    fontSize: 12,
+    color: '#64748B',
+    marginTop: 2,
+  },
+  detailBottomBar: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: '#FFFFFF',
+    padding: 14,
+    borderTopWidth: 1,
+    borderTopColor: '#E2E8F0',
+  },
+  submitSiteVisitPrimaryBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#0F2744',
+    paddingVertical: 14,
+    borderRadius: 12,
+  },
+  submitSiteVisitPrimaryText: {
+    color: '#FFFFFF',
+    fontSize: 15,
+    fontWeight: 'bold',
+  },
+
+  // Smart Measurement Calculator Styles
+  calcFormulaBox: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#E0F2FE',
+    borderWidth: 1,
+    borderColor: '#BAE6FD',
+    borderRadius: 12,
+    padding: 12,
+    marginBottom: 16,
+  },
+  calcFormulaText: {
+    fontSize: 12,
+    fontWeight: 'bold',
+    color: '#0369A1',
+  },
+  calcFormulaSub: {
+    fontSize: 11,
+    color: '#0284C7',
+    marginTop: 1,
+  },
+  measureCard: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 14,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    marginBottom: 16,
+  },
+  measureInputGroup: {
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#CBD5E1',
+    borderRadius: 10,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+  },
+  measureInputLabel: {
+    fontSize: 10,
+    color: '#64748B',
+    fontWeight: '500',
+    marginBottom: 2,
+  },
+  measureTextInput: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: '#0F172A',
+  },
+  measureDimensionsRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 12,
+  },
+  measureDimCol: {
+    flex: 1,
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#CBD5E1',
+    borderRadius: 10,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+  },
+  unitSuffix: {
+    fontSize: 12,
+    color: '#94A3B8',
+    fontWeight: '600',
+  },
+  multiplySign: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#64748B',
+    marginHorizontal: 8,
+  },
+  areaResultBox: {
+    backgroundColor: '#F1F5F9',
+    borderRadius: 8,
+    paddingVertical: 10,
+    paddingHorizontal: 12,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginTop: 12,
+  },
+  areaResultLabel: {
+    fontSize: 12,
+    color: '#475569',
+    fontWeight: '500',
+  },
+  areaResultVal: {
+    fontSize: 13,
+    fontWeight: 'bold',
+    color: '#0F2744',
+  },
+  measureDropdownRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    height: 28,
+  },
+  measureDropdownVal: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#0F172A',
+  },
+  addBoardOutlineBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1.5,
+    borderColor: '#0F2744',
+    borderRadius: 24,
+    paddingVertical: 12,
+    marginBottom: 16,
+  },
+  addBoardOutlineText: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: '#0F2744',
+  },
+  measureBottomStickyBar: {
+    backgroundColor: '#FFFFFF',
+    padding: 16,
+    borderTopWidth: 1,
+    borderTopColor: '#E2E8F0',
+  },
+  measureTotalAreaRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  measureTotalAreaLabel: {
+    fontSize: 13,
+    fontWeight: 'bold',
+    color: '#475569',
+  },
+  measureTotalAreaVal: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#0F2744',
+  },
+  saveMeasurementsBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#0F2744',
+    paddingVertical: 14,
+    borderRadius: 12,
+  },
+  saveMeasurementsBtnText: {
+    color: '#FFFFFF',
+    fontSize: 15,
+    fontWeight: 'bold',
+  },
+
+  // Video Screen Styles
+  videoTopBar: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+  },
+  videoHeaderTitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#FFFFFF',
+  },
+  videoViewport: {
+    flex: 1,
+    backgroundColor: '#1E293B',
+    borderRadius: 20,
+    marginHorizontal: 16,
+    overflow: 'hidden',
+    position: 'relative',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  videoFeedImage: {
+    width: '100%',
+    height: '100%',
+  },
+  recordingTimerBadge: {
+    position: 'absolute',
+    top: 20,
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0,0,0,0.6)',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 20,
+  },
+  redRecordingDot: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    backgroundColor: '#EF4444',
+    marginRight: 6,
+  },
+  recordingTimerText: {
+    color: '#FFFFFF',
+    fontSize: 14,
+    fontWeight: 'bold',
+  },
+  videoGuidancePill: {
+    position: 'absolute',
+    bottom: 20,
+    backgroundColor: 'rgba(0,0,0,0.6)',
+    paddingHorizontal: 14,
+    paddingVertical: 6,
+    borderRadius: 16,
+  },
+  videoGuidanceText: {
+    color: '#FFFFFF',
+    fontSize: 12,
+    fontWeight: '500',
+  },
+  videoBottomBar: {
+    padding: 20,
+    alignItems: 'center',
+  },
+  recordVideoPrimaryBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#EF4444',
+    borderRadius: 30,
+    paddingVertical: 14,
+    paddingHorizontal: 24,
+    width: '100%',
+  },
+  recordVideoInnerCircle: {
+    width: 14,
+    height: 14,
+    borderRadius: 7,
+    backgroundColor: '#FFFFFF',
+    marginRight: 8,
+  },
+  recordVideoBtnText: {
+    color: '#FFFFFF',
+    fontSize: 15,
+    fontWeight: 'bold',
+  },
+
+  // Photo Modal Styles
+  photoModalTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#0F2744',
+    marginBottom: 16,
+  },
+  photoOptionItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F1F5F9',
+  },
+  photoOptionIconBox: {
+    width: 44,
+    height: 44,
+    borderRadius: 10,
+    backgroundColor: '#E0F2FE',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  photoOptionText: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: '#0F172A',
+  },
+  photoOptionSub: {
+    fontSize: 12,
+    color: '#64748B',
+    marginTop: 2,
+  },
+
+  // Modals (Stock Movement & Payment)
   sheetOverlay: {
     flex: 1,
     backgroundColor: 'rgba(0,0,0,0.6)',
@@ -2846,7 +4028,6 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
 
-  // Modal: Stock Movement & Record Payment
   modalOverlay: {
     flex: 1,
     backgroundColor: 'rgba(0,0,0,0.6)',
@@ -2880,12 +4061,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 6,
   },
-  modalInputLabel: {
-    fontSize: 11,
-    color: '#64748B',
-    fontWeight: '500',
-    marginBottom: 2,
-  },
   modalSelectRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -2918,12 +4093,6 @@ const styles = StyleSheet.create({
   modalOptionActive: {
     color: '#0284C7',
     fontWeight: 'bold',
-  },
-  modalTextInput: {
-    fontSize: 14,
-    color: '#0F172A',
-    fontWeight: '600',
-    height: 34,
   },
   stockModalCancelBtn: {
     alignSelf: 'flex-end',
