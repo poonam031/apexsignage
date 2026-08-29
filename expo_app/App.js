@@ -202,7 +202,7 @@ export default function App() {
     }
   };
 
-  // Field Boy Assigned Tasks
+  // Field Tasks State
   const [fieldTasks, setFieldTasks] = useState([
     {
       id: 'sv-101',
@@ -910,7 +910,6 @@ export default function App() {
       <SafeAreaView style={{ flex: 1, backgroundColor: '#000000' }}>
         <StatusBar barStyle="light-content" backgroundColor="#000000" />
 
-        {/* Top Camera Header */}
         <View style={styles.videoTopBar}>
           <TouchableOpacity onPress={() => setActiveSubScreen(null)} style={{ padding: 6 }}>
             <Ionicons name="close" size={26} color="#FFFFFF" />
@@ -924,7 +923,6 @@ export default function App() {
           </TouchableOpacity>
         </View>
 
-        {/* Live Hardware Camera Viewfinder */}
         <View style={styles.videoViewport}>
           {cameraPermission?.granted ? (
             <CameraView
@@ -952,7 +950,6 @@ export default function App() {
             </View>
           )}
 
-          {/* Grid Overlay Guide */}
           <View style={styles.photoGridGuide}>
             <View style={styles.photoGridBox} />
           </View>
@@ -964,7 +961,6 @@ export default function App() {
           </View>
         </View>
 
-        {/* Bottom Shutter Controls */}
         <View style={styles.cameraShutterBar}>
           <TouchableOpacity
             style={styles.shutterOuterCircle}
@@ -992,7 +988,6 @@ export default function App() {
       <SafeAreaView style={{ flex: 1, backgroundColor: '#0F172A' }}>
         <StatusBar barStyle="light-content" backgroundColor="#0F172A" />
 
-        {/* Top Header Bar */}
         <View style={styles.annotationHeader}>
           <TouchableOpacity onPress={() => setActiveSubScreen(null)} style={{ padding: 4 }}>
             <Ionicons name="arrow-back" size={24} color="#FFFFFF" />
@@ -1010,7 +1005,6 @@ export default function App() {
           </TouchableOpacity>
         </View>
 
-        {/* Annotation Toolbar */}
         <View style={styles.annotationToolbar}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
             <TouchableOpacity style={styles.annotToolBtnActive}>
@@ -1037,7 +1031,6 @@ export default function App() {
             </TouchableOpacity>
           </View>
 
-          {/* Palette */}
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
             {colorsList.map((c) => (
               <TouchableOpacity
@@ -1053,7 +1046,6 @@ export default function App() {
           </View>
         </View>
 
-        {/* Photo Viewport Canvas */}
         <View style={styles.photoCanvasContainer}>
           <Image
             source={{ uri: selectedPhotoUri }}
@@ -1061,7 +1053,6 @@ export default function App() {
             resizeMode="cover"
           />
 
-          {/* Width Dimension Line Marker */}
           <View style={styles.widthDimensionMarker}>
             <Ionicons name="arrow-back" size={16} color={annotationColor} />
             <View style={[styles.dimensionDashedLine, { backgroundColor: annotationColor }]} />
@@ -1072,7 +1063,6 @@ export default function App() {
             <Ionicons name="arrow-forward" size={16} color={annotationColor} />
           </View>
 
-          {/* Height Dimension Line Marker */}
           <View style={styles.heightDimensionMarker}>
             <Ionicons name="arrow-up" size={14} color={annotationColor} />
             <View style={[styles.dimensionDashedLineV, { backgroundColor: annotationColor }]} />
@@ -1083,14 +1073,12 @@ export default function App() {
             <Ionicons name="arrow-down" size={14} color={annotationColor} />
           </View>
 
-          {/* Power Point Callout Badge */}
           <View style={styles.powerPointBadge}>
             <Ionicons name="flash" size={14} color="#38BDF8" style={{ marginRight: 4 }} />
             <Text style={styles.powerPointText}>⚡ 220V Power Point (10ft)</Text>
           </View>
         </View>
 
-        {/* Bottom Quick Callout Adder */}
         <View style={styles.calloutBottomBar}>
           <Text style={styles.calloutInstructionText}>
             💡 Tap & save annotated dimensions directly to sync with designer CAD layout.
@@ -1108,7 +1096,6 @@ export default function App() {
       <SafeAreaView style={{ flex: 1, backgroundColor: '#000000' }}>
         <StatusBar barStyle="light-content" backgroundColor="#000000" />
 
-        {/* Top Header */}
         <View style={styles.videoTopBar}>
           <TouchableOpacity onPress={() => setActiveSubScreen(null)} style={{ padding: 6 }}>
             <Ionicons name="arrow-back" size={24} color="#FFFFFF" />
@@ -1122,7 +1109,6 @@ export default function App() {
           </TouchableOpacity>
         </View>
 
-        {/* Viewfinder Viewport with REAL HARDWARE CAMERA ACCESS */}
         <View style={styles.videoViewport}>
           {cameraPermission?.granted ? (
             <CameraView
@@ -1151,7 +1137,6 @@ export default function App() {
             </View>
           )}
 
-          {/* Live Recording Progress & Timer Badge */}
           {isVideoRecording && (
             <View style={styles.recordingTimerBadge}>
               <View style={styles.redRecordingDot} />
@@ -1175,7 +1160,6 @@ export default function App() {
           </View>
         </View>
 
-        {/* Bottom Action Controls */}
         <View style={styles.videoBottomBar}>
           {!hasRecordedVideo ? (
             <TouchableOpacity
@@ -1222,8 +1206,11 @@ export default function App() {
     const checklist = activeSiteTask.checklist;
 
     return (
-      <SafeAreaView style={{ flex: 1, backgroundColor: '#0F2744' }}>
-        <StatusBar barStyle="light-content" backgroundColor="#0F2744" />
+      <View style={styles.rootFullContainer}>
+        <SafeAreaView style={{ flex: 0, backgroundColor: '#0F2744' }}>
+          <StatusBar barStyle="light-content" backgroundColor="#0F2744" />
+        </SafeAreaView>
+
         <View style={styles.appBar}>
           <View style={styles.appBarLeft}>
             <TouchableOpacity onPress={() => setActiveSubScreen(null)} style={{ marginRight: 10 }}>
@@ -1234,7 +1221,7 @@ export default function App() {
         </View>
 
         <View style={styles.appBodyWrapper}>
-          <ScrollView style={styles.mainScroll} contentContainerStyle={{ padding: 16, paddingBottom: 40 }}>
+          <ScrollView style={styles.mainScroll} contentContainerStyle={styles.scrollContentInset}>
             <Text style={styles.checklistSectionHeading}>Installation & Safety Assessment</Text>
             <Text style={styles.checklistSectionSub}>
               Verify structural access, power supply distance, and crane/scaffold requirements.
@@ -1378,7 +1365,7 @@ export default function App() {
             </TouchableOpacity>
           </ScrollView>
         </View>
-      </SafeAreaView>
+      </View>
     );
   }
 
@@ -1399,8 +1386,11 @@ export default function App() {
     const sqm = sqft * 0.092903;
 
     return (
-      <SafeAreaView style={{ flex: 1, backgroundColor: '#0F2744' }}>
-        <StatusBar barStyle="light-content" backgroundColor="#0F2744" />
+      <View style={styles.rootFullContainer}>
+        <SafeAreaView style={{ flex: 0, backgroundColor: '#0F2744' }}>
+          <StatusBar barStyle="light-content" backgroundColor="#0F2744" />
+        </SafeAreaView>
+
         <View style={styles.appBar}>
           <View style={styles.appBarLeft}>
             <TouchableOpacity onPress={() => setActiveSubScreen(null)} style={{ marginRight: 10 }}>
@@ -1411,7 +1401,7 @@ export default function App() {
         </View>
 
         <View style={styles.appBodyWrapper}>
-          <ScrollView style={styles.mainScroll} contentContainerStyle={{ padding: 16, paddingBottom: 40 }}>
+          <ScrollView style={styles.mainScroll} contentContainerStyle={styles.scrollContentInset}>
             <View style={styles.calcFormulaBox}>
               <Ionicons name="sparkles" size={18} color="#0284C7" style={{ marginRight: 8 }} />
               <View style={{ flex: 1 }}>
@@ -1521,7 +1511,7 @@ export default function App() {
             </TouchableOpacity>
           </ScrollView>
         </View>
-      </SafeAreaView>
+      </View>
     );
   }
 
@@ -1530,8 +1520,11 @@ export default function App() {
   // =========================================================================
   if (currentUser.role === 'Field Boy' && activeSiteTask) {
     return (
-      <SafeAreaView style={{ flex: 1, backgroundColor: '#0F2744' }}>
-        <StatusBar barStyle="light-content" backgroundColor="#0F2744" />
+      <View style={styles.rootFullContainer}>
+        <SafeAreaView style={{ flex: 0, backgroundColor: '#0F2744' }}>
+          <StatusBar barStyle="light-content" backgroundColor="#0F2744" />
+        </SafeAreaView>
+
         <View style={styles.appBar}>
           <View style={styles.appBarLeft}>
             <TouchableOpacity onPress={() => setActiveSiteTask(null)} style={{ marginRight: 10 }}>
@@ -1546,7 +1539,7 @@ export default function App() {
         </View>
 
         <View style={styles.appBodyWrapper}>
-          <ScrollView style={styles.mainScroll} contentContainerStyle={{ padding: 16, paddingBottom: 40 }}>
+          <ScrollView style={styles.mainScroll} contentContainerStyle={styles.scrollContentInset}>
             <View style={styles.taskDetailClientCard}>
               <View style={styles.taskDetailClientHeader}>
                 <Text style={styles.taskDetailClientName}>{activeSiteTask.clientName}</Text>
@@ -1706,7 +1699,7 @@ export default function App() {
             </View>
           </View>
         </Modal>
-      </SafeAreaView>
+      </View>
     );
   }
 
@@ -4722,7 +4715,7 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 24,
     paddingHorizontal: 20,
     paddingTop: 20,
-    paddingBottom: Platform.OS === 'ios' ? 40 : 24,
+    paddingBottom: Platform.OS === 'ios' ? 36 : 20,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: -4 },
     shadowOpacity: 0.1,
