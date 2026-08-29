@@ -79,8 +79,45 @@ export default function App() {
   // FIELD BOY WORKSPACE STATE & SUB-SCREENS
   // =========================================================================
   const [activeSiteTask, setActiveSiteTask] = useState(null); // When opened, navigates to Site Visit Detail screen
-  const [activeSubScreen, setActiveSubScreen] = useState(null); // 'measurements', 'checklist', 'photo_preview', 'video_preview'
+  const [activeSubScreen, setActiveSubScreen] = useState(null); // 'measurements', 'checklist', 'photo_annotation', 'video_recording'
   const [capturePhotoModalVisible, setCapturePhotoModalVisible] = useState(false);
+
+  // Photo Annotation Interactive State
+  const [annotationColor, setAnnotationColor] = useState('#FACC15'); // Yellow default
+  const [annotations, setAnnotations] = useState([
+    { id: '1', text: '15.0 ft Width', x: 80, y: 110, color: '#FACC15' },
+    { id: '2', text: '4.0 ft Height', x: 20, y: 170, color: '#FACC15' },
+    { id: '3', text: '⚡ 220V Power Point', x: 190, y: 240, color: '#38BDF8' },
+  ]);
+  const [newAnnotationText, setNewAnnotationText] = useState('12.0 ft');
+
+  // Video Recording State
+  const [isVideoRecording, setIsVideoRecording] = useState(false);
+  const [videoTimer, setVideoTimer] = useState(10);
+  const [hasRecordedVideo, setHasRecordedVideo] = useState(false);
+
+  // Video recording timer effect
+  useEffect(() => {
+    let interval = null;
+    if (isVideoRecording && videoTimer > 0) {
+      interval = setInterval(() => {
+        setVideoTimer((prev) => prev - 1);
+      }, 1000);
+    } else if (videoTimer === 0 && isVideoRecording) {
+      setIsVideoRecording(false);
+      setHasRecordedVideo(true);
+      if (activeSiteTask) {
+        activeSiteTask.hasVideo = true;
+      }
+    }
+    return () => clearInterval(interval);
+  }, [isVideoRecording, videoTimer]);
+
+  const handleStartVideoRecording = () => {
+    setVideoTimer(10);
+    setHasRecordedVideo(false);
+    setIsVideoRecording(true);
+  };
 
   // Field Boy Assigned Tasks
   const [fieldTasks, setFieldTasks] = useState([
@@ -111,7 +148,7 @@ export default function App() {
         obstacles: 'Overhanging power cables and shop awning near entrance',
         notes: '220V power point accessible from ground meter room.',
       },
-      hasPhoto: false,
+      hasPhoto: true,
       hasVideo: false,
     },
     {
@@ -151,11 +188,11 @@ export default function App() {
       prev.map((t) => (t.id === task.id ? { ...t, status: 'SUBMITTED', measurementsCount: t.boardSections.length } : t))
     );
 
-    const syncMsg = `📋 *APEX SIGNAGE - SITE SURVEY SUBMITTED*\n━━━━━━━━━━━━━━━━━━━━\nTask: *${task.title}*\nClient: *${task.clientName}* (${task.clientPhone})\n📍 Location: *${task.address}*\n\n📐 *Measurements:* ${task.boardSections.length} Board(s) Configured (Total: 60.0 Sq.Ft)\n🏗️ *Mounting:* ${task.checklist.mountingHeight}\n🔌 *Power Distance:* ${task.checklist.powerDistance} ft\n🪜 *Equipment:* Ladder: ${task.checklist.ladderRequired ? 'Yes' : 'No'} • Crane: ${task.checklist.craneRequired ? 'Yes' : 'No'}\n⚠️ *Obstacles:* ${task.checklist.obstacles || 'None'}\n\n*Synced live to Production & Designers!*`;
+    const syncMsg = `📋 *APEX SIGNAGE - SITE SURVEY SUBMITTED*\n━━━━━━━━━━━━━━━━━━━━\nTask: *${task.title}*\nClient: *${task.clientName}* (${task.clientPhone})\n📍 Location: *${task.address}*\n\n📐 *Measurements:* ${task.boardSections.length} Board(s) Configured (Total: 60.0 Sq.Ft)\n🏗️ *Mounting:* ${task.checklist.mountingHeight}\n🔌 *Power Distance:* ${task.checklist.powerDistance} ft\n🪜 *Equipment:* Ladder: ${task.checklist.ladderRequired ? 'Yes' : 'No'} • Crane: ${task.checklist.craneRequired ? 'Yes' : 'No'}\n⚠️ *Obstacles:* ${task.checklist.obstacles || 'None'}\n📷 *Photo Annotation:* Saved with Width & Height Markers\n🎥 *10s Video:* Saved with Clearance Assessment\n\n*Synced live to Production & Designers!*`;
 
     Linking.openURL(`whatsapp://send?phone=919423800532&text=${encodeURIComponent(syncMsg)}`).catch(() => {});
 
-    Alert.alert('✅ Site Visit Submitted!', 'Measurements & technical checklist synced to Office & Designers live!');
+    Alert.alert('✅ Site Visit Submitted!', 'Measurements, Annotated Photos & Technical Checklist synced to Office & Designers live!');
     setActiveSiteTask(null);
   };
 
@@ -783,7 +820,216 @@ export default function App() {
   }
 
   // =========================================================================
-  // SCREEN 2A: FIELD BOY SUB-SCREEN: TECHNICAL SITE CHECKLIST (Exact match to Screenshot)
+  // SUB-SCREEN 2A: INTERACTIVE SITE PHOTO ANNOTATION SCREEN
+  // =========================================================================
+  if (currentUser.role === 'Field Boy' && activeSubScreen === 'photo_annotation' && activeSiteTask) {
+    const colorsList = ['#FACC15', '#EF4444', '#38BDF8', '#FFFFFF', '#10B981'];
+
+    return (
+      <SafeAreaView style={{ flex: 1, backgroundColor: '#000000' }}>
+        <StatusBar barStyle="light-content" backgroundColor="#000000" />
+
+        {/* Top Header Bar */}
+        <View style={styles.annotationHeader}>
+          <TouchableOpacity onPress={() => setActiveSubScreen(null)} style={{ padding: 4 }}>
+            <Ionicons name="arrow-back" size={24} color="#FFFFFF" />
+          </TouchableOpacity>
+          <Text style={styles.annotationHeaderTitle}>Site Photo Annotation</Text>
+          <TouchableOpacity
+            style={styles.annotationSaveBtn}
+            onPress={() => {
+              activeSiteTask.hasPhoto = true;
+              Alert.alert('✅ Annotation Saved', 'Site photo with 15ft x 4ft dimension markers saved to task!');
+              setActiveSubScreen(null);
+            }}
+          >
+            <Text style={styles.annotationSaveText}>SAVE</Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* Annotation Toolbar (Tools & Color Palette) */}
+        <View style={styles.annotationToolbar}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+            <TouchableOpacity style={styles.annotToolBtnActive}>
+              <Ionicons name="pencil" size={18} color="#0284C7" />
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.annotToolBtn}
+              onPress={() => {
+                const newId = `${Date.now()}`;
+                setAnnotations([...annotations, { id: newId, text: newAnnotationText, x: 120, y: 180, color: annotationColor }]);
+              }}
+            >
+              <Ionicons name="text" size={18} color="#FFFFFF" />
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.annotToolBtn}
+              onPress={() => {
+                if (annotations.length > 0) {
+                  setAnnotations(annotations.slice(0, -1));
+                }
+              }}
+            >
+              <Ionicons name="arrow-undo" size={18} color="#FFFFFF" />
+            </TouchableOpacity>
+          </View>
+
+          {/* Palette */}
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+            {colorsList.map((c) => (
+              <TouchableOpacity
+                key={c}
+                style={[
+                  styles.colorDot,
+                  { backgroundColor: c },
+                  annotationColor === c && styles.colorDotSelected,
+                ]}
+                onPress={() => setAnnotationColor(c)}
+              />
+            ))}
+          </View>
+        </View>
+
+        {/* Photo Viewport Canvas with Overlay Markers */}
+        <View style={styles.photoCanvasContainer}>
+          <Image
+            source={{ uri: 'https://images.unsplash.com/photo-1541888946425-d0fbb18015f6?w=1200' }}
+            style={styles.canvasFacadeImage}
+            resizeMode="cover"
+          />
+
+          {/* Width Dimension Line Marker */}
+          <View style={styles.widthDimensionMarker}>
+            <Ionicons name="arrow-back" size={16} color="#FACC15" />
+            <View style={styles.dimensionDashedLine} />
+            <View style={styles.dimensionLabelPill}>
+              <Text style={styles.dimensionLabelText}>15.0 ft (Width)</Text>
+            </View>
+            <View style={styles.dimensionDashedLine} />
+            <Ionicons name="arrow-forward" size={16} color="#FACC15" />
+          </View>
+
+          {/* Height Dimension Line Marker */}
+          <View style={styles.heightDimensionMarker}>
+            <Ionicons name="arrow-up" size={14} color="#FACC15" />
+            <View style={styles.dimensionDashedLineV} />
+            <View style={[styles.dimensionLabelPill, { marginVertical: 4 }]}>
+              <Text style={styles.dimensionLabelText}>4.0 ft (H)</Text>
+            </View>
+            <View style={styles.dimensionDashedLineV} />
+            <Ionicons name="arrow-down" size={14} color="#FACC15" />
+          </View>
+
+          {/* Power Point Callout Badge */}
+          <View style={styles.powerPointBadge}>
+            <Ionicons name="flash" size={14} color="#38BDF8" style={{ marginRight: 4 }} />
+            <Text style={styles.powerPointText}>⚡ 220V Power Point (10ft)</Text>
+          </View>
+        </View>
+
+        {/* Bottom Quick Callout Adder */}
+        <View style={styles.calloutBottomBar}>
+          <Text style={styles.calloutInstructionText}>
+            💡 Tap & save annotated dimensions directly to sync with designer CAD layout.
+          </Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
+  // =========================================================================
+  // SUB-SCREEN 2B: 10-SECOND REALTIME SITE VIDEO SCREEN (Exact match to Screenshot 5)
+  // =========================================================================
+  if (currentUser.role === 'Field Boy' && activeSubScreen === 'video_recording' && activeSiteTask) {
+    return (
+      <SafeAreaView style={{ flex: 1, backgroundColor: '#000000' }}>
+        <StatusBar barStyle="light-content" backgroundColor="#000000" />
+
+        {/* Top Header */}
+        <View style={styles.videoTopBar}>
+          <TouchableOpacity onPress={() => setActiveSubScreen(null)} style={{ padding: 6 }}>
+            <Ionicons name="arrow-back" size={24} color="#FFFFFF" />
+          </TouchableOpacity>
+          <Text style={styles.videoHeaderTitle}>10-Second Realtime Site Video</Text>
+          <TouchableOpacity style={{ padding: 6 }}>
+            <Ionicons name="camera-reverse-outline" size={24} color="#FFFFFF" />
+          </TouchableOpacity>
+        </View>
+
+        {/* Viewfinder Viewport with Panorama Facade Clip */}
+        <View style={styles.videoViewport}>
+          <Image
+            source={{ uri: 'https://images.unsplash.com/photo-1541888946425-d0fbb18015f6?w=1200' }}
+            style={styles.videoFeedImage}
+            blurRadius={isVideoRecording ? 0 : hasRecordedVideo ? 0 : 2}
+          />
+
+          {/* Live Recording Progress & Timer Badge */}
+          {isVideoRecording && (
+            <View style={styles.recordingTimerBadge}>
+              <View style={styles.redRecordingDot} />
+              <Text style={styles.recordingTimerText}>
+                00:{videoTimer < 10 ? `0${videoTimer}` : videoTimer} / 00:10
+              </Text>
+            </View>
+          )}
+
+          {hasRecordedVideo && !isVideoRecording && (
+            <View style={[styles.recordingTimerBadge, { backgroundColor: 'rgba(16, 185, 129, 0.85)' }]}>
+              <Ionicons name="checkmark-circle" size={16} color="#FFFFFF" style={{ marginRight: 6 }} />
+              <Text style={styles.recordingTimerText}>10s Video Clip Recorded & Verified</Text>
+            </View>
+          )}
+
+          <View style={styles.videoGuidancePill}>
+            <Text style={styles.videoGuidanceText}>
+              Pan across facade, electrical & road clearance
+            </Text>
+          </View>
+        </View>
+
+        {/* Bottom Action Controls */}
+        <View style={styles.videoBottomBar}>
+          {!hasRecordedVideo ? (
+            <TouchableOpacity
+              style={[styles.recordVideoPrimaryBtn, isVideoRecording && { backgroundColor: '#B91C1C' }]}
+              onPress={handleStartVideoRecording}
+              disabled={isVideoRecording}
+            >
+              <View style={styles.recordVideoInnerCircle} />
+              <Text style={styles.recordVideoBtnText}>
+                {isVideoRecording ? `Recording Site Panorama (${videoTimer}s)...` : 'Start 10s Realtime Video'}
+              </Text>
+            </TouchableOpacity>
+          ) : (
+            <View style={{ width: '100%', gap: 10 }}>
+              <TouchableOpacity
+                style={[styles.recordVideoPrimaryBtn, { backgroundColor: '#10B981' }]}
+                onPress={() => {
+                  activeSiteTask.hasVideo = true;
+                  Alert.alert('✅ Video Attached', '10-Second Clearance video saved to task!');
+                  setActiveSubScreen(null);
+                }}
+              >
+                <Ionicons name="checkmark-circle-outline" size={20} color="#FFFFFF" style={{ marginRight: 8 }} />
+                <Text style={styles.recordVideoBtnText}>Save 10s Site Video Clip</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={{ alignItems: 'center', paddingVertical: 8 }}
+                onPress={handleStartVideoRecording}
+              >
+                <Text style={{ color: '#94A3B8', fontSize: 13, fontWeight: '600' }}>Re-record 10s Video</Text>
+              </TouchableOpacity>
+            </View>
+          )}
+        </View>
+      </SafeAreaView>
+    );
+  }
+
+  // =========================================================================
+  // SUB-SCREEN 2C: TECHNICAL SITE CHECKLIST (Exact match to Screenshot)
   // =========================================================================
   if (currentUser.role === 'Field Boy' && activeSubScreen === 'checklist' && activeSiteTask) {
     const checklist = activeSiteTask.checklist;
@@ -968,7 +1214,7 @@ export default function App() {
   }
 
   // =========================================================================
-  // SCREEN 2B: FIELD BOY SUB-SCREEN: SMART MEASUREMENT CALCULATOR
+  // SUB-SCREEN 2D: SMART MEASUREMENT CALCULATOR
   // =========================================================================
   if (currentUser.role === 'Field Boy' && activeSubScreen === 'measurements' && activeSiteTask) {
     const currentSection = activeSiteTask.boardSections[0] || {
@@ -987,7 +1233,6 @@ export default function App() {
       <SafeAreaView style={styles.container}>
         <StatusBar barStyle="light-content" backgroundColor="#0F2744" />
         
-        {/* App Bar */}
         <View style={styles.appBar}>
           <View style={styles.appBarLeft}>
             <TouchableOpacity onPress={() => setActiveSubScreen(null)} style={{ marginRight: 10 }}>
@@ -998,7 +1243,6 @@ export default function App() {
         </View>
 
         <ScrollView style={styles.mainScroll} contentContainerStyle={{ padding: 16, paddingBottom: 100 }}>
-          {/* Blue Formula Tip Box */}
           <View style={styles.calcFormulaBox}>
             <Ionicons name="sparkles" size={18} color="#0284C7" style={{ marginRight: 8 }} />
             <View style={{ flex: 1 }}>
@@ -1011,7 +1255,6 @@ export default function App() {
             </View>
           </View>
 
-          {/* Board 1 Measurement Card */}
           <View style={styles.measureCard}>
             <View style={styles.measureInputGroup}>
               <Text style={styles.measureInputLabel}>Board / Section Name</Text>
@@ -1061,7 +1304,6 @@ export default function App() {
               </View>
             </View>
 
-            {/* Area Result Banner */}
             <View style={styles.areaResultBox}>
               <Text style={styles.areaResultLabel}>Area Result:</Text>
               <Text style={styles.areaResultVal}>
@@ -1069,7 +1311,6 @@ export default function App() {
               </Text>
             </View>
 
-            {/* Material Specification */}
             <View style={[styles.measureInputGroup, { marginTop: 12 }]}>
               <Text style={styles.measureInputLabel}>Material Specification</Text>
               <TouchableOpacity style={styles.measureDropdownRow}>
@@ -1078,7 +1319,6 @@ export default function App() {
               </TouchableOpacity>
             </View>
 
-            {/* MS Pipe Structure Gauge */}
             <View style={[styles.measureInputGroup, { marginTop: 12 }]}>
               <Text style={styles.measureInputLabel}>MS Pipe Structure Gauge</Text>
               <TouchableOpacity style={styles.measureDropdownRow}>
@@ -1088,7 +1328,6 @@ export default function App() {
             </View>
           </View>
 
-          {/* Add Another Board Button */}
           <TouchableOpacity
             style={styles.addBoardOutlineBtn}
             onPress={() => Alert.alert('Add Section', 'Added Section 2 for Front Facade')}
@@ -1098,7 +1337,6 @@ export default function App() {
           </TouchableOpacity>
         </ScrollView>
 
-        {/* Bottom Save Bar */}
         <View style={styles.measureBottomStickyBar}>
           <View style={styles.measureTotalAreaRow}>
             <Text style={styles.measureTotalAreaLabel}>TOTAL AREA:</Text>
@@ -1123,7 +1361,7 @@ export default function App() {
   }
 
   // =========================================================================
-  // SCREEN 2C: FIELD BOY SITE VISIT DETAIL SCREEN
+  // SCREEN 2E: FIELD BOY SITE VISIT DETAIL SCREEN
   // =========================================================================
   if (currentUser.role === 'Field Boy' && activeSiteTask) {
     return (
@@ -1155,7 +1393,6 @@ export default function App() {
             </View>
             <Text style={styles.taskDetailAddress}>{activeSiteTask.address}</Text>
 
-            {/* 2 Action Buttons: Call Client & Navigate Map */}
             <View style={styles.taskActionBtnsRow}>
               <TouchableOpacity
                 style={styles.callClientBtn}
@@ -1214,10 +1451,7 @@ export default function App() {
           <Text style={styles.moduleSectionHeading}>🎥 3. Site Video Clip (10 Seconds)</Text>
           <TouchableOpacity
             style={styles.moduleCard}
-            onPress={() => {
-              activeSiteTask.hasVideo = true;
-              Alert.alert('🎥 10s Video Attached', '10-Second Facade & Clearance Video attached to survey!');
-            }}
+            onPress={() => setActiveSubScreen('video_recording')}
           >
             <View style={styles.moduleIconBoxPurple}>
               <Ionicons name="videocam-outline" size={22} color="#8B5CF6" />
@@ -1231,7 +1465,7 @@ export default function App() {
             <Ionicons name="chevron-forward" size={20} color="#94A3B8" />
           </TouchableOpacity>
 
-          {/* Module 4: 📋 Technical Checklist (Opens Technical Site Checklist Screen!) */}
+          {/* Module 4: 📋 Technical Checklist */}
           <Text style={styles.moduleSectionHeading}>📋 4. Technical Checklist</Text>
           <TouchableOpacity
             style={styles.moduleCard}
@@ -1274,8 +1508,7 @@ export default function App() {
                 style={styles.photoOptionItem}
                 onPress={() => {
                   setCapturePhotoModalVisible(false);
-                  Alert.alert('📸 Live Photo Attached', 'Facade photo captured and annotated with 15ft x 4ft markers!');
-                  activeSiteTask.hasPhoto = true;
+                  setActiveSubScreen('photo_annotation');
                 }}
               >
                 <View style={styles.photoOptionIconBox}>
@@ -1291,8 +1524,7 @@ export default function App() {
                 style={styles.photoOptionItem}
                 onPress={() => {
                   setCapturePhotoModalVisible(false);
-                  Alert.alert('🖼️ Gallery Photo Attached', 'Selected photo loaded and annotated!');
-                  activeSiteTask.hasPhoto = true;
+                  setActiveSubScreen('photo_annotation');
                 }}
               >
                 <View style={[styles.photoOptionIconBox, { backgroundColor: '#E2E8F0' }]}>
@@ -1308,8 +1540,7 @@ export default function App() {
                 style={styles.photoOptionItem}
                 onPress={() => {
                   setCapturePhotoModalVisible(false);
-                  Alert.alert('🏬 Sample Facade Attached', 'Sample retail store facade photo attached!');
-                  activeSiteTask.hasPhoto = true;
+                  setActiveSubScreen('photo_annotation');
                 }}
               >
                 <View style={[styles.photoOptionIconBox, { backgroundColor: '#F1F5F9' }]}>
@@ -1328,7 +1559,7 @@ export default function App() {
   }
 
   // =========================================================================
-  // SCREEN 2D: FIELD BOY MAIN WORKSPACE
+  // SCREEN 2F: FIELD BOY MAIN WORKSPACE
   // =========================================================================
   if (currentUser.role === 'Field Boy') {
     const pendingCount = fieldTasks.filter((t) => t.status === 'ASSIGNED').length;
@@ -1497,7 +1728,7 @@ export default function App() {
   }
 
   // =========================================================================
-  // SCREEN 2E: ADMIN DASHBOARD
+  // SCREEN 2G: ADMIN DASHBOARD
   // =========================================================================
   return (
     <SafeAreaView style={styles.container}>
@@ -3752,7 +3983,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
 
-  // TECHNICAL SITE CHECKLIST STYLES (Exact match to Screenshot)
+  // TECHNICAL SITE CHECKLIST STYLES
   checklistSectionHeading: {
     fontSize: 16,
     fontWeight: 'bold',
@@ -4028,6 +4259,229 @@ const styles = StyleSheet.create({
     borderRadius: 12,
   },
   saveMeasurementsBtnText: {
+    color: '#FFFFFF',
+    fontSize: 15,
+    fontWeight: 'bold',
+  },
+
+  // Photo Annotation Screen Styles
+  annotationHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    backgroundColor: '#0F172A',
+  },
+  annotationHeaderTitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#FFFFFF',
+  },
+  annotationSaveBtn: {
+    backgroundColor: '#0284C7',
+    paddingHorizontal: 14,
+    paddingVertical: 6,
+    borderRadius: 6,
+  },
+  annotationSaveText: {
+    color: '#FFFFFF',
+    fontWeight: 'bold',
+    fontSize: 13,
+  },
+  annotationToolbar: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    backgroundColor: '#1E293B',
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+  },
+  annotToolBtn: {
+    padding: 6,
+    borderRadius: 6,
+    backgroundColor: '#334155',
+  },
+  annotToolBtnActive: {
+    padding: 6,
+    borderRadius: 6,
+    backgroundColor: '#E0F2FE',
+  },
+  colorDot: {
+    width: 22,
+    height: 22,
+    borderRadius: 11,
+  },
+  colorDotSelected: {
+    borderWidth: 2,
+    borderColor: '#FFFFFF',
+    transform: [{ scale: 1.2 }],
+  },
+  photoCanvasContainer: {
+    flex: 1,
+    position: 'relative',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  canvasFacadeImage: {
+    width: '100%',
+    height: '100%',
+  },
+  widthDimensionMarker: {
+    position: 'absolute',
+    top: 120,
+    left: 40,
+    right: 40,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  dimensionDashedLine: {
+    flex: 1,
+    height: 2,
+    backgroundColor: '#FACC15',
+    marginHorizontal: 4,
+  },
+  dimensionLabelPill: {
+    backgroundColor: 'rgba(0,0,0,0.75)',
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#FACC15',
+  },
+  dimensionLabelText: {
+    color: '#FACC15',
+    fontSize: 12,
+    fontWeight: 'bold',
+  },
+  heightDimensionMarker: {
+    position: 'absolute',
+    top: 150,
+    left: 20,
+    height: 160,
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  dimensionDashedLineV: {
+    width: 2,
+    flex: 1,
+    backgroundColor: '#FACC15',
+  },
+  powerPointBadge: {
+    position: 'absolute',
+    bottom: 80,
+    right: 30,
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(15, 23, 42, 0.85)',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: '#38BDF8',
+  },
+  powerPointText: {
+    color: '#38BDF8',
+    fontSize: 11,
+    fontWeight: 'bold',
+  },
+  calloutBottomBar: {
+    backgroundColor: '#0F172A',
+    padding: 16,
+    alignItems: 'center',
+  },
+  calloutInstructionText: {
+    color: '#94A3B8',
+    fontSize: 12,
+    textAlign: 'center',
+    fontWeight: '500',
+  },
+
+  // Video Screen Styles
+  videoTopBar: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+  },
+  videoHeaderTitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#FFFFFF',
+  },
+  videoViewport: {
+    flex: 1,
+    backgroundColor: '#1E293B',
+    borderRadius: 20,
+    marginHorizontal: 16,
+    overflow: 'hidden',
+    position: 'relative',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  videoFeedImage: {
+    width: '100%',
+    height: '100%',
+  },
+  recordingTimerBadge: {
+    position: 'absolute',
+    top: 20,
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0,0,0,0.7)',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 20,
+  },
+  redRecordingDot: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    backgroundColor: '#EF4444',
+    marginRight: 6,
+  },
+  recordingTimerText: {
+    color: '#FFFFFF',
+    fontSize: 13,
+    fontWeight: 'bold',
+  },
+  videoGuidancePill: {
+    position: 'absolute',
+    bottom: 20,
+    backgroundColor: 'rgba(0,0,0,0.65)',
+    paddingHorizontal: 14,
+    paddingVertical: 6,
+    borderRadius: 16,
+  },
+  videoGuidanceText: {
+    color: '#FFFFFF',
+    fontSize: 12,
+    fontWeight: '500',
+  },
+  videoBottomBar: {
+    padding: 20,
+    alignItems: 'center',
+  },
+  recordVideoPrimaryBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#EF4444',
+    borderRadius: 30,
+    paddingVertical: 14,
+    paddingHorizontal: 24,
+    width: '100%',
+  },
+  recordVideoInnerCircle: {
+    width: 14,
+    height: 14,
+    borderRadius: 7,
+    backgroundColor: '#FFFFFF',
+    marginRight: 8,
+  },
+  recordVideoBtnText: {
     color: '#FFFFFF',
     fontSize: 15,
     fontWeight: 'bold',
