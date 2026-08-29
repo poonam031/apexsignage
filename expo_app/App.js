@@ -79,12 +79,8 @@ export default function App() {
   // FIELD BOY WORKSPACE STATE & SUB-SCREENS
   // =========================================================================
   const [activeSiteTask, setActiveSiteTask] = useState(null); // When opened, navigates to Site Visit Detail screen
-  const [activeSubScreen, setActiveSubScreen] = useState(null); // 'measurements', 'photo', 'video', 'checklist'
+  const [activeSubScreen, setActiveSubScreen] = useState(null); // 'measurements', 'checklist', 'photo_preview', 'video_preview'
   const [capturePhotoModalVisible, setCapturePhotoModalVisible] = useState(false);
-  const [selectedPhotoSource, setSelectedPhotoSource] = useState(null); // 'sample', 'live', 'gallery'
-  const [isVideoRecording, setIsVideoRecording] = useState(false);
-  const [videoTimer, setVideoTimer] = useState(10);
-  const [videoRecorded, setVideoRecorded] = useState(false);
 
   // Field Boy Assigned Tasks
   const [fieldTasks, setFieldTasks] = useState([
@@ -107,10 +103,13 @@ export default function App() {
         },
       ],
       checklist: {
-        facadeType: 'Ground Floor Facade (12 ft)',
-        powerDistance: '10.0ft',
-        ladder: 'Yes',
-        crane: 'No',
+        mountingHeight: 'Ground Floor Facade (12 ft)',
+        powerDistance: '10.0',
+        ladderRequired: true,
+        scaffoldingRequired: false,
+        craneRequired: false,
+        obstacles: 'Overhanging power cables and shop awning near entrance',
+        notes: '220V power point accessible from ground meter room.',
       },
       hasPhoto: false,
       hasVideo: false,
@@ -134,50 +133,29 @@ export default function App() {
         },
       ],
       checklist: {
-        facadeType: '1st Floor Cantilever (18 ft)',
-        powerDistance: '5.0ft',
-        ladder: 'Yes',
-        crane: 'Yes',
+        mountingHeight: '1st Floor Cantilever (18 ft)',
+        powerDistance: '5.0',
+        ladderRequired: true,
+        scaffoldingRequired: true,
+        craneRequired: false,
+        obstacles: 'Hospital ambulance entry clearance required',
+        notes: 'Installation work permitted during night hours only (10 PM to 6 AM).',
       },
       hasPhoto: true,
       hasVideo: true,
     },
   ]);
 
-  // Video recording timer effect
-  useEffect(() => {
-    let interval = null;
-    if (isVideoRecording && videoTimer > 0) {
-      interval = setInterval(() => {
-        setVideoTimer((prev) => prev - 1);
-      }, 1000);
-    } else if (videoTimer === 0 && isVideoRecording) {
-      setIsVideoRecording(false);
-      setVideoRecorded(true);
-      Alert.alert('✅ 10s Video Captured', 'Site video clip saved and attached to task!');
-      setActiveSubScreen(null);
-      if (activeSiteTask) {
-        activeSiteTask.hasVideo = true;
-      }
-    }
-    return () => clearInterval(interval);
-  }, [isVideoRecording, videoTimer]);
-
-  const handleStartVideoRecording = () => {
-    setVideoTimer(10);
-    setIsVideoRecording(true);
-  };
-
   const handleSubmitSiteVisit = (task) => {
     setFieldTasks((prev) =>
       prev.map((t) => (t.id === task.id ? { ...t, status: 'SUBMITTED', measurementsCount: t.boardSections.length } : t))
     );
 
-    const syncMsg = `📋 *APEX SIGNAGE - SITE SURVEY SUBMITTED*\n━━━━━━━━━━━━━━━━━━━━\nTask: *${task.title}*\nClient: *${task.clientName}* (${task.clientPhone})\n📍 Location: *${task.address}*\n\n📐 *Measurements:* ${task.boardSections.length} Board(s) Configured (Total: 60.0 Sq.Ft)\n📷 *Site Photos:* 1 Annotated Facade Photo attached\n🎥 *Video:* 10-Second Clearance Video attached\n\n*Synced live to Production & Designers!*`;
+    const syncMsg = `📋 *APEX SIGNAGE - SITE SURVEY SUBMITTED*\n━━━━━━━━━━━━━━━━━━━━\nTask: *${task.title}*\nClient: *${task.clientName}* (${task.clientPhone})\n📍 Location: *${task.address}*\n\n📐 *Measurements:* ${task.boardSections.length} Board(s) Configured (Total: 60.0 Sq.Ft)\n🏗️ *Mounting:* ${task.checklist.mountingHeight}\n🔌 *Power Distance:* ${task.checklist.powerDistance} ft\n🪜 *Equipment:* Ladder: ${task.checklist.ladderRequired ? 'Yes' : 'No'} • Crane: ${task.checklist.craneRequired ? 'Yes' : 'No'}\n⚠️ *Obstacles:* ${task.checklist.obstacles || 'None'}\n\n*Synced live to Production & Designers!*`;
 
     Linking.openURL(`whatsapp://send?phone=919423800532&text=${encodeURIComponent(syncMsg)}`).catch(() => {});
 
-    Alert.alert('✅ Site Visit Submitted!', 'Measurements & photos synced to Office & Designers live!');
+    Alert.alert('✅ Site Visit Submitted!', 'Measurements & technical checklist synced to Office & Designers live!');
     setActiveSiteTask(null);
   };
 
@@ -207,7 +185,6 @@ export default function App() {
     setSiteVisitsCount((prev) => prev + 1);
     setSiteVisitModalVisible(false);
 
-    // Also add to Field Boy's task list!
     const newTask = {
       id: `sv-${Date.now()}`,
       title: clientName,
@@ -227,10 +204,13 @@ export default function App() {
         },
       ],
       checklist: {
-        facadeType: 'Ground Floor Facade (10 ft)',
-        powerDistance: '8.0ft',
-        ladder: 'Yes',
-        crane: 'No',
+        mountingHeight: 'Ground Floor Facade (12 ft)',
+        powerDistance: '10.0',
+        ladderRequired: true,
+        scaffoldingRequired: false,
+        craneRequired: false,
+        obstacles: '',
+        notes: '',
       },
       hasPhoto: false,
       hasVideo: false,
@@ -803,58 +783,184 @@ export default function App() {
   }
 
   // =========================================================================
-  // SCREEN 2A: FIELD BOY SUB-SCREEN: 10-SECOND REALTIME SITE VIDEO
+  // SCREEN 2A: FIELD BOY SUB-SCREEN: TECHNICAL SITE CHECKLIST (Exact match to Screenshot)
   // =========================================================================
-  if (currentUser.role === 'Field Boy' && activeSubScreen === 'video') {
+  if (currentUser.role === 'Field Boy' && activeSubScreen === 'checklist' && activeSiteTask) {
+    const checklist = activeSiteTask.checklist;
+
     return (
-      <SafeAreaView style={{ flex: 1, backgroundColor: '#000000' }}>
-        <StatusBar barStyle="light-content" backgroundColor="#000000" />
-        
-        {/* Top Video Header */}
-        <View style={styles.videoTopBar}>
-          <TouchableOpacity onPress={() => setActiveSubScreen(null)} style={{ padding: 6 }}>
-            <Ionicons name="arrow-back" size={24} color="#FFFFFF" />
-          </TouchableOpacity>
-          <Text style={styles.videoHeaderTitle}>10-Second Realtime Site Video</Text>
-          <TouchableOpacity style={{ padding: 6 }}>
-            <Ionicons name="camera-reverse-outline" size={24} color="#FFFFFF" />
-          </TouchableOpacity>
-        </View>
+      <SafeAreaView style={styles.container}>
+        <StatusBar barStyle="light-content" backgroundColor="#0F2744" />
 
-        {/* Live Camera Viewfinder Simulated Viewport */}
-        <View style={styles.videoViewport}>
-          <Image
-            source={{ uri: 'https://images.unsplash.com/photo-1541888946425-d0fbb18015f6?w=1000' }}
-            style={styles.videoFeedImage}
-            blurRadius={isVideoRecording ? 0 : 2}
-          />
-          
-          {/* Recording Timer & Overlay */}
-          {isVideoRecording && (
-            <View style={styles.recordingTimerBadge}>
-              <View style={styles.redRecordingDot} />
-              <Text style={styles.recordingTimerText}>00:{videoTimer < 10 ? `0${videoTimer}` : videoTimer}</Text>
-            </View>
-          )}
-
-          <View style={styles.videoGuidancePill}>
-            <Text style={styles.videoGuidanceText}>
-              Pan across facade, electrical & road clearance
-            </Text>
+        {/* Header Bar */}
+        <View style={styles.appBar}>
+          <View style={styles.appBarLeft}>
+            <TouchableOpacity onPress={() => setActiveSubScreen(null)} style={{ marginRight: 10 }}>
+              <Ionicons name="arrow-back" size={24} color="#FFFFFF" />
+            </TouchableOpacity>
+            <Text style={styles.appBarTitle}>Technical Site Checklist</Text>
           </View>
         </View>
 
-        {/* Bottom Record Action Bar */}
-        <View style={styles.videoBottomBar}>
+        <ScrollView style={styles.mainScroll} contentContainerStyle={{ padding: 16, paddingBottom: 100 }}>
+          {/* Section 1: Installation & Safety Assessment */}
+          <Text style={styles.checklistSectionHeading}>Installation & Safety Assessment</Text>
+          <Text style={styles.checklistSectionSub}>
+            Verify structural access, power supply distance, and crane/scaffold requirements.
+          </Text>
+
+          {/* Field 1: Board Floor / Mounting Height */}
+          <View style={[styles.checklistInputCard, { marginTop: 14 }]}>
+            <Text style={styles.checklistInputLabel}>Board Floor / Mounting Height</Text>
+            <View style={styles.checklistInputRow}>
+              <Ionicons name="swap-vertical" size={20} color="#64748B" style={{ marginRight: 10 }} />
+              <TextInput
+                style={styles.checklistTextInput}
+                value={checklist.mountingHeight}
+                onChangeText={(val) => {
+                  checklist.mountingHeight = val;
+                  setActiveSiteTask({ ...activeSiteTask });
+                }}
+                placeholder="e.g. Ground Floor Facade (12 ft)"
+              />
+            </View>
+          </View>
+
+          {/* Field 2: Power Supply Distance (Feet) */}
+          <View style={[styles.checklistInputCard, { marginTop: 14 }]}>
+            <Text style={styles.checklistInputLabel}>Power Supply Distance (Feet)</Text>
+            <View style={styles.checklistInputRow}>
+              <Ionicons name="flash-outline" size={20} color="#64748B" style={{ marginRight: 10 }} />
+              <TextInput
+                style={[styles.checklistTextInput, { flex: 1 }]}
+                keyboardType="numeric"
+                value={checklist.powerDistance}
+                onChangeText={(val) => {
+                  checklist.powerDistance = val;
+                  setActiveSiteTask({ ...activeSiteTask });
+                }}
+                placeholder="10.0"
+              />
+              <Text style={styles.unitSuffix}>ft</Text>
+            </View>
+          </View>
+
+          {/* Section 2: Equipment & Machinery Requirements */}
+          <Text style={[styles.checklistSectionHeading, { marginTop: 22, marginBottom: 8 }]}>
+            Equipment & Machinery Requirements
+          </Text>
+
+          <View style={styles.switchesContainerCard}>
+            {/* Ladder Required Switch */}
+            <View style={styles.switchRowItem}>
+              <View style={{ flex: 1, paddingRight: 10 }}>
+                <Text style={styles.switchTitle}>Ladder Required</Text>
+                <Text style={styles.switchSub}>
+                  Standard aluminium folding ladder (up to 12ft)
+                </Text>
+              </View>
+              <Switch
+                value={checklist.ladderRequired}
+                onValueChange={(val) => {
+                  checklist.ladderRequired = val;
+                  setActiveSiteTask({ ...activeSiteTask });
+                }}
+                trackColor={{ false: '#CBD5E1', true: '#0F2744' }}
+                thumbColor="#FFFFFF"
+              />
+            </View>
+
+            <View style={styles.switchDivider} />
+
+            {/* Scaffolding Required Switch */}
+            <View style={styles.switchRowItem}>
+              <View style={{ flex: 1, paddingRight: 10 }}>
+                <Text style={styles.switchTitle}>Scaffolding Required</Text>
+                <Text style={styles.switchSub}>
+                  Required for heights above 15ft or multi-day installation
+                </Text>
+              </View>
+              <Switch
+                value={checklist.scaffoldingRequired}
+                onValueChange={(val) => {
+                  checklist.scaffoldingRequired = val;
+                  setActiveSiteTask({ ...activeSiteTask });
+                }}
+                trackColor={{ false: '#CBD5E1', true: '#0F2744' }}
+                thumbColor="#FFFFFF"
+              />
+            </View>
+
+            <View style={styles.switchDivider} />
+
+            {/* Hydraulic Crane Required Switch */}
+            <View style={styles.switchRowItem}>
+              <View style={{ flex: 1, paddingRight: 10 }}>
+                <Text style={styles.switchTitle}>Hydraulic Crane Required</Text>
+                <Text style={styles.switchSub}>
+                  Required for rooftop or high-rise facade hoists
+                </Text>
+              </View>
+              <Switch
+                value={checklist.craneRequired}
+                onValueChange={(val) => {
+                  checklist.craneRequired = val;
+                  setActiveSiteTask({ ...activeSiteTask });
+                }}
+                trackColor={{ false: '#CBD5E1', true: '#0F2744' }}
+                thumbColor="#FFFFFF"
+              />
+            </View>
+          </View>
+
+          {/* Section 3: Site Obstacles & Physical Hazards (Cyan Border Box) */}
+          <View style={styles.obstaclesCardActive}>
+            <Text style={styles.obstaclesLabel}>Site Obstacles & Physical Hazards</Text>
+            <View style={styles.obstaclesInputRow}>
+              <Ionicons name="warning-outline" size={22} color="#0F2744" style={{ marginRight: 10 }} />
+              <TextInput
+                style={styles.obstaclesTextInput}
+                value={checklist.obstacles}
+                onChangeText={(val) => {
+                  checklist.obstacles = val;
+                  setActiveSiteTask({ ...activeSiteTask });
+                }}
+                placeholder="e.g. Overhanging power cables, tree branches, uneven pavement"
+                placeholderTextColor="#94A3B8"
+                multiline
+              />
+            </View>
+          </View>
+
+          {/* Section 4: Additional Technical Notes */}
+          <View style={styles.additionalNotesCard}>
+            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+              <Ionicons name="reorder-three-outline" size={22} color="#64748B" style={{ marginRight: 10 }} />
+              <TextInput
+                style={styles.additionalNotesInput}
+                value={checklist.notes}
+                onChangeText={(val) => {
+                  checklist.notes = val;
+                  setActiveSiteTask({ ...activeSiteTask });
+                }}
+                placeholder="Additional Technical Notes"
+                placeholderTextColor="#64748B"
+              />
+            </View>
+          </View>
+        </ScrollView>
+
+        {/* Bottom Save Bar */}
+        <View style={styles.checklistBottomStickyBar}>
           <TouchableOpacity
-            style={[styles.recordVideoPrimaryBtn, isVideoRecording && { backgroundColor: '#DC2626' }]}
-            onPress={handleStartVideoRecording}
-            disabled={isVideoRecording}
+            style={styles.saveChecklistBtn}
+            onPress={() => {
+              Alert.alert('✅ Saved', 'Technical site checklist updated successfully!');
+              setActiveSubScreen(null);
+            }}
           >
-            <View style={styles.recordVideoInnerCircle} />
-            <Text style={styles.recordVideoBtnText}>
-              {isVideoRecording ? `Recording... (${videoTimer}s)` : 'Start 10s Realtime Video'}
-            </Text>
+            <Ionicons name="checkmark" size={20} color="#FFFFFF" style={{ marginRight: 8 }} />
+            <Text style={styles.saveChecklistBtnText}>Save Technical Checklist</Text>
           </TouchableOpacity>
         </View>
       </SafeAreaView>
@@ -1097,7 +1203,9 @@ export default function App() {
             </View>
             <View style={{ flex: 1, marginLeft: 12 }}>
               <Text style={styles.moduleCardTitle}>Capture & Annotate Site Photo</Text>
-              <Text style={styles.moduleCardSub}>Draw width/height directly on site photo</Text>
+              <Text style={styles.moduleCardSub}>
+                {activeSiteTask.hasPhoto ? '✅ 1 Annotated Facade Photo attached' : 'Draw width/height directly on site photo'}
+              </Text>
             </View>
             <Ionicons name="chevron-forward" size={20} color="#94A3B8" />
           </TouchableOpacity>
@@ -1106,31 +1214,34 @@ export default function App() {
           <Text style={styles.moduleSectionHeading}>🎥 3. Site Video Clip (10 Seconds)</Text>
           <TouchableOpacity
             style={styles.moduleCard}
-            onPress={() => setActiveSubScreen('video')}
+            onPress={() => {
+              activeSiteTask.hasVideo = true;
+              Alert.alert('🎥 10s Video Attached', '10-Second Facade & Clearance Video attached to survey!');
+            }}
           >
             <View style={styles.moduleIconBoxPurple}>
               <Ionicons name="videocam-outline" size={22} color="#8B5CF6" />
             </View>
             <View style={{ flex: 1, marginLeft: 12 }}>
               <Text style={styles.moduleCardTitle}>Record 10-Second Site Video</Text>
-              <Text style={styles.moduleCardSub}>Required to assess surrounding trees & road clearance</Text>
+              <Text style={styles.moduleCardSub}>
+                {activeSiteTask.hasVideo ? '✅ 10s Clearance Video saved' : 'Required to assess surrounding trees & road clearance'}
+              </Text>
             </View>
             <Ionicons name="chevron-forward" size={20} color="#94A3B8" />
           </TouchableOpacity>
 
-          {/* Module 4: 📋 Technical Checklist */}
+          {/* Module 4: 📋 Technical Checklist (Opens Technical Site Checklist Screen!) */}
           <Text style={styles.moduleSectionHeading}>📋 4. Technical Checklist</Text>
           <TouchableOpacity
             style={styles.moduleCard}
-            onPress={() =>
-              Alert.alert('Technical Checklist', 'Facade Height: 12ft • Power: 10ft • Ladder: Yes • Crane: No')
-            }
+            onPress={() => setActiveSubScreen('checklist')}
           >
             <View style={{ flex: 1 }}>
-              <Text style={styles.moduleCardTitle}>{activeSiteTask.checklist.facadeType}</Text>
+              <Text style={styles.moduleCardTitle}>{activeSiteTask.checklist.mountingHeight}</Text>
               <Text style={styles.moduleCardSub}>
-                Power: {activeSiteTask.checklist.powerDistance} • Ladder: {activeSiteTask.checklist.ladder} • Crane:{' '}
-                {activeSiteTask.checklist.crane}
+                Power: {activeSiteTask.checklist.powerDistance}ft • Ladder: {activeSiteTask.checklist.ladderRequired ? 'Yes' : 'No'} • Crane:{' '}
+                {activeSiteTask.checklist.craneRequired ? 'Yes' : 'No'}
               </Text>
             </View>
             <Ionicons name="chevron-forward" size={20} color="#94A3B8" />
@@ -1148,7 +1259,7 @@ export default function App() {
           </TouchableOpacity>
         </View>
 
-        {/* Photo Capture Modal (Exact match to Screenshot 4) */}
+        {/* Photo Capture Modal */}
         <Modal
           visible={capturePhotoModalVisible}
           transparent
@@ -1163,7 +1274,7 @@ export default function App() {
                 style={styles.photoOptionItem}
                 onPress={() => {
                   setCapturePhotoModalVisible(false);
-                  Alert.alert('📸 Live Camera', 'Photo captured and annotated with 15ft x 4ft markers!');
+                  Alert.alert('📸 Live Photo Attached', 'Facade photo captured and annotated with 15ft x 4ft markers!');
                   activeSiteTask.hasPhoto = true;
                 }}
               >
@@ -1180,7 +1291,7 @@ export default function App() {
                 style={styles.photoOptionItem}
                 onPress={() => {
                   setCapturePhotoModalVisible(false);
-                  Alert.alert('🖼️ Gallery', 'Selected photo loaded and annotated!');
+                  Alert.alert('🖼️ Gallery Photo Attached', 'Selected photo loaded and annotated!');
                   activeSiteTask.hasPhoto = true;
                 }}
               >
@@ -1197,7 +1308,7 @@ export default function App() {
                 style={styles.photoOptionItem}
                 onPress={() => {
                   setCapturePhotoModalVisible(false);
-                  Alert.alert('🏬 Sample Loaded', 'Sample retail store facade photo attached!');
+                  Alert.alert('🏬 Sample Facade Attached', 'Sample retail store facade photo attached!');
                   activeSiteTask.hasPhoto = true;
                 }}
               >
@@ -1217,7 +1328,7 @@ export default function App() {
   }
 
   // =========================================================================
-  // SCREEN 2D: FIELD BOY MAIN WORKSPACE (Exact 1:1 match to Screenshot 1)
+  // SCREEN 2D: FIELD BOY MAIN WORKSPACE
   // =========================================================================
   if (currentUser.role === 'Field Boy') {
     const pendingCount = fieldTasks.filter((t) => t.status === 'ASSIGNED').length;
@@ -1228,7 +1339,6 @@ export default function App() {
       <SafeAreaView style={styles.container}>
         <StatusBar barStyle="light-content" backgroundColor="#0F2744" />
 
-        {/* Top Header Bar */}
         <View style={styles.appBar}>
           <View style={styles.appBarLeft}>
             <Ionicons name="print" size={22} color="#FFFFFF" style={{ marginRight: 8 }} />
@@ -1256,23 +1366,19 @@ export default function App() {
         </View>
 
         <ScrollView style={styles.mainScroll} contentContainerStyle={{ padding: 16, paddingBottom: 100 }}>
-          {/* Top 3 Status Counter Cards */}
           <View style={styles.fieldBoyStatusRow}>
-            {/* 1. Pending */}
             <View style={styles.fieldBoyStatusCard}>
               <Ionicons name="time-outline" size={20} color="#F59E0B" />
               <Text style={[styles.fieldBoyStatusBigVal, { color: '#F59E0B' }]}>{pendingCount}</Text>
               <Text style={styles.fieldBoyStatusSub}>Pending</Text>
             </View>
 
-            {/* 2. In-Progress */}
             <View style={styles.fieldBoyStatusCard}>
               <Ionicons name="resize-outline" size={20} color="#0284C7" />
               <Text style={[styles.fieldBoyStatusBigVal, { color: '#0284C7' }]}>{inProgressCount}</Text>
               <Text style={styles.fieldBoyStatusSub}>In-Progress</Text>
             </View>
 
-            {/* 3. Submitted */}
             <View style={styles.fieldBoyStatusCard}>
               <Ionicons name="cloud-done-outline" size={20} color="#10B981" />
               <Text style={[styles.fieldBoyStatusBigVal, { color: '#10B981' }]}>{submittedCount}</Text>
@@ -1280,7 +1386,6 @@ export default function App() {
             </View>
           </View>
 
-          {/* Blue Tip Banner */}
           <View style={styles.fieldBoyTipBanner}>
             <Ionicons name="hand-left-outline" size={22} color="#0284C7" style={{ marginRight: 10 }} />
             <Text style={styles.fieldBoyTipText}>
@@ -1288,7 +1393,6 @@ export default function App() {
             </Text>
           </View>
 
-          {/* Section: My Assigned Site Tasks */}
           <Text style={styles.sectionTitle}>My Assigned Site Tasks</Text>
 
           {fieldTasks.map((task) => (
@@ -1346,7 +1450,6 @@ export default function App() {
           ))}
         </ScrollView>
 
-        {/* Field Boy Bottom Navigation Bar */}
         <View style={styles.bottomNav}>
           <TouchableOpacity
             style={[styles.navItem, fieldBoyTab === 'tasks' && styles.navItemActive]}
@@ -1394,7 +1497,7 @@ export default function App() {
   }
 
   // =========================================================================
-  // SCREEN 2E: ADMIN DASHBOARD / INVENTORY / INVOICES / RATE CALC / SALARY
+  // SCREEN 2E: ADMIN DASHBOARD
   // =========================================================================
   return (
     <SafeAreaView style={styles.container}>
@@ -3392,9 +3495,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
 
-  // =========================================================================
-  // FIELD BOY WORKSPACE SPECIFIC STYLES (Exact match to Screenshots)
-  // =========================================================================
+  // FIELD BOY WORKSPACE SPECIFIC STYLES
   fieldBoyStatusRow: {
     flexDirection: 'row',
     gap: 10,
@@ -3651,6 +3752,132 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
 
+  // TECHNICAL SITE CHECKLIST STYLES (Exact match to Screenshot)
+  checklistSectionHeading: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#0F172A',
+  },
+  checklistSectionSub: {
+    fontSize: 12,
+    color: '#64748B',
+    marginTop: 4,
+    lineHeight: 18,
+  },
+  checklistInputCard: {
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#CBD5E1',
+    borderRadius: 12,
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+  },
+  checklistInputLabel: {
+    fontSize: 11,
+    color: '#64748B',
+    fontWeight: '500',
+    marginBottom: 2,
+  },
+  checklistInputRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    minHeight: 34,
+  },
+  checklistTextInput: {
+    flex: 1,
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#0F172A',
+  },
+  switchesContainerCard: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 14,
+    paddingHorizontal: 16,
+    paddingVertical: 6,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    marginBottom: 16,
+  },
+  switchRowItem: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 12,
+  },
+  switchTitle: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: '#0F172A',
+  },
+  switchSub: {
+    fontSize: 11,
+    color: '#64748B',
+    marginTop: 2,
+  },
+  switchDivider: {
+    height: 1,
+    backgroundColor: '#F1F5F9',
+  },
+  obstaclesCardActive: {
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1.5,
+    borderColor: '#0284C7',
+    borderRadius: 12,
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    marginBottom: 14,
+  },
+  obstaclesLabel: {
+    fontSize: 11,
+    color: '#0284C7',
+    fontWeight: '600',
+    marginBottom: 4,
+  },
+  obstaclesInputRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+  },
+  obstaclesTextInput: {
+    flex: 1,
+    fontSize: 13,
+    color: '#0F172A',
+    fontWeight: '500',
+    minHeight: 44,
+  },
+  additionalNotesCard: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+    marginBottom: 20,
+  },
+  additionalNotesInput: {
+    flex: 1,
+    fontSize: 14,
+    color: '#0F172A',
+  },
+  checklistBottomStickyBar: {
+    backgroundColor: '#FFFFFF',
+    padding: 16,
+    borderTopWidth: 1,
+    borderTopColor: '#E2E8F0',
+  },
+  saveChecklistBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#0F2744',
+    paddingVertical: 14,
+    borderRadius: 12,
+  },
+  saveChecklistBtnText: {
+    color: '#FFFFFF',
+    fontSize: 15,
+    fontWeight: 'bold',
+  },
+
   // Smart Measurement Calculator Styles
   calcFormulaBox: {
     flexDirection: 'row',
@@ -3801,95 +4028,6 @@ const styles = StyleSheet.create({
     borderRadius: 12,
   },
   saveMeasurementsBtnText: {
-    color: '#FFFFFF',
-    fontSize: 15,
-    fontWeight: 'bold',
-  },
-
-  // Video Screen Styles
-  videoTopBar: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-  },
-  videoHeaderTitle: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#FFFFFF',
-  },
-  videoViewport: {
-    flex: 1,
-    backgroundColor: '#1E293B',
-    borderRadius: 20,
-    marginHorizontal: 16,
-    overflow: 'hidden',
-    position: 'relative',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  videoFeedImage: {
-    width: '100%',
-    height: '100%',
-  },
-  recordingTimerBadge: {
-    position: 'absolute',
-    top: 20,
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: 'rgba(0,0,0,0.6)',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 20,
-  },
-  redRecordingDot: {
-    width: 10,
-    height: 10,
-    borderRadius: 5,
-    backgroundColor: '#EF4444',
-    marginRight: 6,
-  },
-  recordingTimerText: {
-    color: '#FFFFFF',
-    fontSize: 14,
-    fontWeight: 'bold',
-  },
-  videoGuidancePill: {
-    position: 'absolute',
-    bottom: 20,
-    backgroundColor: 'rgba(0,0,0,0.6)',
-    paddingHorizontal: 14,
-    paddingVertical: 6,
-    borderRadius: 16,
-  },
-  videoGuidanceText: {
-    color: '#FFFFFF',
-    fontSize: 12,
-    fontWeight: '500',
-  },
-  videoBottomBar: {
-    padding: 20,
-    alignItems: 'center',
-  },
-  recordVideoPrimaryBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#EF4444',
-    borderRadius: 30,
-    paddingVertical: 14,
-    paddingHorizontal: 24,
-    width: '100%',
-  },
-  recordVideoInnerCircle: {
-    width: 14,
-    height: 14,
-    borderRadius: 7,
-    backgroundColor: '#FFFFFF',
-    marginRight: 8,
-  },
-  recordVideoBtnText: {
     color: '#FFFFFF',
     fontSize: 15,
     fontWeight: 'bold',
@@ -4061,6 +4199,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 6,
   },
+  modalInputLabel: {
+    fontSize: 11,
+    color: '#64748B',
+    fontWeight: '500',
+    marginBottom: 2,
+  },
   modalSelectRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -4093,6 +4237,12 @@ const styles = StyleSheet.create({
   modalOptionActive: {
     color: '#0284C7',
     fontWeight: 'bold',
+  },
+  modalTextInput: {
+    fontSize: 14,
+    color: '#0F172A',
+    fontWeight: '600',
+    height: 34,
   },
   stockModalCancelBtn: {
     alignSelf: 'flex-end',
