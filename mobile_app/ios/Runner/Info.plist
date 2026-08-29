@@ -52,5 +52,17 @@
 	<string>Apex Signage requires location access to verify attendance within the 200m factory geofence and navigate to customer sites.</string>
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
 	<string>Apex Signage requires location access for accurate site visit dispatch and attendance check-in.</string>
+
+	<!-- Deep Link Schemes for WhatsApp & Maps -->
+	<key>LSApplicationQueriesSchemes</key>
+	<array>
+		<string>whatsapp</string>
+		<string>https</string>
+		<string>http</string>
+		<string>tel</string>
+		<string>mailto</string>
+		<string>googlechromes</string>
+		<string>comgooglemaps</string>
+	</array>
 </dict>
 </plist>
