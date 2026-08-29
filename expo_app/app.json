@@ -1,0 +1,20 @@
+{
+  "expo": {
+    "name": "Apex Signage",
+    "slug": "apex-signage-app",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "dark",
+    "splash": {
+      "resizeMode": "contain",
+      "backgroundColor": "#0F172A"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.apex.signage"
+    },
+    "android": {
+      "package": "com.apex.signage"
+    }
+  }
+}
