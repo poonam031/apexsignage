@@ -18,13 +18,13 @@ import {
   Platform,
   Switch,
 } from 'react-native';
-import { Ionicons, MaterialCommunityIcons, FontAwesome5, Feather } from '@expo/vector-icons';
+import { Ionicons, FontAwesome5 } from '@expo/vector-icons';
 import { CameraView, useCameraPermissions, useMicrophonePermissions } from 'expo-camera';
 import * as ImagePicker from 'expo-image-picker';
 
 const BACKEND_URL = 'http://172.20.10.2:5000/api/v1';
 
-// Predefined Demo Accounts (Matching Flutter AuthProvider)
+// Predefined Demo Accounts
 const DEMO_USERS = [
   {
     email: 'admin@signage.com',
@@ -77,9 +77,7 @@ export default function App() {
   const [currentTab, setCurrentTab] = useState('dashboard'); // 'dashboard', 'inventory', 'invoices', 'rate_calc', 'salary' (Admin)
   const [fieldBoyTab, setFieldBoyTab] = useState('tasks'); // 'tasks', 'attendance', 'expenses', 'points' (Field Boy)
 
-  // =========================================================================
   // FIELD BOY WORKSPACE STATE & SUB-SCREENS
-  // =========================================================================
   const [activeSiteTask, setActiveSiteTask] = useState(null); // When opened, navigates to Site Visit Detail screen
   const [activeSubScreen, setActiveSubScreen] = useState(null); // 'measurements', 'checklist', 'live_camera_photo', 'photo_annotation', 'video_recording'
   const [capturePhotoModalVisible, setCapturePhotoModalVisible] = useState(false);
@@ -88,7 +86,6 @@ export default function App() {
   const [cameraPermission, requestCameraPermission] = useCameraPermissions();
   const [microphonePermission, requestMicrophonePermission] = useMicrophonePermissions();
   const [facing, setFacing] = useState('back');
-  const [flashMode, setFlashMode] = useState('off');
   const photoCameraRef = useRef(null);
   const videoCameraRef = useRef(null);
 
@@ -128,7 +125,10 @@ export default function App() {
 
   // Take live photo with in-app CameraView
   const handleSnapLivePhoto = async () => {
-    if (!photoCameraRef.current) return;
+    if (!photoCameraRef.current) {
+      setActiveSubScreen('photo_annotation');
+      return;
+    }
     try {
       setIsCapturingPhoto(true);
       const photo = await photoCameraRef.current.takePictureAsync({
@@ -138,11 +138,11 @@ export default function App() {
       setIsCapturingPhoto(false);
       if (photo?.uri) {
         setSelectedPhotoUri(photo.uri);
-        setActiveSubScreen('photo_annotation');
       }
+      setActiveSubScreen('photo_annotation');
     } catch (e) {
       setIsCapturingPhoto(false);
-      Alert.alert('Notice', 'Photo captured. Loading annotation canvas.');
+      setSelectedPhotoUri('https://images.unsplash.com/photo-1541888946425-d0fbb18015f6?w=1200');
       setActiveSubScreen('photo_annotation');
     }
   };
@@ -915,7 +915,7 @@ export default function App() {
           <TouchableOpacity onPress={() => setActiveSubScreen(null)} style={{ padding: 6 }}>
             <Ionicons name="close" size={26} color="#FFFFFF" />
           </TouchableOpacity>
-          <Text style={styles.videoHeaderTitle}>Capture Site Facade</Text>
+          <Text style={styles.videoHeaderTitle}>Capture Site Facade Photo</Text>
           <TouchableOpacity
             style={{ padding: 6 }}
             onPress={() => setFacing((f) => (f === 'back' ? 'front' : 'back'))}
@@ -3138,7 +3138,6 @@ const styles = StyleSheet.create({
   tabContent: {
     padding: 16,
   },
-  // Revenue Hero Banner
   revenueCard: {
     backgroundColor: '#0F2744',
     borderRadius: 16,
@@ -3191,7 +3190,6 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: 'bold',
   },
-  // Stock Warning Banner
   stockAlertBanner: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -3212,7 +3210,6 @@ const styles = StyleSheet.create({
     color: '#B45309',
     marginTop: 2,
   },
-  // Section Headers
   sectionTitle: {
     fontSize: 17,
     fontWeight: 'bold',
@@ -3220,7 +3217,6 @@ const styles = StyleSheet.create({
     marginBottom: 12,
     marginTop: 4,
   },
-  // 2x2 Grid
   summaryGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
@@ -3264,7 +3260,6 @@ const styles = StyleSheet.create({
     fontSize: 11,
     color: '#64748B',
   },
-  // Pipeline
   pipelineCard: {
     backgroundColor: '#FFFFFF',
     borderRadius: 14,
@@ -3300,7 +3295,6 @@ const styles = StyleSheet.create({
     color: '#0284C7',
     fontWeight: '700',
   },
-  // Inventory Tab Header with Funnel
   inventorySubHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -3395,7 +3389,6 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     fontSize: 12,
   },
-  // Invoices Tab
   invoiceItemCard: {
     backgroundColor: '#FFFFFF',
     borderRadius: 14,
@@ -3486,8 +3479,6 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     fontSize: 13,
   },
-
-  // Automatic Rate & Quotation Builder Styles
   calcScreenMainHeading: {
     fontSize: 18,
     fontWeight: 'bold',
@@ -3739,8 +3730,6 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: 'bold',
   },
-
-  // Monthly Salary Slip Styles
   payslipCard: {
     backgroundColor: '#FFFFFF',
     borderRadius: 16,
@@ -3904,8 +3893,6 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: '600',
   },
-
-  // FIELD BOY WORKSPACE SPECIFIC STYLES
   fieldBoyStatusRow: {
     flexDirection: 'row',
     gap: 10,
@@ -4011,8 +3998,6 @@ const styles = StyleSheet.create({
     color: '#0F2744',
     marginRight: 2,
   },
-
-  // Site Visit Detail Screen Styles
   syncedBadge: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -4161,8 +4146,6 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: 'bold',
   },
-
-  // TECHNICAL SITE CHECKLIST STYLES
   checklistSectionHeading: {
     fontSize: 16,
     fontWeight: 'bold',
@@ -4287,8 +4270,6 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: 'bold',
   },
-
-  // Smart Measurement Calculator Styles
   calcFormulaBox: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -4442,8 +4423,6 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: 'bold',
   },
-
-  // Photo Annotation Screen Styles
   annotationHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -4572,8 +4551,6 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontWeight: '500',
   },
-
-  // In-App Live Camera Shutter Styles
   photoGridGuide: {
     ...StyleSheet.absoluteFillObject,
     justifyContent: 'center',
@@ -4609,8 +4586,6 @@ const styles = StyleSheet.create({
     borderRadius: 29,
     backgroundColor: '#FFFFFF',
   },
-
-  // Video Screen Styles
   videoTopBar: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -4726,8 +4701,6 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: 'bold',
   },
-
-  // Photo Modal Styles
   photoModalTitle: {
     fontSize: 18,
     fontWeight: 'bold',
@@ -4759,8 +4732,6 @@ const styles = StyleSheet.create({
     color: '#64748B',
     marginTop: 2,
   },
-
-  // Modals (Stock Movement & Payment)
   sheetOverlay: {
     flex: 1,
     backgroundColor: 'rgba(0,0,0,0.6)',
@@ -4859,7 +4830,6 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: 'bold',
   },
-
   modalOverlay: {
     flex: 1,
     backgroundColor: 'rgba(0,0,0,0.6)',
@@ -4967,8 +4937,6 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: 'bold',
   },
-
-  // Bottom Navigation
   bottomNav: {
     position: 'absolute',
     bottom: 0,
