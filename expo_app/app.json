@@ -11,10 +11,37 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.apex.signage"
+      "bundleIdentifier": "com.apex.signage",
+      "infoPlist": {
+        "NSCameraUsageDescription": "Apex Signage requires camera access to capture site facade photos and record 10-second site video surveys.",
+        "NSMicrophoneUsageDescription": "Apex Signage requires microphone access to record audio during site video surveys.",
+        "NSPhotoLibraryUsageDescription": "Apex Signage requires photo library access to select site photos for measurement annotation."
+      }
     },
     "android": {
-      "package": "com.apex.signage"
-    }
+      "package": "com.apex.signage",
+      "permissions": [
+        "CAMERA",
+        "RECORD_AUDIO",
+        "READ_EXTERNAL_STORAGE",
+        "WRITE_EXTERNAL_STORAGE"
+      ]
+    },
+    "plugins": [
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Apex Signage requires camera access to capture site facade photos and record 10-second site video surveys.",
+          "microphonePermission": "Apex Signage requires microphone access to record audio during site video surveys."
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Apex Signage requires photo library access to select site photos for measurement annotation.",
+          "cameraPermission": "Apex Signage requires camera access to take facade photos."
+        }
+      ]
+    ]
   }
 }
