@@ -1704,7 +1704,7 @@ export default function App() {
   }
 
   // =========================================================================
-  // SCREEN 2G: FIELD BOY MAIN WORKSPACE
+  // SCREEN 2G: FIELD BOY MAIN WORKSPACE (MATCHING EXACT SCREENSHOT DESIGN)
   // =========================================================================
   if (currentUser.role === 'Field Boy') {
     const pendingCount = fieldTasks.filter((t) => t.status === 'ASSIGNED').length;
@@ -1713,17 +1713,25 @@ export default function App() {
 
     return (
       <View style={styles.rootFullContainer}>
+        {/* Top Status Bar in Theme Dark Navy */}
         <SafeAreaView style={{ flex: 0, backgroundColor: '#0F2744' }}>
           <StatusBar barStyle="light-content" backgroundColor="#0F2744" />
         </SafeAreaView>
 
+        {/* Top App Header Matching Exact Screenshot */}
         <View style={styles.appBar}>
           <View style={styles.appBarLeft}>
-            <Ionicons name="print" size={22} color="#FFFFFF" style={{ marginRight: 8 }} />
+            <Ionicons name="print-outline" size={22} color="#FFFFFF" style={{ marginRight: 8 }} />
             <Text style={styles.appBarTitle}>Field Boy Workspace</Text>
           </View>
 
           <View style={styles.appBarRight}>
+            <TouchableOpacity
+              style={styles.appBarIconBtn}
+              onPress={() => Alert.alert('📊 Performance Overview', 'Completed: 12 Site Surveys | Efficiency: 98%')}
+            >
+              <Ionicons name="bar-chart" size={20} color="#FFFFFF" />
+            </TouchableOpacity>
             <TouchableOpacity
               style={styles.appBarIconBtn}
               onPress={() => {
@@ -1740,93 +1748,104 @@ export default function App() {
           </View>
         </View>
 
+        {/* Main Body Content Area */}
         <View style={styles.appBodyWrapper}>
-          <ScrollView style={styles.mainScroll} contentContainerStyle={styles.scrollContentInset}>
-            <View style={styles.fieldBoyStatusRow}>
-              <View style={styles.fieldBoyStatusCard}>
-                <Ionicons name="time-outline" size={20} color="#F59E0B" />
-                <Text style={[styles.fieldBoyStatusBigVal, { color: '#F59E0B' }]}>{pendingCount}</Text>
-                <Text style={styles.fieldBoyStatusSub}>Pending</Text>
+          <ScrollView style={styles.mainScroll} contentContainerStyle={styles.fieldBoyScrollContent}>
+            
+            {/* Top 3 KPI Cards Row */}
+            <View style={styles.fieldBoyKpiRow}>
+              {/* Card 1: Pending */}
+              <View style={styles.fieldBoyKpiCard}>
+                <Ionicons name="clipboard-outline" size={22} color="#D97706" />
+                <Text style={[styles.fieldBoyKpiBigVal, { color: '#D97706' }]}>{pendingCount}</Text>
+                <Text style={styles.fieldBoyKpiLabel}>Pending</Text>
               </View>
 
-              <View style={styles.fieldBoyStatusCard}>
-                <Ionicons name="resize-outline" size={20} color="#0F2744" />
-                <Text style={[styles.fieldBoyStatusBigVal, { color: '#0F2744' }]}>{inProgressCount}</Text>
-                <Text style={styles.fieldBoyStatusSub}>In-Progress</Text>
+              {/* Card 2: In-Progress */}
+              <View style={styles.fieldBoyKpiCard}>
+                <Ionicons name="speedometer-outline" size={22} color="#2563EB" />
+                <Text style={[styles.fieldBoyKpiBigVal, { color: '#2563EB' }]}>{inProgressCount}</Text>
+                <Text style={styles.fieldBoyKpiLabel}>In-Progress</Text>
               </View>
 
-              <View style={styles.fieldBoyStatusCard}>
-                <Ionicons name="cloud-done-outline" size={20} color="#10B981" />
-                <Text style={[styles.fieldBoyStatusBigVal, { color: '#10B981' }]}>{submittedCount}</Text>
-                <Text style={styles.fieldBoyStatusSub}>Submitted</Text>
+              {/* Card 3: Submitted */}
+              <View style={styles.fieldBoyKpiCard}>
+                <Ionicons name="cloud-done-outline" size={22} color="#10B981" />
+                <Text style={[styles.fieldBoyKpiBigVal, { color: '#10B981' }]}>{submittedCount}</Text>
+                <Text style={styles.fieldBoyKpiLabel}>Submitted</Text>
               </View>
             </View>
 
-            <View style={styles.fieldBoyTipBanner}>
-              <Ionicons name="hand-left-outline" size={22} color="#0F2744" style={{ marginRight: 10 }} />
-              <Text style={styles.fieldBoyTipText}>
+            {/* Instruction Tip Banner */}
+            <View style={styles.fieldBoyInstructionBanner}>
+              <Ionicons name="hand-left" size={22} color="#0284C7" style={{ marginRight: 12 }} />
+              <Text style={styles.fieldBoyInstructionText}>
                 Ready for site visit? Tap a task to start measurements & photo annotations.
               </Text>
             </View>
 
-            <Text style={styles.sectionTitle}>My Assigned Site Tasks</Text>
+            {/* Section Title */}
+            <Text style={styles.fieldBoySectionTitle}>My Assigned Site Tasks</Text>
 
+            {/* Task Cards List Matching Screenshot Exactly */}
             {fieldTasks.map((task) => (
               <TouchableOpacity
                 key={task.id}
-                style={styles.fieldTaskCard}
+                style={styles.fieldTaskCardExact}
                 onPress={() => setActiveSiteTask(task)}
+                activeOpacity={0.7}
               >
-                <View style={styles.fieldTaskHeader}>
-                  <Text style={styles.fieldTaskTitle}>{task.title}</Text>
-                  <View
-                    style={[
-                      styles.fieldTaskStatusBadge,
-                      task.status === 'SUBMITTED' ? styles.statusBadgeGreen : styles.statusBadgeAmber,
-                    ]}
-                  >
-                    <Text
-                      style={[
-                        styles.fieldTaskStatusText,
-                        task.status === 'SUBMITTED' ? { color: '#10B981' } : { color: '#D97706' },
-                      ]}
-                    >
-                      {task.status}
-                    </Text>
+                {/* Header: Title & Status Badge */}
+                <View style={styles.fieldTaskHeaderRow}>
+                  <Text style={styles.fieldTaskTitleExact}>{task.title}</Text>
+                  <View style={styles.fieldTaskStatusBadgeExact}>
+                    <Text style={styles.fieldTaskStatusBadgeText}>{task.status}</Text>
                   </View>
                 </View>
 
-                <View style={styles.fieldTaskMetaRow}>
-                  <Ionicons name="person-outline" size={14} color="#64748B" style={{ marginRight: 4 }} />
-                  <Text style={styles.fieldTaskMetaText}>{task.clientName}</Text>
-                  <Ionicons name="call-outline" size={14} color="#64748B" style={{ marginLeft: 12, marginRight: 4 }} />
-                  <Text style={styles.fieldTaskMetaText}>{task.clientPhone}</Text>
+                {/* Client Name & Phone Row */}
+                <View style={styles.fieldTaskMetaLine}>
+                  <Ionicons name="person-outline" size={15} color="#64748B" style={{ marginRight: 6 }} />
+                  <Text style={styles.fieldTaskMetaLabel}>{task.clientName}</Text>
+                  
+                  <Ionicons name="call-outline" size={15} color="#64748B" style={{ marginLeft: 16, marginRight: 6 }} />
+                  <Text style={styles.fieldTaskMetaLabel}>{task.clientPhone}</Text>
                 </View>
 
-                <View style={[styles.fieldTaskMetaRow, { marginTop: 6 }]}>
-                  <Ionicons name="location-outline" size={14} color="#64748B" style={{ marginRight: 4 }} />
-                  <Text style={[styles.fieldTaskMetaText, { flex: 1 }]}>{task.address}</Text>
+                {/* Address Line */}
+                <View style={[styles.fieldTaskMetaLine, { marginTop: 6 }]}>
+                  <Ionicons name="location-outline" size={16} color="#64748B" style={{ marginRight: 6 }} />
+                  <Text style={[styles.fieldTaskMetaLabel, { flex: 1 }]} numberOfLines={1}>
+                    {task.address}
+                  </Text>
                 </View>
 
-                <View style={styles.fieldTaskFooter}>
+                {/* Divider Line */}
+                <View style={styles.fieldTaskDividerLine} />
+
+                {/* Footer: Measurements count & Open Form button */}
+                <View style={styles.fieldTaskFooterRow}>
                   <Text
                     style={[
-                      styles.fieldTaskMeasurementStatus,
-                      task.measurementsCount > 0 && { color: '#10B981' },
+                      styles.fieldTaskFooterLeftText,
+                      task.measurementsCount > 0 && styles.fieldTaskFooterLeftSuccess,
                     ]}
                   >
-                    {task.measurementsCount > 0 ? `${task.measurementsCount} Board(s) measured` : 'No measurements recorded'}
+                    {task.measurementsCount > 0
+                      ? `${task.measurementsCount} Board(s) measured`
+                      : 'No measurements recorded'}
                   </Text>
-                  <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                    <Text style={styles.openFormText}>Open Form</Text>
-                    <Ionicons name="chevron-forward" size={14} color="#0F2744" />
+
+                  <View style={styles.openFormBtnGroup}>
+                    <Text style={styles.openFormBtnGroupText}>Open Form</Text>
+                    <Ionicons name="chevron-forward" size={15} color="#0F2744" style={{ marginLeft: 2 }} />
                   </View>
                 </View>
               </TouchableOpacity>
             ))}
           </ScrollView>
 
-          {/* Clean Integrated Bottom Navigation */}
+          {/* Clean Integrated Bottom Navigation Bar (No Cutting Off) */}
           <View style={styles.bottomNavContainer}>
             <TouchableOpacity style={styles.navItem} onPress={() => setFieldBoyTab('tasks')}>
               <Ionicons name="grid" size={20} color={fieldBoyTab === 'tasks' ? '#0F2744' : '#64748B'} />
@@ -1883,7 +1902,7 @@ export default function App() {
       {/* Top Header Bar */}
       <View style={styles.appBar}>
         <View style={styles.appBarLeft}>
-          <Ionicons name="print" size={22} color="#FFFFFF" style={{ marginRight: 8 }} />
+          <Ionicons name="print-outline" size={22} color="#FFFFFF" style={{ marginRight: 8 }} />
           <Text style={styles.appBarTitle}>Apex Signage Admin</Text>
         </View>
 
@@ -3887,49 +3906,62 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: '600',
   },
-  fieldBoyStatusRow: {
+
+  // FIELD BOY WORKSPACE EXACT STYLES
+  fieldBoyScrollContent: {
+    paddingHorizontal: 16,
+    paddingTop: 16,
+    paddingBottom: 24,
+  },
+  fieldBoyKpiRow: {
     flexDirection: 'row',
     gap: 10,
     marginBottom: 14,
   },
-  fieldBoyStatusCard: {
+  fieldBoyKpiCard: {
     flex: 1,
     backgroundColor: '#FFFFFF',
     borderRadius: 14,
-    padding: 12,
+    padding: 14,
     borderWidth: 1,
     borderColor: '#E2E8F0',
     alignItems: 'flex-start',
   },
-  fieldBoyStatusBigVal: {
-    fontSize: 22,
+  fieldBoyKpiBigVal: {
+    fontSize: 24,
     fontWeight: 'bold',
-    marginTop: 6,
+    marginTop: 8,
     marginBottom: 2,
   },
-  fieldBoyStatusSub: {
-    fontSize: 11,
+  fieldBoyKpiLabel: {
+    fontSize: 12,
     color: '#64748B',
     fontWeight: '500',
   },
-  fieldBoyTipBanner: {
+  fieldBoyInstructionBanner: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#E0F2FE',
     borderWidth: 1,
     borderColor: '#BAE6FD',
-    borderRadius: 12,
+    borderRadius: 14,
     padding: 14,
     marginBottom: 18,
   },
-  fieldBoyTipText: {
+  fieldBoyInstructionText: {
     flex: 1,
-    fontSize: 12,
+    fontSize: 13,
     fontWeight: '600',
     color: '#0F2744',
-    lineHeight: 18,
+    lineHeight: 19,
   },
-  fieldTaskCard: {
+  fieldBoySectionTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#0F172A',
+    marginBottom: 12,
+  },
+  fieldTaskCardExact: {
     backgroundColor: '#FFFFFF',
     borderRadius: 14,
     padding: 16,
@@ -3937,61 +3969,72 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#E2E8F0',
   },
-  fieldTaskHeader: {
+  fieldTaskHeaderRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: 8,
   },
-  fieldTaskTitle: {
-    fontSize: 15,
+  fieldTaskTitleExact: {
+    fontSize: 16,
     fontWeight: 'bold',
     color: '#0F172A',
     flex: 1,
   },
-  fieldTaskStatusBadge: {
+  fieldTaskStatusBadgeExact: {
+    backgroundColor: '#FFFBEB',
+    borderWidth: 1,
+    borderColor: '#FDE68A',
     paddingHorizontal: 8,
     paddingVertical: 3,
     borderRadius: 6,
   },
-  statusBadgeAmber: {
-    backgroundColor: '#FEF3C7',
-  },
-  statusBadgeGreen: {
-    backgroundColor: '#DCFCE7',
-  },
-  fieldTaskStatusText: {
+  fieldTaskStatusBadgeText: {
+    color: '#D97706',
     fontSize: 11,
     fontWeight: 'bold',
+    letterSpacing: 0.5,
   },
-  fieldTaskMetaRow: {
+  fieldTaskMetaLine: {
     flexDirection: 'row',
     alignItems: 'center',
+    marginTop: 2,
   },
-  fieldTaskMetaText: {
-    fontSize: 12,
-    color: '#64748B',
+  fieldTaskMetaLabel: {
+    fontSize: 13,
+    color: '#475569',
+    fontWeight: '500',
   },
-  fieldTaskFooter: {
+  fieldTaskDividerLine: {
+    height: 1,
+    backgroundColor: '#F1F5F9',
+    marginTop: 12,
+    marginBottom: 10,
+  },
+  fieldTaskFooterRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginTop: 12,
-    paddingTop: 10,
-    borderTopWidth: 1,
-    borderTopColor: '#F1F5F9',
   },
-  fieldTaskMeasurementStatus: {
+  fieldTaskFooterLeftText: {
     fontSize: 12,
     color: '#94A3B8',
     fontWeight: '500',
   },
-  openFormText: {
-    fontSize: 12,
+  fieldTaskFooterLeftSuccess: {
+    color: '#10B981',
+    fontWeight: '600',
+  },
+  openFormBtnGroup: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  openFormBtnGroupText: {
+    fontSize: 13,
     fontWeight: 'bold',
     color: '#0F2744',
-    marginRight: 2,
   },
+
   syncedBadge: {
     flexDirection: 'row',
     alignItems: 'center',
