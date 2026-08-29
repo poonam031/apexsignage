@@ -18,12 +18,8 @@ import {
   Platform,
 } from 'react-native';
 import { Ionicons, MaterialCommunityIcons, FontAwesome5, Feather } from '@expo/vector-icons';
-import * as ImagePicker from 'expo-image-picker';
-import * as Location from 'expo-location';
 
 const BACKEND_URL = 'http://172.20.10.2:5000/api/v1';
-const FACTORY_LAT = 19.0760;
-const FACTORY_LNG = 72.8777;
 
 // Predefined Demo Accounts (Matching Flutter AuthProvider exactly)
 const DEMO_USERS = [
@@ -115,7 +111,7 @@ export default function App() {
     }, 300);
   };
 
-  // Handle Logout Execution
+  // Handle Real Logout
   const handleLogout = () => {
     Alert.alert('Logout Confirmation', 'Are you sure you want to log out of Apex Signage?', [
       { text: 'Cancel', style: 'cancel' },
@@ -256,55 +252,6 @@ export default function App() {
     },
   ]);
 
-  // Production Jobs State (Matching Flutter Jobs Module)
-  const [jobs, setJobs] = useState([
-    {
-      id: 'job-101',
-      jobCode: 'JB-2026-0001',
-      customerName: 'Sunil Mehta',
-      companyName: 'Apex Retail Fashion Store',
-      phone: '9423800532',
-      boardType: 'Acrylic LED 3D Letter ACP Board',
-      size: '12ft × 4ft (48 Sq.Ft)',
-      stage: 'FABRICATION',
-      stageIndex: 3,
-      totalAmount: 38500,
-      paidAmount: 20000,
-      balanceDue: 18500,
-      location: 'Shop 14, Grand Galleria Mall, Link Road, Mumbai',
-    },
-    {
-      id: 'job-102',
-      jobCode: 'JB-2026-0002',
-      customerName: 'Rajesh Sharma',
-      companyName: 'Grand Hotel Suites',
-      phone: '9423800532',
-      boardType: 'Stainless Steel Backlit Glow Signboard',
-      size: '20ft × 6ft (120 Sq.Ft)',
-      stage: 'DESIGN_FINAL',
-      stageIndex: 1,
-      totalAmount: 85000,
-      paidAmount: 40000,
-      balanceDue: 45000,
-      location: 'Plot 45, MIDC Industrial Area, Andheri East, Mumbai',
-    },
-  ]);
-
-  const stages = ['SITE_VISIT', 'DESIGN_FINAL', 'PRINTING', 'FABRICATION', 'INSTALLATION', 'DELIVERED'];
-
-  const advanceJobStage = (jobId) => {
-    setJobs((prevJobs) =>
-      prevJobs.map((j) => {
-        if (j.id === jobId && j.stageIndex < stages.length - 1) {
-          const nextIndex = j.stageIndex + 1;
-          return { ...j, stageIndex: nextIndex, stage: stages[nextIndex] };
-        }
-        return j;
-      })
-    );
-    Alert.alert('✅ Stage Advanced', 'Production job moved to next pipeline stage in real-time!');
-  };
-
   // Rate Calculator State (Matching Flutter Rate Calculator Module)
   const [calcWidth, setCalcWidth] = useState('12');
   const [calcHeight, setCalcHeight] = useState('4');
@@ -321,48 +268,6 @@ export default function App() {
     const gst = calcIncludeGst ? baseTotal * 0.18 : 0;
     const grandTotal = baseTotal + gst;
     return { sqft, baseTotal, gst, grandTotal };
-  };
-
-  // Site Visit & Geotag Camera State (Matching Flutter Site Visit Module)
-  const [capturedPhoto, setCapturedPhoto] = useState(null);
-  const takeSitePhoto = async () => {
-    const { status } = await ImagePicker.requestCameraPermissionsAsync();
-    if (status !== 'granted') {
-      Alert.alert('Permission Required', 'Camera permission is required for site measurement photos.');
-      return;
-    }
-    const result = await ImagePicker.launchCameraAsync({ allowsEditing: true, quality: 0.8 });
-    if (!result.canceled && result.assets && result.assets[0]) {
-      setCapturedPhoto(result.assets[0].uri);
-      Alert.alert('📸 Geotagged Photo Saved', 'Survey photo attached to Job #JB-2026-0001 with GPS coordinates!');
-    }
-  };
-
-  // Installation Customer Sign-Off State (Matching Flutter Feedback Module)
-  const [rating, setRating] = useState(5);
-  const [signatureDone, setSignatureDone] = useState(false);
-
-  // GPS Attendance Geofencing State (Matching Flutter Attendance Module)
-  const [distanceMeters, setDistanceMeters] = useState(null);
-  const [isCheckedIn, setIsCheckedIn] = useState(false);
-  const [locLoading, setLocLoading] = useState(false);
-
-  const checkGeofenceAttendance = async () => {
-    setLocLoading(true);
-    const { status } = await Location.requestForegroundPermissionsAsync();
-    if (status !== 'granted') {
-      setLocLoading(false);
-      Alert.alert('Permission Required', 'Location permission is required for Geofenced Attendance.');
-      return;
-    }
-    const loc = await Location.getCurrentPositionAsync({});
-    const dLat = (loc.coords.latitude - FACTORY_LAT) * 111000;
-    const dLng = (loc.coords.longitude - FACTORY_LNG) * 111000 * Math.cos(FACTORY_LAT * (Math.PI / 180));
-    const dist = Math.sqrt(dLat * dLat + dLng * dLng);
-    setDistanceMeters(Math.round(dist));
-    setIsCheckedIn(!isCheckedIn);
-    setLocLoading(false);
-    Alert.alert('✅ Attendance Verified', `${!isCheckedIn ? 'Clocked In' : 'Clocked Out'} within 200m factory radius!`);
   };
 
   // WhatsApp Dispatch Engine (Matching Flutter WhatsApp Launcher)
@@ -399,7 +304,7 @@ export default function App() {
   };
 
   // =========================================================================
-  // SCREEN 1: LOGIN / AUTHENTICATION (Exact 1:1 Pixel Match to Screenshot 2)
+  // SCREEN 1: LOGIN / AUTHENTICATION (Exact 1:1 Pixel Match to Android Screenshot)
   // =========================================================================
   if (!isAuthenticated) {
     return (
@@ -507,13 +412,13 @@ export default function App() {
   }
 
   // =========================================================================
-  // SCREEN 2: MAIN DASHBOARD & TABS (With Working Real Logout Button)
+  // SCREEN 2: ADMIN DASHBOARD (Clean 1:1 Pixel Match to Screenshot 1 & 2)
   // =========================================================================
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor="#0F2744" />
 
-      {/* Top Header Bar (Matching Flutter AppBar) */}
+      {/* Top Header Bar */}
       <View style={styles.appBar}>
         <View style={styles.appBarLeft}>
           <Ionicons name="print" size={22} color="#FFFFFF" style={{ marginRight: 8 }} />
@@ -534,7 +439,7 @@ export default function App() {
           >
             <Ionicons name="person-circle-outline" size={22} color="#FFFFFF" />
           </TouchableOpacity>
-          {/* REAL LOGOUT BUTTON THAT RETURNS DIRECTLY TO LOGIN SCREEN */}
+          {/* REAL LOGOUT BUTTON */}
           <TouchableOpacity style={styles.appBarIconBtn} onPress={handleLogout}>
             <Ionicons name="log-out-outline" size={22} color="#FFFFFF" />
           </TouchableOpacity>
@@ -545,12 +450,12 @@ export default function App() {
       <ScrollView style={styles.mainScroll} contentContainerStyle={{ paddingBottom: 100 }}>
         
         {/* ================================================================= */}
-        {/* TAB 1: DASHBOARD (Exact 1:1 match to Screenshot 1) */}
+        {/* TAB 1: PURE ADMIN DASHBOARD (Exact 1:1 match to Screenshot 1 & 2) */}
         {/* ================================================================= */}
         {currentTab === 'dashboard' && (
           <View style={styles.tabContent}>
             
-            {/* Total Billed Revenue Hero Banner */}
+            {/* 1. Total Billed Revenue Hero Banner */}
             <View style={styles.revenueCard}>
               <View style={styles.revenueCardHeader}>
                 <Text style={styles.revenueLabel}>Total Billed Revenue</Text>
@@ -577,7 +482,7 @@ export default function App() {
               </View>
             </View>
 
-            {/* Low Stock Warning Alert Banner */}
+            {/* 2. Low Stock Warning Alert Banner */}
             <TouchableOpacity style={styles.stockAlertBanner} onPress={() => setCurrentTab('inventory')}>
               <Ionicons name="warning-outline" size={24} color="#D97706" style={{ marginRight: 10 }} />
               <View style={{ flex: 1 }}>
@@ -588,7 +493,7 @@ export default function App() {
               </View>
             </TouchableOpacity>
 
-            {/* Today's Production & Field Summary 2x2 Grid */}
+            {/* 3. Today's Production & Field Summary 2x2 Grid */}
             <Text style={styles.sectionTitle}>Today's Production & Field Summary</Text>
             <View style={styles.summaryGrid}>
               
@@ -634,7 +539,7 @@ export default function App() {
 
             </View>
 
-            {/* Job Production Pipeline (Live Stages) */}
+            {/* 4. Job Production Pipeline (Live Stages with Delivered Stage) */}
             <Text style={styles.sectionTitle}>Job Production Pipeline (Live Stages)</Text>
             <View style={styles.pipelineCard}>
               
@@ -688,41 +593,17 @@ export default function App() {
                 </View>
               </View>
 
-            </View>
-
-            {/* Quick Actions for Site Survey, Handover & Geofencing */}
-            <Text style={[styles.sectionTitle, { marginTop: 18 }]}>Field Operations & Handover Tools</Text>
-            <View style={{ flexDirection: 'row', gap: 10 }}>
-              <TouchableOpacity
-                style={[styles.quickActionButton, { backgroundColor: '#0284C7' }]}
-                onPress={takeSitePhoto}
-              >
-                <Ionicons name="camera" size={20} color="#FFFFFF" style={{ marginRight: 6 }} />
-                <Text style={styles.quickActionText}>Capture Site Photo</Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                style={[styles.quickActionButton, { backgroundColor: '#10B981' }]}
-                onPress={checkGeofenceAttendance}
-                disabled={locLoading}
-              >
-                {locLoading ? (
-                  <ActivityIndicator color="#FFFFFF" />
-                ) : (
-                  <>
-                    <Ionicons name="finger-print" size={20} color="#FFFFFF" style={{ marginRight: 6 }} />
-                    <Text style={styles.quickActionText}>{isCheckedIn ? 'Clock Out' : 'GPS Clock-In'}</Text>
-                  </>
-                )}
-              </TouchableOpacity>
-            </View>
-
-            {capturedPhoto && (
-              <View style={styles.photoBox}>
-                <Image source={{ uri: capturedPhoto }} style={styles.photoImg} />
-                <Text style={styles.photoTxt}>📍 Geotagged Site Photo Recorded</Text>
+              <View style={[styles.pipelineRow, { borderBottomWidth: 0 }]}>
+                <View style={styles.pipelineLeft}>
+                  <Ionicons name="checkmark-circle" size={18} color="#10B981" style={{ marginRight: 10 }} />
+                  <Text style={[styles.pipelineStageName, { color: '#10B981' }]}>6. Delivered</Text>
+                </View>
+                <View style={[styles.pipelineBadge, { backgroundColor: '#DCFCE7' }]}>
+                  <Text style={[styles.pipelineBadgeText, { color: '#10B981' }]}>1 active</Text>
+                </View>
               </View>
-            )}
+
+            </View>
 
           </View>
         )}
@@ -1015,7 +896,7 @@ export default function App() {
         </View>
       </Modal>
 
-      {/* Bottom Navigation Bar */}
+      {/* Bottom Navigation Bar (Exact 1:1 Match to Android Screenshots) */}
       <View style={styles.bottomNav}>
         
         <TouchableOpacity
@@ -1094,7 +975,7 @@ export default function App() {
 }
 
 const styles = StyleSheet.create({
-  // Login Screen Styles (Exact match to Screenshot 2)
+  // Login Screen Styles (Exact match to Android Screenshot)
   loginContainer: {
     flex: 1,
     backgroundColor: '#FFFFFF',
@@ -1418,40 +1299,6 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: '#0284C7',
     fontWeight: '700',
-  },
-  // Quick Action Buttons
-  quickActionButton: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 12,
-    borderRadius: 10,
-  },
-  quickActionText: {
-    color: '#FFFFFF',
-    fontWeight: 'bold',
-    fontSize: 13,
-  },
-  photoBox: {
-    marginTop: 14,
-    alignItems: 'center',
-    backgroundColor: '#FFFFFF',
-    padding: 10,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: '#E2E8F0',
-  },
-  photoImg: {
-    width: '100%',
-    height: 180,
-    borderRadius: 8,
-  },
-  photoTxt: {
-    fontSize: 12,
-    color: '#10B981',
-    fontWeight: 'bold',
-    marginTop: 6,
   },
   // Inventory Tab
   inventoryTopBar: {
