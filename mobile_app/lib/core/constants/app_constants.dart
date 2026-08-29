@@ -6,8 +6,8 @@ class AppConstants {
     if (kIsWeb) {
       return 'http://localhost:5000/api/v1';
     }
-    // For USB connected Android (via adb reverse) or Localhost
-    return 'http://127.0.0.1:5000/api/v1';
+    // Shared backend IP for both iOS & Android on Wi-Fi and USB
+    return 'http://172.20.10.2:5000/api/v1';
   }
 
   // Roles
