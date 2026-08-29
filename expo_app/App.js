@@ -73,7 +73,7 @@ export default function App() {
   // Active Tab State
   const [currentTab, setCurrentTab] = useState('dashboard'); // 'dashboard', 'inventory', 'invoices', 'rate_calc', 'salary'
 
-  // Schedule Site Visit Modal State (Matching User Screenshot)
+  // Schedule Site Visit Modal State
   const [siteVisitModalVisible, setSiteVisitModalVisible] = useState(false);
   const [siteVisitsCount, setSiteVisitsCount] = useState(4);
   const [clientName, setClientName] = useState('Apex Retail Store');
@@ -99,7 +99,6 @@ export default function App() {
     setSiteVisitsCount((prev) => prev + 1);
     setSiteVisitModalVisible(false);
 
-    // Trigger WhatsApp notification for field boy dispatch
     const dispatchMessage = `📋 *NEW SITE VISIT TASK ASSIGNED*\n━━━━━━━━━━━━━━━━━━━━\nAssigned To: *${assignedFieldBoy}*\nClient: *${clientName}*\nPhone: *${clientPhone}*\n📍 Address: *${siteAddress}*\n📝 Notes: ${visitInstructions}\n\n*Apex Signage Operations System*`;
     Linking.openURL(`whatsapp://send?phone=919423800532&text=${encodeURIComponent(dispatchMessage)}`).catch(() => {});
 
@@ -109,66 +108,7 @@ export default function App() {
     );
   };
 
-  // Handle Login Execution
-  const handleSignIn = (emailParam, passParam) => {
-    const email = (emailParam || inputEmail).trim().toLowerCase();
-    const password = passParam || inputPassword;
-
-    if (!email || !password) {
-      Alert.alert('Validation Error', 'Please enter your email address and password.');
-      return;
-    }
-
-    setIsLoggingIn(true);
-    setTimeout(() => {
-      setIsLoggingIn(false);
-      const user = DEMO_USERS.find(
-        (u) => u.email.toLowerCase() === email && u.password === password
-      );
-
-      if (user) {
-        setCurrentUser(user);
-        setIsAuthenticated(true);
-        setCurrentTab('dashboard');
-      } else {
-        const customUser = {
-          email: email,
-          password: password,
-          name: email.split('@')[0].toUpperCase(),
-          role: 'Custom User',
-          badgeColor: '#0284C7',
-          dotColor: '#0284C7',
-          avatar: '👤',
-        };
-        setCurrentUser(customUser);
-        setIsAuthenticated(true);
-        setCurrentTab('dashboard');
-      }
-    }, 300);
-  };
-
-  // Handle Real Logout
-  const handleLogout = () => {
-    Alert.alert('Logout Confirmation', 'Are you sure you want to log out of Apex Signage?', [
-      { text: 'Cancel', style: 'cancel' },
-      {
-        text: 'Log Out',
-        style: 'destructive',
-        onPress: () => {
-          setIsAuthenticated(false);
-          setInputPassword('');
-        },
-      },
-    ]);
-  };
-
-  // Quick Role Chip Selector
-  const onQuickRoleSelect = (user) => {
-    setInputEmail(user.email);
-    setInputPassword(user.password);
-  };
-
-  // Inventory State (Matching Flutter Inventory Module)
+  // Inventory State (Matching Flutter Inventory Module exactly)
   const [inventoryList, setInventoryList] = useState([
     {
       id: 'inv-1',
@@ -220,18 +160,41 @@ export default function App() {
     },
   ]);
 
-  // Stock In / Out Modal State
-  const [selectedMaterial, setSelectedMaterial] = useState(null);
-  const [stockQty, setStockQty] = useState('5');
-  const [stockModalVisible, setStockModalVisible] = useState(false);
+  // Inventory Filter State
+  const [filterLowStockOnly, setFilterLowStockOnly] = useState(false);
 
-  const handleStockUpdate = (type) => {
+  // Stock Movement Modal State (Exact match to User Screenshot 1 & 2)
+  const [selectedMaterial, setSelectedMaterial] = useState(null);
+  const [stockMovementModalVisible, setStockMovementModalVisible] = useState(false);
+  const [transactionType, setTransactionType] = useState('STOCK_IN'); // 'STOCK_IN', 'STOCK_OUT', 'ADJUSTMENT'
+  const [transactionDropdownOpen, setTransactionDropdownOpen] = useState(false);
+  const [stockQty, setStockQty] = useState('5');
+  const [stockReason, setStockReason] = useState('Restock shipment received from supplier');
+
+  const openStockMovementModal = (item) => {
+    setSelectedMaterial(item);
+    setTransactionType('STOCK_IN');
+    setStockQty('5');
+    setStockReason('Restock shipment received from supplier');
+    setTransactionDropdownOpen(false);
+    setStockMovementModalVisible(true);
+  };
+
+  const handleStockMovementConfirm = () => {
     if (!selectedMaterial) return;
-    const change = parseFloat(stockQty) || 0;
+    const qty = parseFloat(stockQty) || 0;
+
     setInventoryList((prev) =>
       prev.map((item) => {
         if (item.id === selectedMaterial.id) {
-          const newStock = type === 'IN' ? item.stock + change : Math.max(0, item.stock - change);
+          let newStock = item.stock;
+          if (transactionType === 'STOCK_IN') {
+            newStock = item.stock + qty;
+          } else if (transactionType === 'STOCK_OUT') {
+            newStock = Math.max(0, item.stock - qty);
+          } else if (transactionType === 'ADJUSTMENT') {
+            newStock = qty;
+          }
           return {
             ...item,
             stock: newStock,
@@ -241,14 +204,28 @@ export default function App() {
         return item;
       })
     );
-    setStockModalVisible(false);
+
+    setStockMovementModalVisible(false);
+    const actionLabel =
+      transactionType === 'STOCK_IN'
+        ? `Added +${qty}`
+        : transactionType === 'STOCK_OUT'
+        ? `Deducted -${qty}`
+        : `Adjusted to ${qty}`;
+
     Alert.alert(
-      '✅ Inventory Updated',
-      `${type === 'IN' ? 'Added' : 'Deducted'} ${stockQty} ${selectedMaterial.unit} for ${selectedMaterial.name}`
+      '✅ Stock Movement Recorded',
+      `Successfully ${actionLabel} ${selectedMaterial.unit} for ${selectedMaterial.name}.`
     );
   };
 
-  // Invoices State (Matching Flutter Invoices Module)
+  const getTransactionLabel = () => {
+    if (transactionType === 'STOCK_IN') return 'Stock In (Purchase/Restock)';
+    if (transactionType === 'STOCK_OUT') return 'Stock Out (Job Usage)';
+    return 'Manual Count Adjustment';
+  };
+
+  // Invoices State
   const [invoices, setInvoices] = useState([
     {
       id: 'inv-101',
@@ -288,7 +265,7 @@ export default function App() {
     },
   ]);
 
-  // Rate Calculator State (Matching Flutter Rate Calculator Module)
+  // Rate Calculator State
   const [calcWidth, setCalcWidth] = useState('12');
   const [calcHeight, setCalcHeight] = useState('4');
   const [calcBoardType, setCalcBoardType] = useState('Acrylic LED 3D Letter ACP Board');
@@ -306,7 +283,7 @@ export default function App() {
     return { sqft, baseTotal, gst, grandTotal };
   };
 
-  // WhatsApp Dispatch Engine (Matching Flutter WhatsApp Launcher)
+  // WhatsApp Dispatch Engine
   const sendInvoiceWhatsApp = async (inv) => {
     const formattedPhone = '919423800532';
     const message = `🧾 *APEX SIGNAGE & PRINTING - INVOICE*\n━━━━━━━━━━━━━━━━━━━━\nDear *${inv.companyName}*,\n\nPlease find your official tax invoice details below:\n\n📄 *Invoice #:* ${inv.invoiceNumber}\n📅 *Date:* ${inv.date}\n💰 *Total Billed:* ₹${inv.totalAmount.toLocaleString()}\n✅ *Paid Amount:* ₹${inv.paidAmount.toLocaleString()}\n⚠️ *Balance Due:* ₹${inv.balanceDue.toLocaleString()}\n\n📥 *Download PDF Invoice:* http://172.20.10.2:5000/uploads/${inv.invoiceNumber}.pdf\n💳 *UPI Payment:* paytmqr.apexsignage@icici\n\nThank you for choosing Apex Signage!\n━━━━━━━━━━━━━━━━━━━━\n*Apex Signage & Printing Solutions*\nPhone: +91 9423800532`;
@@ -339,8 +316,73 @@ export default function App() {
     }
   };
 
+  // Handle Login Execution
+  const handleSignIn = (emailParam, passParam) => {
+    const email = (emailParam || inputEmail).trim().toLowerCase();
+    const password = passParam || inputPassword;
+
+    if (!email || !password) {
+      Alert.alert('Validation Error', 'Please enter your email address and password.');
+      return;
+    }
+
+    setIsLoggingIn(true);
+    setTimeout(() => {
+      setIsLoggingIn(false);
+      const user = DEMO_USERS.find(
+        (u) => u.email.toLowerCase() === email && u.password === password
+      );
+
+      if (user) {
+        setCurrentUser(user);
+        setIsAuthenticated(true);
+        setCurrentTab('dashboard');
+      } else {
+        const customUser = {
+          email: email,
+          password: password,
+          name: email.split('@')[0].toUpperCase(),
+          role: 'Custom User',
+          badgeColor: '#0284C7',
+          dotColor: '#0284C7',
+          avatar: '👤',
+        };
+        setCurrentUser(customUser);
+        setIsAuthenticated(true);
+        setCurrentTab('dashboard');
+      }
+    }, 300);
+  };
+
+  // Handle Logout Execution
+  const handleLogout = () => {
+    Alert.alert('Logout Confirmation', 'Are you sure you want to log out of Apex Signage?', [
+      { text: 'Cancel', style: 'cancel' },
+      {
+        text: 'Log Out',
+        style: 'destructive',
+        onPress: () => {
+          setIsAuthenticated(false);
+          setInputPassword('');
+        },
+      },
+    ]);
+  };
+
+  // Quick Role Chip Selector
+  const onQuickRoleSelect = (user) => {
+    setInputEmail(user.email);
+    setInputPassword(user.password);
+  };
+
+  // Low stock count calculation
+  const lowStockCount = inventoryList.filter((item) => item.isLow).length;
+  const displayedInventory = filterLowStockOnly
+    ? inventoryList.filter((item) => item.isLow)
+    : inventoryList;
+
   // =========================================================================
-  // SCREEN 1: LOGIN / AUTHENTICATION (Exact 1:1 Pixel Match to Android Screenshot)
+  // SCREEN 1: LOGIN / AUTHENTICATION (Exact match to Android Screenshot)
   // =========================================================================
   if (!isAuthenticated) {
     return (
@@ -354,16 +396,13 @@ export default function App() {
             contentContainerStyle={styles.loginScrollContent}
             keyboardShouldPersistTaps="handled"
           >
-            {/* Dark Blue Header Card with Printer Icon */}
             <View style={styles.loginHeaderBox}>
               <Ionicons name="print-outline" size={42} color="#FFFFFF" />
             </View>
 
-            {/* App Title & Subtitle */}
             <Text style={styles.loginMainTitle}>Apex Signage & Print</Text>
             <Text style={styles.loginSubtitle}>Production & Field Operations System</Text>
 
-            {/* Email or Phone Input */}
             <View style={styles.loginInputCard}>
               <Text style={styles.loginInputLabel}>Email Address or Phone</Text>
               <View style={styles.loginInputRow}>
@@ -380,7 +419,6 @@ export default function App() {
               </View>
             </View>
 
-            {/* Password Input */}
             <View style={[styles.loginInputCard, { marginTop: 14 }]}>
               <Text style={styles.loginInputLabel}>Password</Text>
               <View style={styles.loginInputRow}>
@@ -403,7 +441,6 @@ export default function App() {
               </View>
             </View>
 
-            {/* Big Sign In Button */}
             <TouchableOpacity
               style={styles.signInPrimaryBtn}
               onPress={() => handleSignIn()}
@@ -419,13 +456,10 @@ export default function App() {
               )}
             </TouchableOpacity>
 
-            {/* Divider */}
             <View style={styles.loginDivider} />
 
-            {/* Quick Switch Role Label */}
             <Text style={styles.quickSwitchHeading}>Quick Switch Role (Demo Credentials):</Text>
 
-            {/* 4 Role Chips */}
             <View style={styles.roleChipsWrap}>
               {DEMO_USERS.map((user) => (
                 <TouchableOpacity
@@ -448,7 +482,7 @@ export default function App() {
   }
 
   // =========================================================================
-  // SCREEN 2: ADMIN DASHBOARD (With Interactive "Schedule New Site Visit" Modal)
+  // SCREEN 2: MAIN APP WITH PURE ADMIN DASHBOARD & ADVANCED INVENTORY
   // =========================================================================
   return (
     <SafeAreaView style={styles.container}>
@@ -475,7 +509,6 @@ export default function App() {
           >
             <Ionicons name="person-circle-outline" size={22} color="#FFFFFF" />
           </TouchableOpacity>
-          {/* REAL LOGOUT BUTTON */}
           <TouchableOpacity style={styles.appBarIconBtn} onPress={handleLogout}>
             <Ionicons name="log-out-outline" size={22} color="#FFFFFF" />
           </TouchableOpacity>
@@ -533,7 +566,6 @@ export default function App() {
             <Text style={styles.sectionTitle}>Today's Production & Field Summary</Text>
             <View style={styles.summaryGrid}>
               
-              {/* Card 1: Active Jobs */}
               <View style={styles.summaryCard}>
                 <View style={styles.summaryCardHeader}>
                   <Text style={styles.summaryCardTitle}>Active Jobs</Text>
@@ -543,7 +575,6 @@ export default function App() {
                 <Text style={styles.summaryCardSub}>1480.0 Total Sq.Ft</Text>
               </View>
 
-              {/* Card 2: Printing Output */}
               <View style={styles.summaryCard}>
                 <View style={styles.summaryCardHeader}>
                   <Text style={styles.summaryCardTitle}>Printing Output</Text>
@@ -553,7 +584,6 @@ export default function App() {
                 <Text style={styles.summaryCardSub}>Waste: 19.0 Sq.Ft</Text>
               </View>
 
-              {/* Card 3: Site Visits (Interactive - Opens Schedule New Site Visit Modal!) */}
               <TouchableOpacity
                 style={[styles.summaryCard, styles.summaryCardClickable]}
                 onPress={() => setSiteVisitModalVisible(true)}
@@ -568,7 +598,6 @@ export default function App() {
                 </Text>
               </TouchableOpacity>
 
-              {/* Card 4: Attendance & Team */}
               <View style={styles.summaryCard}>
                 <View style={styles.summaryCardHeader}>
                   <Text style={styles.summaryCardTitle}>Attendance & Team</Text>
@@ -580,7 +609,7 @@ export default function App() {
 
             </View>
 
-            {/* 4. Job Production Pipeline (Live Stages) */}
+            {/* 4. Job Production Pipeline */}
             <Text style={styles.sectionTitle}>Job Production Pipeline (Live Stages)</Text>
             <View style={styles.pipelineCard}>
               
@@ -650,19 +679,43 @@ export default function App() {
         )}
 
         {/* ================================================================= */}
-        {/* TAB 2: INVENTORY */}
+        {/* TAB 2: REAL-TIME MATERIAL INVENTORY (Exact match to Screenshots) */}
         {/* ================================================================= */}
         {currentTab === 'inventory' && (
           <View style={styles.tabContent}>
             
-            <View style={styles.inventoryTopBar}>
-              <Text style={styles.invTrackedText}>6 Materials Tracked</Text>
-              <View style={styles.invAlertBadge}>
-                <Text style={styles.invAlertBadgeText}>⚠️ 2 Low Stock Alerts</Text>
-              </View>
+            {/* Top Subheader with Title & Filter Funnel Icon */}
+            <View style={styles.inventorySubHeader}>
+              <Text style={styles.invSubHeaderTitle}>Real-Time Material Inventory</Text>
+              <TouchableOpacity
+                style={[styles.filterFunnelBtn, filterLowStockOnly && styles.filterFunnelBtnActive]}
+                onPress={() => setFilterLowStockOnly(!filterLowStockOnly)}
+              >
+                <Ionicons
+                  name={filterLowStockOnly ? 'funnel' : 'funnel-outline'}
+                  size={20}
+                  color={filterLowStockOnly ? '#0284C7' : '#0F2744'}
+                />
+              </TouchableOpacity>
             </View>
 
-            {inventoryList.map((item) => (
+            {/* Counter Bar: 6 Materials Tracked & 2 Low Stock Alerts Banner */}
+            <View style={styles.inventoryTopBar}>
+              <Text style={styles.invTrackedText}>
+                {displayedInventory.length} Materials Tracked {filterLowStockOnly && '(Low Stock Only)'}
+              </Text>
+              {lowStockCount > 0 && (
+                <TouchableOpacity
+                  style={styles.invAlertBadge}
+                  onPress={() => setFilterLowStockOnly(!filterLowStockOnly)}
+                >
+                  <Text style={styles.invAlertBadgeText}>⚠️ {lowStockCount} Low Stock Alerts</Text>
+                </TouchableOpacity>
+              )}
+            </View>
+
+            {/* Material Items List */}
+            {displayedInventory.map((item) => (
               <View key={item.id} style={styles.invItemCard}>
                 <View style={styles.invItemMain}>
                   <View style={{ flex: 1 }}>
@@ -684,12 +737,10 @@ export default function App() {
                     </View>
                   </View>
 
+                  {/* Stock In / Out Action Button (Opens Stock Movement Modal!) */}
                   <TouchableOpacity
                     style={styles.stockBtn}
-                    onPress={() => {
-                      setSelectedMaterial(item);
-                      setStockModalVisible(true);
-                    }}
+                    onPress={() => openStockMovementModal(item)}
                   >
                     <Text style={styles.stockBtnText}>Stock In / Out</Text>
                   </TouchableOpacity>
@@ -812,7 +863,6 @@ export default function App() {
                 </View>
               </View>
 
-              {/* Calculation Summary Box */}
               <View style={styles.calcResultBox}>
                 <View style={styles.calcResRow}>
                   <Text style={styles.calcResLabel}>Total Sq.Ft Area:</Text>
@@ -895,7 +945,7 @@ export default function App() {
       </ScrollView>
 
       {/* ================================================================= */}
-      {/* MODAL 1: SCHEDULE NEW SITE VISIT (Exact 1:1 match to Screenshot) */}
+      {/* MODAL 1: SCHEDULE NEW SITE VISIT (Dashboard) */}
       {/* ================================================================= */}
       <Modal
         visible={siteVisitModalVisible}
@@ -909,7 +959,6 @@ export default function App() {
             style={{ width: '100%' }}
           >
             <View style={styles.sheetContainer}>
-              {/* Sheet Header */}
               <View style={styles.sheetHeader}>
                 <View>
                   <Text style={styles.sheetTitle}>Schedule New Site Visit</Text>
@@ -926,7 +975,6 @@ export default function App() {
               </View>
 
               <ScrollView style={{ maxHeight: 400 }} showsVerticalScrollIndicator={false}>
-                {/* 1. Client / Business Name */}
                 <View style={styles.sheetInputGroup}>
                   <Text style={styles.sheetInputLabel}>Client / Business Name</Text>
                   <View style={styles.sheetInputRow}>
@@ -941,7 +989,6 @@ export default function App() {
                   </View>
                 </View>
 
-                {/* 2. Client Phone Number */}
                 <View style={[styles.sheetInputGroup, { marginTop: 12 }]}>
                   <Text style={styles.sheetInputLabel}>Client Phone Number</Text>
                   <View style={styles.sheetInputRow}>
@@ -957,7 +1004,6 @@ export default function App() {
                   </View>
                 </View>
 
-                {/* 3. Site Address (Google Maps) */}
                 <View style={[styles.sheetInputGroup, { marginTop: 12 }]}>
                   <Text style={styles.sheetInputLabel}>Site Address (Google Maps)</Text>
                   <View style={styles.sheetInputRow}>
@@ -972,7 +1018,6 @@ export default function App() {
                   </View>
                 </View>
 
-                {/* 4. Assign Field Boy Dropdown */}
                 <View style={[styles.sheetInputGroup, { marginTop: 12 }]}>
                   <Text style={styles.sheetInputLabel}>Assign Field Boy</Text>
                   <TouchableOpacity
@@ -1013,7 +1058,6 @@ export default function App() {
                   )}
                 </View>
 
-                {/* 5. Instructions / Notes */}
                 <View style={[styles.sheetInputGroup, { marginTop: 12, marginBottom: 18 }]}>
                   <Text style={styles.sheetInputLabel}>Instructions / Notes</Text>
                   <View style={styles.sheetInputRow}>
@@ -1029,7 +1073,6 @@ export default function App() {
                 </View>
               </ScrollView>
 
-              {/* Primary Action Button: Assign & Dispatch Task to Field Boy */}
               <TouchableOpacity
                 style={styles.dispatchPrimaryBtn}
                 onPress={handleDispatchSiteVisit}
@@ -1042,44 +1085,129 @@ export default function App() {
         </View>
       </Modal>
 
-      {/* MODAL 2: Stock In / Out Adjustment Modal */}
-      <Modal visible={stockModalVisible} transparent animationType="fade">
+      {/* ================================================================= */}
+      {/* MODAL 2: STOCK MOVEMENT MODAL (Exact 1:1 match to Screenshot 1 & 2) */}
+      {/* ================================================================= */}
+      <Modal
+        visible={stockMovementModalVisible}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setStockMovementModalVisible(false)}
+      >
         <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Adjust Stock Quantity</Text>
-            <Text style={styles.modalSub}>{selectedMaterial?.name}</Text>
-            <Text style={styles.modalCurrentStock}>Current Stock: {selectedMaterial?.stock} {selectedMaterial?.unit}</Text>
+          <KeyboardAvoidingView
+            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+            style={{ width: '100%', alignItems: 'center' }}
+          >
+            <View style={styles.stockModalCard}>
+              {/* Modal Title */}
+              <Text style={styles.stockModalTitle}>
+                Stock Movement: {selectedMaterial?.name}
+              </Text>
 
-            <TextInput
-              style={styles.modalInput}
-              keyboardType="numeric"
-              value={stockQty}
-              onChangeText={setStockQty}
-              placeholder="Enter quantity"
-            />
+              {/* 1. Transaction Type Dropdown */}
+              <View style={[styles.modalInputGroup, { marginTop: 14 }]}>
+                <Text style={styles.modalInputLabel}>Transaction Type</Text>
+                <TouchableOpacity
+                  style={styles.modalSelectRow}
+                  onPress={() => setTransactionDropdownOpen(!transactionDropdownOpen)}
+                >
+                  <Text style={styles.modalSelectText}>{getTransactionLabel()}</Text>
+                  <Ionicons
+                    name={transactionDropdownOpen ? 'chevron-up' : 'chevron-down'}
+                    size={18}
+                    color="#475569"
+                  />
+                </TouchableOpacity>
 
-            <View style={styles.modalButtonsRow}>
+                {transactionDropdownOpen && (
+                  <View style={styles.modalDropdownOptions}>
+                    <TouchableOpacity
+                      style={styles.modalDropdownOptionItem}
+                      onPress={() => {
+                        setTransactionType('STOCK_IN');
+                        setStockReason('Restock shipment received from supplier');
+                        setTransactionDropdownOpen(false);
+                      }}
+                    >
+                      <Text style={[styles.modalOptionText, transactionType === 'STOCK_IN' && styles.modalOptionActive]}>
+                        Stock In (Purchase/Restock)
+                      </Text>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                      style={styles.modalDropdownOptionItem}
+                      onPress={() => {
+                        setTransactionType('STOCK_OUT');
+                        setStockReason('Job JB-2026-0001 usage');
+                        setTransactionDropdownOpen(false);
+                      }}
+                    >
+                      <Text style={[styles.modalOptionText, transactionType === 'STOCK_OUT' && styles.modalOptionActive]}>
+                        Stock Out (Job Usage)
+                      </Text>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                      style={[styles.modalDropdownOptionItem, { borderBottomWidth: 0 }]}
+                      onPress={() => {
+                        setTransactionType('ADJUSTMENT');
+                        setStockReason('Physical inventory audit count');
+                        setTransactionDropdownOpen(false);
+                      }}
+                    >
+                      <Text style={[styles.modalOptionText, transactionType === 'ADJUSTMENT' && styles.modalOptionActive]}>
+                        Manual Count Adjustment
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
+                )}
+              </View>
+
+              {/* 2. Quantity (UNIT) Field */}
+              <View style={[styles.modalInputGroup, { marginTop: 12 }]}>
+                <Text style={styles.modalInputLabel}>
+                  Quantity ({selectedMaterial?.unit})
+                </Text>
+                <TextInput
+                  style={styles.modalTextInput}
+                  value={stockQty}
+                  onChangeText={setStockQty}
+                  keyboardType="numeric"
+                  placeholder="Enter quantity"
+                  placeholderTextColor="#94A3B8"
+                />
+              </View>
+
+              {/* 3. Reason / Bill No Field */}
+              <View style={[styles.modalInputGroup, { marginTop: 12, marginBottom: 20 }]}>
+                <Text style={styles.modalInputLabel}>Reason / Bill No</Text>
+                <TextInput
+                  style={styles.modalTextInput}
+                  value={stockReason}
+                  onChangeText={setStockReason}
+                  placeholder="e.g. Restock shipment from supplier"
+                  placeholderTextColor="#94A3B8"
+                />
+              </View>
+
+              {/* Cancel Button */}
               <TouchableOpacity
-                style={[styles.modalActionBtn, { backgroundColor: '#10B981' }]}
-                onPress={() => handleStockUpdate('IN')}
+                style={styles.stockModalCancelBtn}
+                onPress={() => setStockMovementModalVisible(false)}
               >
-                <Ionicons name="add-circle" size={18} color="#FFFFFF" style={{ marginRight: 4 }} />
-                <Text style={styles.modalActionBtnText}>Stock In (+)</Text>
+                <Text style={styles.stockModalCancelText}>Cancel</Text>
               </TouchableOpacity>
 
+              {/* Confirm Primary Navy Blue Button */}
               <TouchableOpacity
-                style={[styles.modalActionBtn, { backgroundColor: '#EF4444' }]}
-                onPress={() => handleStockUpdate('OUT')}
+                style={styles.stockModalConfirmBtn}
+                onPress={handleStockMovementConfirm}
               >
-                <Ionicons name="remove-circle" size={18} color="#FFFFFF" style={{ marginRight: 4 }} />
-                <Text style={styles.modalActionBtnText}>Stock Out (-)</Text>
+                <Text style={styles.stockModalConfirmText}>Confirm</Text>
               </TouchableOpacity>
             </View>
-
-            <TouchableOpacity style={styles.modalCancelBtn} onPress={() => setStockModalVisible(false)}>
-              <Text style={styles.modalCancelText}>Cancel</Text>
-            </TouchableOpacity>
-          </View>
+          </KeyboardAvoidingView>
         </View>
       </Modal>
 
@@ -1491,7 +1619,26 @@ const styles = StyleSheet.create({
     color: '#0284C7',
     fontWeight: '700',
   },
-  // Inventory Tab
+  // Inventory Tab Header with Funnel
+  inventorySubHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  invSubHeaderTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#0F172A',
+  },
+  filterFunnelBtn: {
+    padding: 6,
+    borderRadius: 8,
+    backgroundColor: '#F1F5F9',
+  },
+  filterFunnelBtnActive: {
+    backgroundColor: '#E0F2FE',
+  },
   inventoryTopBar: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -1499,7 +1646,7 @@ const styles = StyleSheet.create({
     marginBottom: 14,
   },
   invTrackedText: {
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: 'bold',
     color: '#0F172A',
   },
@@ -1781,7 +1928,8 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     fontSize: 13,
   },
-  // Bottom Sheet / Modal: Schedule New Site Visit (Matching Screenshot)
+
+  // Bottom Sheet: Schedule New Site Visit (Dashboard)
   sheetOverlay: {
     flex: 1,
     backgroundColor: 'rgba(0,0,0,0.6)',
@@ -1881,7 +2029,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
 
-  // Modal Styles (Stock In / Out)
+  // Modal: Stock Movement (Exact 1:1 match to Screenshot 1 & 2)
   modalOverlay: {
     flex: 1,
     backgroundColor: 'rgba(0,0,0,0.6)',
@@ -1889,66 +2037,107 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 20,
   },
-  modalContent: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 16,
-    padding: 20,
+  stockModalCard: {
     width: '100%',
     maxWidth: 340,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 20,
+    padding: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.2,
+    shadowRadius: 15,
+    elevation: 10,
   },
-  modalTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#0F172A',
-  },
-  modalSub: {
-    fontSize: 13,
-    color: '#64748B',
-    marginTop: 2,
-  },
-  modalCurrentStock: {
-    fontSize: 14,
-    color: '#0284C7',
-    fontWeight: '600',
-    marginVertical: 10,
-  },
-  modalInput: {
-    backgroundColor: '#F8FAFC',
-    borderWidth: 1,
-    borderColor: '#CBD5E1',
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
+  stockModalTitle: {
     fontSize: 16,
     fontWeight: 'bold',
-    marginBottom: 16,
+    color: '#0F2744',
+    lineHeight: 22,
   },
-  modalButtonsRow: {
-    flexDirection: 'row',
-    gap: 10,
-    marginBottom: 10,
+  modalInputGroup: {
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#CBD5E1',
+    borderRadius: 10,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
   },
-  modalActionBtn: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 10,
-    borderRadius: 8,
-  },
-  modalActionBtnText: {
-    color: '#FFFFFF',
-    fontWeight: 'bold',
-    fontSize: 13,
-  },
-  modalCancelBtn: {
-    paddingVertical: 8,
-    alignItems: 'center',
-  },
-  modalCancelText: {
+  modalInputLabel: {
+    fontSize: 11,
     color: '#64748B',
+    fontWeight: '500',
+    marginBottom: 2,
+  },
+  modalSelectRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    height: 34,
+  },
+  modalSelectText: {
+    fontSize: 14,
+    color: '#0F172A',
     fontWeight: '600',
   },
+  modalDropdownOptions: {
+    backgroundColor: '#F8FAFC',
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    marginTop: 8,
+    marginBottom: 4,
+  },
+  modalDropdownOptionItem: {
+    paddingVertical: 10,
+    paddingHorizontal: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F1F5F9',
+  },
+  modalOptionText: {
+    fontSize: 13,
+    color: '#334155',
+  },
+  modalOptionActive: {
+    color: '#0284C7',
+    fontWeight: 'bold',
+  },
+  modalTextInput: {
+    fontSize: 14,
+    color: '#0F172A',
+    fontWeight: '600',
+    height: 34,
+  },
+  stockModalCancelBtn: {
+    alignSelf: 'flex-end',
+    paddingVertical: 6,
+    paddingHorizontal: 8,
+    marginBottom: 8,
+  },
+  stockModalCancelText: {
+    color: '#0F2744',
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  stockModalConfirmBtn: {
+    width: '100%',
+    backgroundColor: '#0F2744',
+    borderRadius: 10,
+    paddingVertical: 14,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#0F2744',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 6,
+    elevation: 4,
+  },
+  stockModalConfirmText: {
+    color: '#FFFFFF',
+    fontSize: 15,
+    fontWeight: 'bold',
+  },
+
   // Bottom Navigation
   bottomNav: {
     position: 'absolute',
