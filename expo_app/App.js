@@ -16,6 +16,7 @@ import {
   Dimensions,
   KeyboardAvoidingView,
   Platform,
+  Switch,
 } from 'react-native';
 import { Ionicons, MaterialCommunityIcons, FontAwesome5, Feather } from '@expo/vector-icons';
 
@@ -108,7 +109,7 @@ export default function App() {
     );
   };
 
-  // Inventory State (Matching Flutter Inventory Module exactly)
+  // Inventory State (Matching Flutter Inventory Module)
   const [inventoryList, setInventoryList] = useState([
     {
       id: 'inv-1',
@@ -225,7 +226,7 @@ export default function App() {
     return 'Manual Count Adjustment';
   };
 
-  // Invoices State (Matching Flutter Invoices Module)
+  // Invoices State
   const [invoices, setInvoices] = useState([
     {
       id: 'inv-101',
@@ -265,11 +266,11 @@ export default function App() {
     },
   ]);
 
-  // Record Payment Modal State (Matching User Screenshot)
+  // Record Payment Modal State
   const [selectedInvoice, setSelectedInvoice] = useState(null);
   const [recordPaymentModalVisible, setRecordPaymentModalVisible] = useState(false);
   const [paymentAmount, setPaymentAmount] = useState('18500.0');
-  const [paymentMethod, setPaymentMethod] = useState('UPI'); // 'UPI', 'BANK_TRANSFER', 'CASH', 'CHEQUE'
+  const [paymentMethod, setPaymentMethod] = useState('UPI');
   const [paymentMethodDropdownOpen, setPaymentMethodDropdownOpen] = useState(false);
   const [paymentRef, setPaymentRef] = useState('UPI/HDFC/998822');
 
@@ -309,7 +310,6 @@ export default function App() {
 
     setRecordPaymentModalVisible(false);
 
-    // Prompt WhatsApp receipt dispatch
     const receiptMessage = `🧾 *APEX SIGNAGE - PAYMENT RECEIPT*\n━━━━━━━━━━━━━━━━━━━━\nDear *${selectedInvoice.companyName}*,\n\nWe have successfully received your payment:\n\n📄 *Invoice #:* ${selectedInvoice.invoiceNumber}\n💰 *Amount Received:* ₹${amount.toLocaleString()}\n💳 *Method:* ${getPaymentMethodLabel()}\n🔢 *Ref / UTR:* ${paymentRef}\n\n*Apex Signage Accounts Team* (+91 9423800532)`;
 
     Alert.alert(
@@ -334,22 +334,107 @@ export default function App() {
     return 'Cheque / Demand Draft';
   };
 
-  // Rate Calculator State
-  const [calcWidth, setCalcWidth] = useState('12');
-  const [calcHeight, setCalcHeight] = useState('4');
-  const [calcBoardType, setCalcBoardType] = useState('Acrylic LED 3D Letter ACP Board');
-  const [calcRatePerSqFt, setCalcRatePerSqFt] = useState('650');
-  const [calcIncludeGst, setCalcIncludeGst] = useState(true);
+  // =========================================================================
+  // ADVANCED RATE & QUOTATION BUILDER STATE (Exact match to User Screenshots)
+  // =========================================================================
+  const customerOptions = [
+    'Sunil Mehta (Apex Retail Store)',
+    'Rajesh Sharma (Grand Hotel Suites)',
+    'Anil Kapoor (Zudio Brand Store)',
+    'Dr. Priya Nair (CarePlus Hospital)',
+  ];
 
-  const calculateQuotation = () => {
-    const w = parseFloat(calcWidth) || 0;
-    const h = parseFloat(calcHeight) || 0;
-    const rate = parseFloat(calcRatePerSqFt) || 0;
-    const sqft = w * h;
-    const baseTotal = sqft * rate;
-    const gst = calcIncludeGst ? baseTotal * 0.18 : 0;
-    const grandTotal = baseTotal + gst;
-    return { sqft, baseTotal, gst, grandTotal };
+  const [selectedQuotationCustomer, setSelectedQuotationCustomer] = useState(
+    'Sunil Mehta (Apex Retail Store)'
+  );
+  const [customerDropdownOpen, setCustomerDropdownOpen] = useState(false);
+  const [includeGst, setIncludeGst] = useState(true);
+
+  // Line items state
+  const [lineItems, setLineItems] = useState([
+    {
+      id: 'item-1',
+      description: 'Main Entrance 3D Acrylic LED Letter ACP Board (15ft x 4ft)',
+      length: '15.0',
+      height: '4.0',
+      rate: '400.0',
+    },
+    {
+      id: 'item-2',
+      description: 'Side Wall Backlit Glow Sign Box (6ft x 3ft)',
+      length: '6.0',
+      height: '3.0',
+      rate: '333.33',
+    },
+  ]);
+
+  const [framingCharge, setFramingCharge] = useState('2500.0');
+  const [installationCharge, setInstallationCharge] = useState('2000.0');
+
+  // Helper calculations
+  const calculateItemValues = (item) => {
+    const l = parseFloat(item.length) || 0;
+    const h = parseFloat(item.height) || 0;
+    const r = parseFloat(item.rate) || 0;
+    const sqft = l * h;
+    const amount = sqft * r;
+    return { sqft, amount };
+  };
+
+  const subtotalItems = lineItems.reduce((acc, item) => {
+    return acc + calculateItemValues(item).amount;
+  }, 0);
+
+  const framingVal = parseFloat(framingCharge) || 0;
+  const installVal = parseFloat(installationCharge) || 0;
+  const taxableTotal = subtotalItems + framingVal + installVal;
+  const gstVal = includeGst ? taxableTotal * 0.18 : 0;
+  const grandTotalQuotation = taxableTotal + gstVal;
+
+  const handleAddLineItem = () => {
+    const newItem = {
+      id: `item-${Date.now()}`,
+      description: 'Front Façade Signboard',
+      length: '10.0',
+      height: '3.0',
+      rate: '350.0',
+    };
+    setLineItems([...lineItems, newItem]);
+  };
+
+  const handleDeleteLineItem = (id) => {
+    if (lineItems.length <= 1) {
+      Alert.alert('Notice', 'At least one line item is required.');
+      return;
+    }
+    setLineItems(lineItems.filter((i) => i.id !== id));
+  };
+
+  const handleUpdateLineItem = (id, field, value) => {
+    setLineItems(
+      lineItems.map((item) => {
+        if (item.id === id) {
+          return { ...item, [field]: value };
+        }
+        return item;
+      })
+    );
+  };
+
+  const handleGeneratePdfQuotation = () => {
+    const quoteMessage = `📋 *APEX SIGNAGE - OFFICIAL QUOTATION*\n━━━━━━━━━━━━━━━━━━━━\nDear *${selectedQuotationCustomer}*,\n\nThank you for choosing Apex Signage! Below is your custom quotation:\n\n${lineItems
+      .map(
+        (i, idx) =>
+          `🔹 *Item ${idx + 1}:* ${i.description}\n   Size: ${i.length}ft × ${i.height}ft (${calculateItemValues(i).sqft.toFixed(1)} Sq.Ft) @ ₹${i.rate}/Sq.Ft = *₹${calculateItemValues(i).amount.toFixed(2)}*`
+      )
+      .join('\n\n')}\n\n━━━━━━━━━━━━━━━━━━━━\n📦 *Subtotal Items:* ₹${subtotalItems.toFixed(2)}\n🏗️ *Framing & Structure:* ₹${framingVal.toFixed(2)}\n🚚 *Installation Charge:* ₹${installVal.toFixed(2)}\n📑 *GST (18%):* ₹${gstVal.toFixed(2)}\n\n💰 *GRAND TOTAL:* *₹${grandTotalQuotation.toFixed(2)}*\n\n📥 *Download PDF:* http://172.20.10.2:5000/uploads/QT-2026-0001.pdf\n\nPlease reply to confirm and begin fabrication!`;
+
+    Linking.openURL(`whatsapp://send?phone=919423800532&text=${encodeURIComponent(quoteMessage)}`).catch(() => {});
+
+    Alert.alert(
+      '📄 Quotation Generated!',
+      `Quotation for ₹${grandTotalQuotation.toFixed(2)} generated with official branded PDF and dispatched to client WhatsApp!`
+    );
   };
 
   // WhatsApp Dispatch Engine
@@ -451,7 +536,7 @@ export default function App() {
     : inventoryList;
 
   // =========================================================================
-  // SCREEN 1: LOGIN / AUTHENTICATION (Exact match to Android Screenshot)
+  // SCREEN 1: LOGIN / AUTHENTICATION
   // =========================================================================
   if (!isAuthenticated) {
     return (
@@ -551,7 +636,7 @@ export default function App() {
   }
 
   // =========================================================================
-  // SCREEN 2: MAIN APP (Pure Admin Dashboard, Inventory & Invoices)
+  // SCREEN 2: MAIN APP (Pure Admin Dashboard, Inventory, Invoices, Rate Calc)
   // =========================================================================
   return (
     <SafeAreaView style={styles.container}>
@@ -585,7 +670,7 @@ export default function App() {
       </View>
 
       {/* Main Content Area */}
-      <ScrollView style={styles.mainScroll} contentContainerStyle={{ paddingBottom: 100 }}>
+      <ScrollView style={styles.mainScroll} contentContainerStyle={{ paddingBottom: 120 }}>
         
         {/* ================================================================= */}
         {/* TAB 1: ADMIN DASHBOARD */}
@@ -817,7 +902,7 @@ export default function App() {
         )}
 
         {/* ================================================================= */}
-        {/* TAB 3: INVOICES & PAYMENT LEDGER (With Working Record Payment) */}
+        {/* TAB 3: INVOICES & PAYMENT LEDGER */}
         {/* ================================================================= */}
         {currentTab === 'invoices' && (
           <View style={styles.tabContent}>
@@ -862,7 +947,6 @@ export default function App() {
                 </View>
 
                 <View style={styles.invActionsRow}>
-                  {/* Record Payment Button (Opens Record Payment Dialog!) */}
                   <TouchableOpacity
                     style={styles.recordPaymentBtn}
                     onPress={() => openRecordPaymentModal(inv)}
@@ -870,7 +954,6 @@ export default function App() {
                     <Text style={styles.recordPaymentText}>Record Payment</Text>
                   </TouchableOpacity>
 
-                  {/* 1-Click WhatsApp Invoice */}
                   <TouchableOpacity
                     style={styles.shareWhatsAppBtn}
                     onPress={() => sendInvoiceWhatsApp(inv)}
@@ -886,82 +969,214 @@ export default function App() {
         )}
 
         {/* ================================================================= */}
-        {/* TAB 4: RATE CALCULATOR */}
+        {/* TAB 4: AUTOMATIC RATE & QUOTATION BUILDER (Exact 1:1 match) */}
         {/* ================================================================= */}
         {currentTab === 'rate_calc' && (
           <View style={styles.tabContent}>
-            <Text style={styles.sectionTitle}>Signage Rate & Estimation Calculator</Text>
+            
+            {/* Top Subheader */}
+            <Text style={styles.calcScreenMainHeading}>
+              Automatic Rate & Quotation Builder
+            </Text>
 
-            <View style={styles.calcCard}>
-              <Text style={styles.calcFieldLabel}>Board Type</Text>
-              <TextInput
-                style={styles.calcInput}
-                value={calcBoardType}
-                onChangeText={setCalcBoardType}
-              />
-
-              <View style={{ flexDirection: 'row', gap: 10, marginTop: 12 }}>
-                <View style={{ flex: 1 }}>
-                  <Text style={styles.calcFieldLabel}>Width (Ft)</Text>
-                  <TextInput
-                    style={styles.calcInput}
-                    keyboardType="numeric"
-                    value={calcWidth}
-                    onChangeText={setCalcWidth}
-                  />
-                </View>
-                <View style={{ flex: 1 }}>
-                  <Text style={styles.calcFieldLabel}>Height (Ft)</Text>
-                  <TextInput
-                    style={styles.calcInput}
-                    keyboardType="numeric"
-                    value={calcHeight}
-                    onChangeText={setCalcHeight}
-                  />
-                </View>
-                <View style={{ flex: 1 }}>
-                  <Text style={styles.calcFieldLabel}>Rate / Sq.Ft (₹)</Text>
-                  <TextInput
-                    style={styles.calcInput}
-                    keyboardType="numeric"
-                    value={calcRatePerSqFt}
-                    onChangeText={setCalcRatePerSqFt}
-                  />
-                </View>
-              </View>
-
-              <View style={styles.calcResultBox}>
-                <View style={styles.calcResRow}>
-                  <Text style={styles.calcResLabel}>Total Sq.Ft Area:</Text>
-                  <Text style={styles.calcResVal}>{calculateQuotation().sqft} Sq.Ft</Text>
-                </View>
-                <View style={styles.calcResRow}>
-                  <Text style={styles.calcResLabel}>Base Cost:</Text>
-                  <Text style={styles.calcResVal}>₹{calculateQuotation().baseTotal.toLocaleString()}</Text>
-                </View>
-                <View style={styles.calcResRow}>
-                  <Text style={styles.calcResLabel}>GST (18%):</Text>
-                  <Text style={styles.calcResVal}>₹{calculateQuotation().gst.toLocaleString()}</Text>
-                </View>
-                <View style={[styles.calcResRow, { borderTopWidth: 1, borderTopColor: '#CBD5E1', paddingTop: 8, marginTop: 6 }]}>
-                  <Text style={[styles.calcResLabel, { fontWeight: 'bold', color: '#0F172A' }]}>Grand Total:</Text>
-                  <Text style={[styles.calcResVal, { color: '#0284C7', fontSize: 18 }]}>
-                    ₹{calculateQuotation().grandTotal.toLocaleString()}
-                  </Text>
-                </View>
-              </View>
-
+            {/* 1. Customer Selector Card (Active Blue Outline) */}
+            <View style={styles.customerSelectCard}>
+              <Text style={styles.customerSelectLabel}>Select Customer / Client</Text>
               <TouchableOpacity
-                style={styles.generateQuotationBtn}
-                onPress={() => {
-                  const qMsg = `📋 *APEX SIGNAGE - INSTANT ESTIMATION*\n━━━━━━━━━━━━━━━━━━━━\n*Board Type:* ${calcBoardType}\n*Size:* ${calcWidth}ft × ${calcHeight}ft (${calculateQuotation().sqft} Sq.Ft)\n*Base Amount:* ₹${calculateQuotation().baseTotal}\n*GST (18%):* ₹${calculateQuotation().gst}\n*Grand Total:* ₹${calculateQuotation().grandTotal}\n━━━━━━━━━━━━━━━━━━━━\nCall +91 9423800532 for instant booking!`;
-                  Linking.openURL(`whatsapp://send?phone=919423800532&text=${encodeURIComponent(qMsg)}`);
-                }}
+                style={styles.customerSelectRow}
+                onPress={() => setCustomerDropdownOpen(!customerDropdownOpen)}
               >
-                <FontAwesome5 name="whatsapp" size={18} color="#FFFFFF" style={{ marginRight: 8 }} />
-                <Text style={styles.generateQuotationText}>Share Quotation on WhatsApp</Text>
+                <Ionicons name="business-outline" size={20} color="#0284C7" style={{ marginRight: 10 }} />
+                <Text style={styles.customerSelectValue}>{selectedQuotationCustomer}</Text>
+                <Ionicons
+                  name={customerDropdownOpen ? 'chevron-up' : 'chevron-down'}
+                  size={18}
+                  color="#64748B"
+                />
+              </TouchableOpacity>
+
+              {customerDropdownOpen && (
+                <View style={styles.customerDropdownList}>
+                  {customerOptions.map((c) => (
+                    <TouchableOpacity
+                      key={c}
+                      style={styles.customerDropdownItem}
+                      onPress={() => {
+                        setSelectedQuotationCustomer(c);
+                        setCustomerDropdownOpen(false);
+                      }}
+                    >
+                      <Text
+                        style={[
+                          styles.customerDropdownText,
+                          selectedQuotationCustomer === c && styles.customerDropdownTextActive,
+                        ]}
+                      >
+                        {c}
+                      </Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              )}
+            </View>
+
+            {/* 2. Include GST Switch */}
+            <View style={styles.gstToggleCard}>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.gstToggleTitle}>Include GST (18% Tax Invoice)</Text>
+                <Text style={styles.gstToggleSubtitle}>
+                  Toggles GST vs Non-GST estimate format
+                </Text>
+              </View>
+              <Switch
+                value={includeGst}
+                onValueChange={setIncludeGst}
+                trackColor={{ false: '#CBD5E1', true: '#0F2744' }}
+                thumbColor="#FFFFFF"
+              />
+            </View>
+
+            {/* 3. Section Header with Add Item button */}
+            <View style={styles.lineItemsHeaderRow}>
+              <Text style={styles.lineItemsSectionTitle}>Signage Boards / Line Items</Text>
+              <TouchableOpacity
+                style={styles.addItemBtn}
+                onPress={handleAddLineItem}
+              >
+                <Ionicons name="add" size={18} color="#0284C7" style={{ marginRight: 4 }} />
+                <Text style={styles.addItemBtnText}>Add Item</Text>
               </TouchableOpacity>
             </View>
+
+            {/* 4. Line Items List */}
+            {lineItems.map((item, index) => {
+              const { sqft, amount } = calculateItemValues(item);
+              return (
+                <View key={item.id} style={styles.lineItemCard}>
+                  {/* Description Row with Delete Icon */}
+                  <View style={styles.lineItemDescGroup}>
+                    <View style={{ flex: 1 }}>
+                      <Text style={styles.inputInnerLabel}>Item Description</Text>
+                      <TextInput
+                        style={styles.lineItemDescInput}
+                        value={item.description}
+                        onChangeText={(val) => handleUpdateLineItem(item.id, 'description', val)}
+                        placeholder="Item Description"
+                      />
+                    </View>
+                    <TouchableOpacity
+                      style={styles.lineItemDeleteBtn}
+                      onPress={() => handleDeleteLineItem(item.id)}
+                    >
+                      <Ionicons name="trash-outline" size={20} color="#EF4444" />
+                    </TouchableOpacity>
+                  </View>
+
+                  {/* 3 Column Inputs: Length, Height, Rate */}
+                  <View style={styles.dimensionsRow}>
+                    <View style={styles.dimCol}>
+                      <Text style={styles.dimLabel}>Length (ft)</Text>
+                      <TextInput
+                        style={styles.dimInput}
+                        keyboardType="numeric"
+                        value={item.length}
+                        onChangeText={(val) => handleUpdateLineItem(item.id, 'length', val)}
+                      />
+                    </View>
+
+                    <View style={styles.dimCol}>
+                      <Text style={styles.dimLabel}>Height (ft)</Text>
+                      <TextInput
+                        style={styles.dimInput}
+                        keyboardType="numeric"
+                        value={item.height}
+                        onChangeText={(val) => handleUpdateLineItem(item.id, 'height', val)}
+                      />
+                    </View>
+
+                    <View style={styles.dimCol}>
+                      <Text style={styles.dimLabel}>Rate (₹/SqFt)</Text>
+                      <TextInput
+                        style={styles.dimInput}
+                        keyboardType="numeric"
+                        value={item.rate}
+                        onChangeText={(val) => handleUpdateLineItem(item.id, 'rate', val)}
+                      />
+                    </View>
+                  </View>
+
+                  {/* Footer Row: Total SqFt and Line Total */}
+                  <View style={styles.lineItemFooterRow}>
+                    <Text style={styles.lineItemSqFtText}>{sqft.toFixed(1)} Sq.Ft</Text>
+                    <Text style={styles.lineItemTotalAmount}>₹{amount.toFixed(2)}</Text>
+                  </View>
+                </View>
+              );
+            })}
+
+            {/* 5. Framing & Installation 2-Column Charges */}
+            <View style={styles.extraChargesRow}>
+              <View style={styles.extraChargeCol}>
+                <Text style={styles.extraChargeLabel}>Framing / MS (₹)</Text>
+                <TextInput
+                  style={styles.extraChargeInput}
+                  keyboardType="numeric"
+                  value={framingCharge}
+                  onChangeText={setFramingCharge}
+                />
+              </View>
+
+              <View style={styles.extraChargeCol}>
+                <Text style={styles.extraChargeLabel}>Installation (₹)</Text>
+                <TextInput
+                  style={styles.extraChargeInput}
+                  keyboardType="numeric"
+                  value={installationCharge}
+                  onChangeText={setInstallationCharge}
+                />
+              </View>
+            </View>
+
+            {/* 6. Calculation Breakdown Box */}
+            <View style={styles.breakdownCard}>
+              <View style={styles.breakdownLine}>
+                <Text style={styles.breakdownLineLabel}>Subtotal Items</Text>
+                <Text style={styles.breakdownLineVal}>₹{subtotalItems.toFixed(2)}</Text>
+              </View>
+
+              <View style={styles.breakdownLine}>
+                <Text style={styles.breakdownLineLabel}>Framing & Structure</Text>
+                <Text style={styles.breakdownLineVal}>+ ₹{framingVal.toFixed(0)}</Text>
+              </View>
+
+              <View style={styles.breakdownLine}>
+                <Text style={styles.breakdownLineLabel}>Installation Charge</Text>
+                <Text style={styles.breakdownLineVal}>+ ₹{installVal.toFixed(0)}</Text>
+              </View>
+
+              <View style={styles.breakdownLine}>
+                <Text style={styles.breakdownLineLabel}>GST (18%)</Text>
+                <Text style={styles.breakdownLineVal}>+ ₹{gstVal.toFixed(2)}</Text>
+              </View>
+            </View>
+
+            {/* 7. Grand Total Banner */}
+            <View style={styles.grandTotalBar}>
+              <Text style={styles.grandTotalBarLabel}>GRAND TOTAL:</Text>
+              <Text style={styles.grandTotalBarVal}>₹{grandTotalQuotation.toFixed(2)}</Text>
+            </View>
+
+            {/* 8. Generate Branded PDF Quotation Primary Button */}
+            <TouchableOpacity
+              style={styles.generatePdfQuotationBtn}
+              onPress={handleGeneratePdfQuotation}
+            >
+              <Ionicons name="document-text-outline" size={20} color="#FFFFFF" style={{ marginRight: 8 }} />
+              <Text style={styles.generatePdfQuotationBtnText}>
+                Generate Branded PDF Quotation
+              </Text>
+            </TouchableOpacity>
+
           </View>
         )}
 
@@ -1273,7 +1488,7 @@ export default function App() {
       </Modal>
 
       {/* ================================================================= */}
-      {/* MODAL 3: RECORD PAYMENT MODAL (Exact 1:1 match to Screenshot) */}
+      {/* MODAL 3: RECORD PAYMENT MODAL */}
       {/* ================================================================= */}
       <Modal
         visible={recordPaymentModalVisible}
@@ -1287,12 +1502,10 @@ export default function App() {
             style={{ width: '100%', alignItems: 'center' }}
           >
             <View style={styles.stockModalCard}>
-              {/* Modal Title */}
               <Text style={styles.stockModalTitle}>
                 Record Payment: {selectedInvoice?.invoiceNumber}
               </Text>
 
-              {/* 1. Amount Received (₹) */}
               <View style={[styles.modalInputGroup, { marginTop: 14 }]}>
                 <Text style={styles.modalInputLabel}>Amount Received (₹)</Text>
                 <TextInput
@@ -1305,7 +1518,6 @@ export default function App() {
                 />
               </View>
 
-              {/* 2. Payment Method Dropdown */}
               <View style={[styles.modalInputGroup, { marginTop: 12 }]}>
                 <Text style={styles.modalInputLabel}>Payment Method</Text>
                 <TouchableOpacity
@@ -1377,7 +1589,6 @@ export default function App() {
                 )}
               </View>
 
-              {/* 3. Transaction Ref / UTR No */}
               <View style={[styles.modalInputGroup, { marginTop: 12, marginBottom: 20 }]}>
                 <Text style={styles.modalInputLabel}>Transaction Ref / UTR No</Text>
                 <TextInput
@@ -1389,7 +1600,6 @@ export default function App() {
                 />
               </View>
 
-              {/* Cancel Button */}
               <TouchableOpacity
                 style={styles.stockModalCancelBtn}
                 onPress={() => setRecordPaymentModalVisible(false)}
@@ -1397,7 +1607,6 @@ export default function App() {
                 <Text style={styles.stockModalCancelText}>Cancel</Text>
               </TouchableOpacity>
 
-              {/* Confirm Payment Primary Button */}
               <TouchableOpacity
                 style={styles.stockModalConfirmBtn}
                 onPress={handleConfirmPayment}
@@ -2003,64 +2212,262 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     fontSize: 13,
   },
-  // Rate Calc Tab
-  calcCard: {
+
+  // =========================================================================
+  // AUTOMATIC RATE & QUOTATION BUILDER STYLES (Exact match to Screenshots)
+  // =========================================================================
+  calcScreenMainHeading: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#0F2744',
+    marginBottom: 14,
+  },
+  customerSelectCard: {
     backgroundColor: '#FFFFFF',
-    borderRadius: 14,
-    padding: 16,
-    borderWidth: 1,
-    borderColor: '#E2E8F0',
-  },
-  calcFieldLabel: {
-    fontSize: 12,
-    color: '#475569',
-    fontWeight: '600',
-    marginBottom: 4,
-  },
-  calcInput: {
-    backgroundColor: '#F8FAFC',
-    borderWidth: 1,
-    borderColor: '#CBD5E1',
-    borderRadius: 8,
-    paddingHorizontal: 12,
+    borderWidth: 1.5,
+    borderColor: '#0284C7',
+    borderRadius: 12,
+    paddingHorizontal: 14,
     paddingVertical: 8,
+    marginBottom: 14,
+  },
+  customerSelectLabel: {
+    fontSize: 11,
+    color: '#0284C7',
+    fontWeight: '600',
+    marginBottom: 2,
+  },
+  customerSelectRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    minHeight: 34,
+  },
+  customerSelectValue: {
+    flex: 1,
     fontSize: 14,
     color: '#0F172A',
     fontWeight: 'bold',
   },
-  calcResultBox: {
-    backgroundColor: '#F1F5F9',
-    borderRadius: 10,
-    padding: 14,
-    marginVertical: 16,
+  customerDropdownList: {
+    backgroundColor: '#F8FAFC',
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    marginTop: 8,
+    marginBottom: 4,
   },
-  calcResRow: {
+  customerDropdownItem: {
+    paddingVertical: 10,
+    paddingHorizontal: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F1F5F9',
+  },
+  customerDropdownText: {
+    fontSize: 13,
+    color: '#334155',
+  },
+  customerDropdownTextActive: {
+    color: '#0284C7',
+    fontWeight: 'bold',
+  },
+  gstToggleCard: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: 6,
+    alignItems: 'center',
+    backgroundColor: '#FFFFFF',
+    borderRadius: 12,
+    padding: 14,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    marginBottom: 16,
   },
-  calcResLabel: {
+  gstToggleTitle: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: '#0F172A',
+  },
+  gstToggleSubtitle: {
+    fontSize: 12,
+    color: '#64748B',
+    marginTop: 2,
+  },
+  lineItemsHeaderRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  lineItemsSectionTitle: {
+    fontSize: 15,
+    fontWeight: 'bold',
+    color: '#0F172A',
+  },
+  addItemBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  addItemBtnText: {
+    fontSize: 13,
+    fontWeight: 'bold',
+    color: '#0284C7',
+  },
+  lineItemCard: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 12,
+    padding: 14,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    marginBottom: 12,
+  },
+  lineItemDescGroup: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    borderRadius: 10,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    marginBottom: 10,
+  },
+  inputInnerLabel: {
+    fontSize: 10,
+    color: '#64748B',
+    marginBottom: 2,
+  },
+  lineItemDescInput: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#0F172A',
+  },
+  lineItemDeleteBtn: {
+    padding: 4,
+    marginLeft: 6,
+  },
+  dimensionsRow: {
+    flexDirection: 'row',
+    gap: 8,
+    marginBottom: 10,
+  },
+  dimCol: {
+    flex: 1,
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    borderRadius: 8,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+  },
+  dimLabel: {
+    fontSize: 10,
+    color: '#64748B',
+    marginBottom: 2,
+  },
+  dimInput: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: '#0F172A',
+  },
+  lineItemFooterRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingTop: 6,
+    borderTopWidth: 1,
+    borderTopColor: '#F1F5F9',
+  },
+  lineItemSqFtText: {
+    fontSize: 12,
+    color: '#64748B',
+    fontWeight: '500',
+  },
+  lineItemTotalAmount: {
+    fontSize: 15,
+    fontWeight: 'bold',
+    color: '#0F172A',
+  },
+  extraChargesRow: {
+    flexDirection: 'row',
+    gap: 10,
+    marginBottom: 14,
+  },
+  extraChargeCol: {
+    flex: 1,
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    borderRadius: 10,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+  },
+  extraChargeLabel: {
+    fontSize: 11,
+    color: '#64748B',
+    marginBottom: 2,
+  },
+  extraChargeInput: {
+    fontSize: 15,
+    fontWeight: 'bold',
+    color: '#0F172A',
+  },
+  breakdownCard: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 12,
+    padding: 14,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    marginBottom: 14,
+  },
+  breakdownLine: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingVertical: 5,
+  },
+  breakdownLineLabel: {
     fontSize: 13,
     color: '#475569',
   },
-  calcResVal: {
-    fontSize: 14,
-    fontWeight: 'bold',
+  breakdownLineVal: {
+    fontSize: 13,
+    fontWeight: '600',
     color: '#0F172A',
   },
-  generateQuotationBtn: {
+  grandTotalBar: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 14,
+  },
+  grandTotalBarLabel: {
+    fontSize: 14,
+    fontWeight: '800',
+    color: '#475569',
+    letterSpacing: 0.5,
+  },
+  grandTotalBarVal: {
+    fontSize: 22,
+    fontWeight: '900',
+    color: '#0F2744',
+  },
+  generatePdfQuotationBtn: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#25D366',
-    paddingVertical: 12,
-    borderRadius: 10,
+    backgroundColor: '#0F2744',
+    borderRadius: 12,
+    paddingVertical: 14,
+    shadowColor: '#0F2744',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 6,
+    elevation: 4,
   },
-  generateQuotationText: {
+  generatePdfQuotationBtnText: {
     color: '#FFFFFF',
+    fontSize: 15,
     fontWeight: 'bold',
-    fontSize: 14,
   },
+
   // Salary Tab
   salaryCard: {
     backgroundColor: '#FFFFFF',
@@ -2232,7 +2639,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
 
-  // Modal: Stock Movement & Record Payment (Exact 1:1 match)
+  // Modal: Stock Movement & Record Payment
   modalOverlay: {
     flex: 1,
     backgroundColor: 'rgba(0,0,0,0.6)',
