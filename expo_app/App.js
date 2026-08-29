@@ -762,8 +762,8 @@ export default function App() {
           password: password,
           name: email.split('@')[0].toUpperCase(),
           role: 'Custom User',
-          badgeColor: '#0284C7',
-          dotColor: '#0284C7',
+          badgeColor: '#0B2240',
+          dotColor: '#0B2240',
           avatar: '👤',
         };
         setCurrentUser(customUser);
@@ -1222,177 +1222,181 @@ export default function App() {
     const checklist = activeSiteTask.checklist;
 
     return (
-      <SafeAreaView style={styles.container}>
-        <StatusBar barStyle="light-content" backgroundColor="#0F2744" />
+      <View style={{ flex: 1, backgroundColor: '#0F2744' }}>
+        <SafeAreaView style={{ flex: 0, backgroundColor: '#0F2744' }}>
+          <StatusBar barStyle="light-content" backgroundColor="#0F2744" />
+        </SafeAreaView>
 
-        {/* Header Bar */}
-        <View style={styles.appBar}>
-          <View style={styles.appBarLeft}>
-            <TouchableOpacity onPress={() => setActiveSubScreen(null)} style={{ marginRight: 10 }}>
-              <Ionicons name="arrow-back" size={24} color="#FFFFFF" />
-            </TouchableOpacity>
-            <Text style={styles.appBarTitle}>Technical Site Checklist</Text>
+        <SafeAreaView style={{ flex: 1, backgroundColor: '#F8FAFC' }}>
+          {/* Header Bar */}
+          <View style={styles.appBar}>
+            <View style={styles.appBarLeft}>
+              <TouchableOpacity onPress={() => setActiveSubScreen(null)} style={{ marginRight: 10 }}>
+                <Ionicons name="arrow-back" size={24} color="#FFFFFF" />
+              </TouchableOpacity>
+              <Text style={styles.appBarTitle}>Technical Site Checklist</Text>
+            </View>
           </View>
-        </View>
 
-        <View style={styles.appBodyWrapper}>
-          <ScrollView style={styles.mainScroll} contentContainerStyle={{ padding: 16, paddingBottom: 110 }}>
-            {/* Section 1: Installation & Safety Assessment */}
-            <Text style={styles.checklistSectionHeading}>Installation & Safety Assessment</Text>
-            <Text style={styles.checklistSectionSub}>
-              Verify structural access, power supply distance, and crane/scaffold requirements.
-            </Text>
+          <View style={styles.appBodyWrapper}>
+            <ScrollView style={styles.mainScroll} contentContainerStyle={{ padding: 16, paddingBottom: 40 }}>
+              {/* Section 1: Installation & Safety Assessment */}
+              <Text style={styles.checklistSectionHeading}>Installation & Safety Assessment</Text>
+              <Text style={styles.checklistSectionSub}>
+                Verify structural access, power supply distance, and crane/scaffold requirements.
+              </Text>
 
-            {/* Field 1: Board Floor / Mounting Height */}
-            <View style={[styles.checklistInputCard, { marginTop: 14 }]}>
-              <Text style={styles.checklistInputLabel}>Board Floor / Mounting Height</Text>
-              <View style={styles.checklistInputRow}>
-                <Ionicons name="swap-vertical" size={20} color="#64748B" style={{ marginRight: 10 }} />
-                <TextInput
-                  style={styles.checklistTextInput}
-                  value={checklist.mountingHeight}
-                  onChangeText={(val) => {
-                    checklist.mountingHeight = val;
-                    setActiveSiteTask({ ...activeSiteTask });
-                  }}
-                  placeholder="e.g. Ground Floor Facade (12 ft)"
-                />
-              </View>
-            </View>
-
-            {/* Field 2: Power Supply Distance (Feet) */}
-            <View style={[styles.checklistInputCard, { marginTop: 14 }]}>
-              <Text style={styles.checklistInputLabel}>Power Supply Distance (Feet)</Text>
-              <View style={styles.checklistInputRow}>
-                <Ionicons name="flash-outline" size={20} color="#64748B" style={{ marginRight: 10 }} />
-                <TextInput
-                  style={[styles.checklistTextInput, { flex: 1 }]}
-                  keyboardType="numeric"
-                  value={checklist.powerDistance}
-                  onChangeText={(val) => {
-                    checklist.powerDistance = val;
-                    setActiveSiteTask({ ...activeSiteTask });
-                  }}
-                  placeholder="10.0"
-                />
-                <Text style={styles.unitSuffix}>ft</Text>
-              </View>
-            </View>
-
-            {/* Section 2: Equipment & Machinery Requirements */}
-            <Text style={[styles.checklistSectionHeading, { marginTop: 22, marginBottom: 8 }]}>
-              Equipment & Machinery Requirements
-            </Text>
-
-            <View style={styles.switchesContainerCard}>
-              <View style={styles.switchRowItem}>
-                <View style={{ flex: 1, paddingRight: 10 }}>
-                  <Text style={styles.switchTitle}>Ladder Required</Text>
-                  <Text style={styles.switchSub}>
-                    Standard aluminium folding ladder (up to 12ft)
-                  </Text>
+              {/* Field 1: Board Floor / Mounting Height */}
+              <View style={[styles.checklistInputCard, { marginTop: 14 }]}>
+                <Text style={styles.checklistInputLabel}>Board Floor / Mounting Height</Text>
+                <View style={styles.checklistInputRow}>
+                  <Ionicons name="swap-vertical" size={20} color="#64748B" style={{ marginRight: 10 }} />
+                  <TextInput
+                    style={styles.checklistTextInput}
+                    value={checklist.mountingHeight}
+                    onChangeText={(val) => {
+                      checklist.mountingHeight = val;
+                      setActiveSiteTask({ ...activeSiteTask });
+                    }}
+                    placeholder="e.g. Ground Floor Facade (12 ft)"
+                  />
                 </View>
-                <Switch
-                  value={checklist.ladderRequired}
-                  onValueChange={(val) => {
-                    checklist.ladderRequired = val;
-                    setActiveSiteTask({ ...activeSiteTask });
-                  }}
-                  trackColor={{ false: '#CBD5E1', true: '#0F2744' }}
-                  thumbColor="#FFFFFF"
-                />
               </View>
 
-              <View style={styles.switchDivider} />
-
-              <View style={styles.switchRowItem}>
-                <View style={{ flex: 1, paddingRight: 10 }}>
-                  <Text style={styles.switchTitle}>Scaffolding Required</Text>
-                  <Text style={styles.switchSub}>
-                    Required for heights above 15ft or multi-day installation
-                  </Text>
+              {/* Field 2: Power Supply Distance (Feet) */}
+              <View style={[styles.checklistInputCard, { marginTop: 14 }]}>
+                <Text style={styles.checklistInputLabel}>Power Supply Distance (Feet)</Text>
+                <View style={styles.checklistInputRow}>
+                  <Ionicons name="flash-outline" size={20} color="#64748B" style={{ marginRight: 10 }} />
+                  <TextInput
+                    style={[styles.checklistTextInput, { flex: 1 }]}
+                    keyboardType="numeric"
+                    value={checklist.powerDistance}
+                    onChangeText={(val) => {
+                      checklist.powerDistance = val;
+                      setActiveSiteTask({ ...activeSiteTask });
+                    }}
+                    placeholder="10.0"
+                  />
+                  <Text style={styles.unitSuffix}>ft</Text>
                 </View>
-                <Switch
-                  value={checklist.scaffoldingRequired}
-                  onValueChange={(val) => {
-                    checklist.scaffoldingRequired = val;
-                    setActiveSiteTask({ ...activeSiteTask });
-                  }}
-                  trackColor={{ false: '#CBD5E1', true: '#0F2744' }}
-                  thumbColor="#FFFFFF"
-                />
               </View>
 
-              <View style={styles.switchDivider} />
+              {/* Section 2: Equipment & Machinery Requirements */}
+              <Text style={[styles.checklistSectionHeading, { marginTop: 22, marginBottom: 8 }]}>
+                Equipment & Machinery Requirements
+              </Text>
 
-              <View style={styles.switchRowItem}>
-                <View style={{ flex: 1, paddingRight: 10 }}>
-                  <Text style={styles.switchTitle}>Hydraulic Crane Required</Text>
-                  <Text style={styles.switchSub}>
-                    Required for rooftop or high-rise facade hoists
-                  </Text>
+              <View style={styles.switchesContainerCard}>
+                <View style={styles.switchRowItem}>
+                  <View style={{ flex: 1, paddingRight: 10 }}>
+                    <Text style={styles.switchTitle}>Ladder Required</Text>
+                    <Text style={styles.switchSub}>
+                      Standard aluminium folding ladder (up to 12ft)
+                    </Text>
+                  </View>
+                  <Switch
+                    value={checklist.ladderRequired}
+                    onValueChange={(val) => {
+                      checklist.ladderRequired = val;
+                      setActiveSiteTask({ ...activeSiteTask });
+                    }}
+                    trackColor={{ false: '#CBD5E1', true: '#0F2744' }}
+                    thumbColor="#FFFFFF"
+                  />
                 </View>
-                <Switch
-                  value={checklist.craneRequired}
-                  onValueChange={(val) => {
-                    checklist.craneRequired = val;
-                    setActiveSiteTask({ ...activeSiteTask });
-                  }}
-                  trackColor={{ false: '#CBD5E1', true: '#0F2744' }}
-                  thumbColor="#FFFFFF"
-                />
-              </View>
-            </View>
 
-            {/* Section 3: Site Obstacles & Physical Hazards */}
-            <View style={styles.obstaclesCardActive}>
-              <Text style={styles.obstaclesLabel}>Site Obstacles & Physical Hazards</Text>
-              <View style={styles.obstaclesInputRow}>
-                <Ionicons name="warning-outline" size={22} color="#0F2744" style={{ marginRight: 10 }} />
-                <TextInput
-                  style={styles.obstaclesTextInput}
-                  value={checklist.obstacles}
-                  onChangeText={(val) => {
-                    checklist.obstacles = val;
-                    setActiveSiteTask({ ...activeSiteTask });
-                  }}
-                  placeholder="e.g. Overhanging power cables, tree branches, uneven pavement"
-                  placeholderTextColor="#94A3B8"
-                  multiline
-                />
-              </View>
-            </View>
+                <View style={styles.switchDivider} />
 
-            {/* Section 4: Additional Technical Notes */}
-            <View style={styles.additionalNotesCard}>
-              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                <Ionicons name="reorder-three-outline" size={22} color="#64748B" style={{ marginRight: 10 }} />
-                <TextInput
-                  style={styles.additionalNotesInput}
-                  value={checklist.notes}
-                  onChangeText={(val) => {
-                    checklist.notes = val;
-                    setActiveSiteTask({ ...activeSiteTask });
-                  }}
-                  placeholder="Additional Technical Notes"
-                  placeholderTextColor="#64748B"
-                />
-              </View>
-            </View>
+                <View style={styles.switchRowItem}>
+                  <View style={{ flex: 1, paddingRight: 10 }}>
+                    <Text style={styles.switchTitle}>Scaffolding Required</Text>
+                    <Text style={styles.switchSub}>
+                      Required for heights above 15ft or multi-day installation
+                    </Text>
+                  </View>
+                  <Switch
+                    value={checklist.scaffoldingRequired}
+                    onValueChange={(val) => {
+                      checklist.scaffoldingRequired = val;
+                      setActiveSiteTask({ ...activeSiteTask });
+                    }}
+                    trackColor={{ false: '#CBD5E1', true: '#0F2744' }}
+                    thumbColor="#FFFFFF"
+                  />
+                </View>
 
-            <TouchableOpacity
-              style={styles.saveChecklistBtn}
-              onPress={() => {
-                Alert.alert('✅ Saved', 'Technical site checklist updated successfully!');
-                setActiveSubScreen(null);
-              }}
-            >
-              <Ionicons name="checkmark" size={20} color="#FFFFFF" style={{ marginRight: 8 }} />
-              <Text style={styles.saveChecklistBtnText}>Save Technical Checklist</Text>
-            </TouchableOpacity>
-          </ScrollView>
-        </View>
-      </SafeAreaView>
+                <View style={styles.switchDivider} />
+
+                <View style={styles.switchRowItem}>
+                  <View style={{ flex: 1, paddingRight: 10 }}>
+                    <Text style={styles.switchTitle}>Hydraulic Crane Required</Text>
+                    <Text style={styles.switchSub}>
+                      Required for rooftop or high-rise facade hoists
+                    </Text>
+                  </View>
+                  <Switch
+                    value={checklist.craneRequired}
+                    onValueChange={(val) => {
+                      checklist.craneRequired = val;
+                      setActiveSiteTask({ ...activeSiteTask });
+                    }}
+                    trackColor={{ false: '#CBD5E1', true: '#0F2744' }}
+                    thumbColor="#FFFFFF"
+                  />
+                </View>
+              </View>
+
+              {/* Section 3: Site Obstacles & Physical Hazards */}
+              <View style={styles.obstaclesCardActive}>
+                <Text style={styles.obstaclesLabel}>Site Obstacles & Physical Hazards</Text>
+                <View style={styles.obstaclesInputRow}>
+                  <Ionicons name="warning-outline" size={22} color="#0F2744" style={{ marginRight: 10 }} />
+                  <TextInput
+                    style={styles.obstaclesTextInput}
+                    value={checklist.obstacles}
+                    onChangeText={(val) => {
+                      checklist.obstacles = val;
+                      setActiveSiteTask({ ...activeSiteTask });
+                    }}
+                    placeholder="e.g. Overhanging power cables, tree branches, uneven pavement"
+                    placeholderTextColor="#94A3B8"
+                    multiline
+                  />
+                </View>
+              </View>
+
+              {/* Section 4: Additional Technical Notes */}
+              <View style={styles.additionalNotesCard}>
+                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                  <Ionicons name="reorder-three-outline" size={22} color="#64748B" style={{ marginRight: 10 }} />
+                  <TextInput
+                    style={styles.additionalNotesInput}
+                    value={checklist.notes}
+                    onChangeText={(val) => {
+                      checklist.notes = val;
+                      setActiveSiteTask({ ...activeSiteTask });
+                    }}
+                    placeholder="Additional Technical Notes"
+                    placeholderTextColor="#64748B"
+                  />
+                </View>
+              </View>
+
+              <TouchableOpacity
+                style={styles.saveChecklistBtn}
+                onPress={() => {
+                  Alert.alert('✅ Saved', 'Technical site checklist updated successfully!');
+                  setActiveSubScreen(null);
+                }}
+              >
+                <Ionicons name="checkmark" size={20} color="#FFFFFF" style={{ marginRight: 8 }} />
+                <Text style={styles.saveChecklistBtnText}>Save Technical Checklist</Text>
+              </TouchableOpacity>
+            </ScrollView>
+          </View>
+        </SafeAreaView>
+      </View>
     );
   }
 
@@ -1413,134 +1417,138 @@ export default function App() {
     const sqm = sqft * 0.092903;
 
     return (
-      <SafeAreaView style={styles.container}>
-        <StatusBar barStyle="light-content" backgroundColor="#0F2744" />
-        
-        <View style={styles.appBar}>
-          <View style={styles.appBarLeft}>
-            <TouchableOpacity onPress={() => setActiveSubScreen(null)} style={{ marginRight: 10 }}>
-              <Ionicons name="arrow-back" size={24} color="#FFFFFF" />
-            </TouchableOpacity>
-            <Text style={styles.appBarTitle}>Smart Measurement Calculator</Text>
+      <View style={{ flex: 1, backgroundColor: '#0F2744' }}>
+        <SafeAreaView style={{ flex: 0, backgroundColor: '#0F2744' }}>
+          <StatusBar barStyle="light-content" backgroundColor="#0F2744" />
+        </SafeAreaView>
+
+        <SafeAreaView style={{ flex: 1, backgroundColor: '#F8FAFC' }}>
+          <View style={styles.appBar}>
+            <View style={styles.appBarLeft}>
+              <TouchableOpacity onPress={() => setActiveSubScreen(null)} style={{ marginRight: 10 }}>
+                <Ionicons name="arrow-back" size={24} color="#FFFFFF" />
+              </TouchableOpacity>
+              <Text style={styles.appBarTitle}>Smart Measurement Calculator</Text>
+            </View>
           </View>
-        </View>
 
-        <View style={styles.appBodyWrapper}>
-          <ScrollView style={styles.mainScroll} contentContainerStyle={{ padding: 16, paddingBottom: 110 }}>
-            <View style={styles.calcFormulaBox}>
-              <Ionicons name="sparkles" size={18} color="#0284C7" style={{ marginRight: 8 }} />
-              <View style={{ flex: 1 }}>
-                <Text style={styles.calcFormulaText}>
-                  Auto-Calculates: Sq.Ft = Length × Height
-                </Text>
-                <Text style={styles.calcFormulaSub}>
-                  Sq.Meter = Sq.Ft × 0.092903
-                </Text>
-              </View>
-            </View>
-
-            <View style={styles.measureCard}>
-              <View style={styles.measureInputGroup}>
-                <Text style={styles.measureInputLabel}>Board / Section Name</Text>
-                <TextInput
-                  style={styles.measureTextInput}
-                  value={currentSection.name}
-                  onChangeText={(text) => {
-                    currentSection.name = text;
-                    setActiveSiteTask({ ...activeSiteTask });
-                  }}
-                />
-              </View>
-
-              <View style={styles.measureDimensionsRow}>
-                <View style={styles.measureDimCol}>
-                  <Text style={styles.measureInputLabel}>Length (ft)</Text>
-                  <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                    <TextInput
-                      style={[styles.measureTextInput, { flex: 1 }]}
-                      keyboardType="numeric"
-                      value={currentSection.length}
-                      onChangeText={(text) => {
-                        currentSection.length = text;
-                        setActiveSiteTask({ ...activeSiteTask });
-                      }}
-                    />
-                    <Text style={styles.unitSuffix}>ft</Text>
-                  </View>
-                </View>
-
-                <Text style={styles.multiplySign}>×</Text>
-
-                <View style={styles.measureDimCol}>
-                  <Text style={styles.measureInputLabel}>Height (ft)</Text>
-                  <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                    <TextInput
-                      style={[styles.measureTextInput, { flex: 1 }]}
-                      keyboardType="numeric"
-                      value={currentSection.height}
-                      onChangeText={(text) => {
-                        currentSection.height = text;
-                        setActiveSiteTask({ ...activeSiteTask });
-                      }}
-                    />
-                    <Text style={styles.unitSuffix}>ft</Text>
-                  </View>
+          <View style={styles.appBodyWrapper}>
+            <ScrollView style={styles.mainScroll} contentContainerStyle={{ padding: 16, paddingBottom: 40 }}>
+              <View style={styles.calcFormulaBox}>
+                <Ionicons name="sparkles" size={18} color="#0284C7" style={{ marginRight: 8 }} />
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.calcFormulaText}>
+                    Auto-Calculates: Sq.Ft = Length × Height
+                  </Text>
+                  <Text style={styles.calcFormulaSub}>
+                    Sq.Meter = Sq.Ft × 0.092903
+                  </Text>
                 </View>
               </View>
 
-              <View style={styles.areaResultBox}>
-                <Text style={styles.areaResultLabel}>Area Result:</Text>
-                <Text style={styles.areaResultVal}>
-                  {sqft.toFixed(2)} Sq.Ft | {sqm.toFixed(3)} Sq.M
+              <View style={styles.measureCard}>
+                <View style={styles.measureInputGroup}>
+                  <Text style={styles.measureInputLabel}>Board / Section Name</Text>
+                  <TextInput
+                    style={styles.measureTextInput}
+                    value={currentSection.name}
+                    onChangeText={(text) => {
+                      currentSection.name = text;
+                      setActiveSiteTask({ ...activeSiteTask });
+                    }}
+                  />
+                </View>
+
+                <View style={styles.measureDimensionsRow}>
+                  <View style={styles.measureDimCol}>
+                    <Text style={styles.measureInputLabel}>Length (ft)</Text>
+                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                      <TextInput
+                        style={[styles.measureTextInput, { flex: 1 }]}
+                        keyboardType="numeric"
+                        value={currentSection.length}
+                        onChangeText={(text) => {
+                          currentSection.length = text;
+                          setActiveSiteTask({ ...activeSiteTask });
+                        }}
+                      />
+                      <Text style={styles.unitSuffix}>ft</Text>
+                    </View>
+                  </View>
+
+                  <Text style={styles.multiplySign}>×</Text>
+
+                  <View style={styles.measureDimCol}>
+                    <Text style={styles.measureInputLabel}>Height (ft)</Text>
+                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                      <TextInput
+                        style={[styles.measureTextInput, { flex: 1 }]}
+                        keyboardType="numeric"
+                        value={currentSection.height}
+                        onChangeText={(text) => {
+                          currentSection.height = text;
+                          setActiveSiteTask({ ...activeSiteTask });
+                        }}
+                      />
+                      <Text style={styles.unitSuffix}>ft</Text>
+                    </View>
+                  </View>
+                </View>
+
+                <View style={styles.areaResultBox}>
+                  <Text style={styles.areaResultLabel}>Area Result:</Text>
+                  <Text style={styles.areaResultVal}>
+                    {sqft.toFixed(2)} Sq.Ft | {sqm.toFixed(3)} Sq.M
+                  </Text>
+                </View>
+
+                <View style={[styles.measureInputGroup, { marginTop: 12 }]}>
+                  <Text style={styles.measureInputLabel}>Material Specification</Text>
+                  <TouchableOpacity style={styles.measureDropdownRow}>
+                    <Text style={styles.measureDropdownVal}>{currentSection.material}</Text>
+                    <Ionicons name="chevron-down" size={18} color="#64748B" />
+                  </TouchableOpacity>
+                </View>
+
+                <View style={[styles.measureInputGroup, { marginTop: 12 }]}>
+                  <Text style={styles.measureInputLabel}>MS Pipe Structure Gauge</Text>
+                  <TouchableOpacity style={styles.measureDropdownRow}>
+                    <Text style={styles.measureDropdownVal}>{currentSection.gauge}</Text>
+                    <Ionicons name="chevron-down" size={18} color="#64748B" />
+                  </TouchableOpacity>
+                </View>
+              </View>
+
+              <TouchableOpacity
+                style={styles.addBoardOutlineBtn}
+                onPress={() => Alert.alert('Add Section', 'Added Section 2 for Front Facade')}
+              >
+                <Ionicons name="add-circle-outline" size={20} color="#0F2744" style={{ marginRight: 6 }} />
+                <Text style={styles.addBoardOutlineText}>Add Another Board / Section</Text>
+              </TouchableOpacity>
+
+              <View style={styles.measureTotalAreaRow}>
+                <Text style={styles.measureTotalAreaLabel}>TOTAL AREA:</Text>
+                <Text style={styles.measureTotalAreaVal}>
+                  {sqft.toFixed(2)} Sq.Ft <Text style={{ fontSize: 12, color: '#64748B' }}>({sqm.toFixed(3)} Sq.Meters)</Text>
                 </Text>
               </View>
 
-              <View style={[styles.measureInputGroup, { marginTop: 12 }]}>
-                <Text style={styles.measureInputLabel}>Material Specification</Text>
-                <TouchableOpacity style={styles.measureDropdownRow}>
-                  <Text style={styles.measureDropdownVal}>{currentSection.material}</Text>
-                  <Ionicons name="chevron-down" size={18} color="#64748B" />
-                </TouchableOpacity>
-              </View>
-
-              <View style={[styles.measureInputGroup, { marginTop: 12 }]}>
-                <Text style={styles.measureInputLabel}>MS Pipe Structure Gauge</Text>
-                <TouchableOpacity style={styles.measureDropdownRow}>
-                  <Text style={styles.measureDropdownVal}>{currentSection.gauge}</Text>
-                  <Ionicons name="chevron-down" size={18} color="#64748B" />
-                </TouchableOpacity>
-              </View>
-            </View>
-
-            <TouchableOpacity
-              style={styles.addBoardOutlineBtn}
-              onPress={() => Alert.alert('Add Section', 'Added Section 2 for Front Facade')}
-            >
-              <Ionicons name="add-circle-outline" size={20} color="#0F2744" style={{ marginRight: 6 }} />
-              <Text style={styles.addBoardOutlineText}>Add Another Board / Section</Text>
-            </TouchableOpacity>
-
-            <View style={styles.measureTotalAreaRow}>
-              <Text style={styles.measureTotalAreaLabel}>TOTAL AREA:</Text>
-              <Text style={styles.measureTotalAreaVal}>
-                {sqft.toFixed(2)} Sq.Ft <Text style={{ fontSize: 12, color: '#64748B' }}>({sqm.toFixed(3)} Sq.Meters)</Text>
-              </Text>
-            </View>
-
-            <TouchableOpacity
-              style={styles.saveMeasurementsBtn}
-              onPress={() => {
-                activeSiteTask.measurementsCount = 1;
-                Alert.alert('✅ Saved', 'Measurements saved successfully!');
-                setActiveSubScreen(null);
-              }}
-            >
-              <Ionicons name="checkmark" size={20} color="#FFFFFF" style={{ marginRight: 8 }} />
-              <Text style={styles.saveMeasurementsBtnText}>Save 1 Board Measurements</Text>
-            </TouchableOpacity>
-          </ScrollView>
-        </View>
-      </SafeAreaView>
+              <TouchableOpacity
+                style={styles.saveMeasurementsBtn}
+                onPress={() => {
+                  activeSiteTask.measurementsCount = 1;
+                  Alert.alert('✅ Saved', 'Measurements saved successfully!');
+                  setActiveSubScreen(null);
+                }}
+              >
+                <Ionicons name="checkmark" size={20} color="#FFFFFF" style={{ marginRight: 8 }} />
+                <Text style={styles.saveMeasurementsBtnText}>Save 1 Board Measurements</Text>
+              </TouchableOpacity>
+            </ScrollView>
+          </View>
+        </SafeAreaView>
+      </View>
     );
   }
 
@@ -1549,202 +1557,206 @@ export default function App() {
   // =========================================================================
   if (currentUser.role === 'Field Boy' && activeSiteTask) {
     return (
-      <SafeAreaView style={styles.container}>
-        <StatusBar barStyle="light-content" backgroundColor="#0F2744" />
+      <View style={{ flex: 1, backgroundColor: '#0F2744' }}>
+        <SafeAreaView style={{ flex: 0, backgroundColor: '#0F2744' }}>
+          <StatusBar barStyle="light-content" backgroundColor="#0F2744" />
+        </SafeAreaView>
 
-        {/* Header Bar */}
-        <View style={styles.appBar}>
-          <View style={styles.appBarLeft}>
-            <TouchableOpacity onPress={() => setActiveSiteTask(null)} style={{ marginRight: 10 }}>
-              <Ionicons name="arrow-back" size={24} color="#FFFFFF" />
-            </TouchableOpacity>
-            <Text style={styles.appBarTitle}>{activeSiteTask.title}</Text>
-          </View>
-          <View style={styles.syncedBadge}>
-            <Ionicons name="cloud-done" size={14} color="#10B981" style={{ marginRight: 4 }} />
-            <Text style={styles.syncedBadgeText}>Synced</Text>
-          </View>
-        </View>
-
-        <View style={styles.appBodyWrapper}>
-          <ScrollView style={styles.mainScroll} contentContainerStyle={{ padding: 16, paddingBottom: 110 }}>
-            {/* Client Details Card */}
-            <View style={styles.taskDetailClientCard}>
-              <View style={styles.taskDetailClientHeader}>
-                <Text style={styles.taskDetailClientName}>{activeSiteTask.clientName}</Text>
-                <View style={styles.taskAssignedPill}>
-                  <Text style={styles.taskAssignedPillText}>{activeSiteTask.status}</Text>
-                </View>
-              </View>
-              <Text style={styles.taskDetailAddress}>{activeSiteTask.address}</Text>
-
-              <View style={styles.taskActionBtnsRow}>
-                <TouchableOpacity
-                  style={styles.callClientBtn}
-                  onPress={() => Linking.openURL(`tel:${activeSiteTask.clientPhone}`)}
-                >
-                  <Ionicons name="call-outline" size={18} color="#0F2744" style={{ marginRight: 6 }} />
-                  <Text style={styles.callClientBtnText}>Call Client</Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity
-                  style={styles.navigateMapBtn}
-                  onPress={() =>
-                    Linking.openURL(
-                      `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(activeSiteTask.address)}`
-                    )
-                  }
-                >
-                  <Ionicons name="navigate" size={18} color="#FFFFFF" style={{ marginRight: 6 }} />
-                  <Text style={styles.navigateMapBtnText}>Navigate Map</Text>
-                </TouchableOpacity>
-              </View>
+        <SafeAreaView style={{ flex: 1, backgroundColor: '#F8FAFC' }}>
+          {/* Header Bar */}
+          <View style={styles.appBar}>
+            <View style={styles.appBarLeft}>
+              <TouchableOpacity onPress={() => setActiveSiteTask(null)} style={{ marginRight: 10 }}>
+                <Ionicons name="arrow-back" size={24} color="#FFFFFF" />
+              </TouchableOpacity>
+              <Text style={styles.appBarTitle}>{activeSiteTask.title}</Text>
             </View>
+            <View style={styles.syncedBadge}>
+              <Ionicons name="cloud-done" size={14} color="#10B981" style={{ marginRight: 4 }} />
+              <Text style={styles.syncedBadgeText}>Synced</Text>
+            </View>
+          </View>
 
-            {/* Module 1: 📏 Digital Smart Measurements */}
-            <Text style={styles.moduleSectionHeading}>📏 1. Digital Smart Measurements</Text>
-            <TouchableOpacity
-              style={styles.moduleCard}
-              onPress={() => setActiveSubScreen('measurements')}
-            >
-              <View style={{ flex: 1 }}>
-                <Text style={styles.moduleCardTitle}>1 Board Section(s) Configured</Text>
-                <Text style={styles.moduleCardSub}>Total: 60.0 Sq.Ft (5.57 Sq.Meters)</Text>
-              </View>
-              <Ionicons name="chevron-forward" size={20} color="#94A3B8" />
-            </TouchableOpacity>
-
-            {/* Module 2: ✏️ Site Photograph & Touch Annotation */}
-            <Text style={styles.moduleSectionHeading}>✏️ 2. Site Photograph & Touch Annotation</Text>
-            <TouchableOpacity
-              style={styles.moduleCard}
-              onPress={() => setCapturePhotoModalVisible(true)}
-            >
-              <View style={styles.moduleIconBoxCyan}>
-                <Ionicons name="camera-outline" size={22} color="#0284C7" />
-              </View>
-              <View style={{ flex: 1, marginLeft: 12 }}>
-                <Text style={styles.moduleCardTitle}>Capture & Annotate Site Photo</Text>
-                <Text style={styles.moduleCardSub}>
-                  {activeSiteTask.hasPhoto ? '✅ 1 Annotated Facade Photo attached' : 'Draw width/height directly on site photo'}
-                </Text>
-              </View>
-              <Ionicons name="chevron-forward" size={20} color="#94A3B8" />
-            </TouchableOpacity>
-
-            {/* Module 3: 🎥 Site Video Clip (10 Seconds) */}
-            <Text style={styles.moduleSectionHeading}>🎥 3. Site Video Clip (10 Seconds)</Text>
-            <TouchableOpacity
-              style={styles.moduleCard}
-              onPress={() => setActiveSubScreen('video_recording')}
-            >
-              <View style={styles.moduleIconBoxPurple}>
-                <Ionicons name="videocam-outline" size={22} color="#8B5CF6" />
-              </View>
-              <View style={{ flex: 1, marginLeft: 12 }}>
-                <Text style={styles.moduleCardTitle}>Record 10-Second Site Video</Text>
-                <Text style={styles.moduleCardSub}>
-                  {activeSiteTask.hasVideo ? '✅ 10s Clearance Video saved' : 'Required to assess surrounding trees & road clearance'}
-                </Text>
-              </View>
-              <Ionicons name="chevron-forward" size={20} color="#94A3B8" />
-            </TouchableOpacity>
-
-            {/* Module 4: 📋 Technical Checklist */}
-            <Text style={styles.moduleSectionHeading}>📋 4. Technical Checklist</Text>
-            <TouchableOpacity
-              style={styles.moduleCard}
-              onPress={() => setActiveSubScreen('checklist')}
-            >
-              <View style={{ flex: 1 }}>
-                <Text style={styles.moduleCardTitle}>{activeSiteTask.checklist.mountingHeight}</Text>
-                <Text style={styles.moduleCardSub}>
-                  Power: {activeSiteTask.checklist.powerDistance}ft • Ladder: {activeSiteTask.checklist.ladderRequired ? 'Yes' : 'No'} • Crane:{' '}
-                  {activeSiteTask.checklist.craneRequired ? 'Yes' : 'No'}
-                </Text>
-              </View>
-              <Ionicons name="chevron-forward" size={20} color="#94A3B8" />
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={[styles.submitSiteVisitPrimaryBtn, { marginTop: 14 }]}
-              onPress={() => handleSubmitSiteVisit(activeSiteTask)}
-            >
-              <Ionicons name="cloud-upload-outline" size={20} color="#FFFFFF" style={{ marginRight: 8 }} />
-              <Text style={styles.submitSiteVisitPrimaryText}>Submit & Sync to Designer</Text>
-            </TouchableOpacity>
-          </ScrollView>
-        </View>
-
-        {/* Photo Capture Modal */}
-        <Modal
-          visible={capturePhotoModalVisible}
-          transparent
-          animationType="slide"
-          onRequestClose={() => setCapturePhotoModalVisible(false)}
-        >
-          <View style={styles.sheetOverlay}>
-            <View style={styles.sheetContainer}>
-              <View style={styles.sheetHeader}>
-                <View style={{ flex: 1, paddingRight: 12 }}>
-                  <Text style={styles.sheetTitle}>Capture Site Facade Photo</Text>
-                  <Text style={styles.sheetSub}>Choose camera or select existing photo</Text>
+          <View style={styles.appBodyWrapper}>
+            <ScrollView style={styles.mainScroll} contentContainerStyle={{ padding: 16, paddingBottom: 40 }}>
+              {/* Client Details Card */}
+              <View style={styles.taskDetailClientCard}>
+                <View style={styles.taskDetailClientHeader}>
+                  <Text style={styles.taskDetailClientName}>{activeSiteTask.clientName}</Text>
+                  <View style={styles.taskAssignedPill}>
+                    <Text style={styles.taskAssignedPillText}>{activeSiteTask.status}</Text>
+                  </View>
                 </View>
-                <TouchableOpacity
-                  style={styles.sheetCloseBtn}
-                  onPress={() => setCapturePhotoModalVisible(false)}
-                  hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-                >
-                  <Ionicons name="close" size={22} color="#64748B" />
-                </TouchableOpacity>
+                <Text style={styles.taskDetailAddress}>{activeSiteTask.address}</Text>
+
+                <View style={styles.taskActionBtnsRow}>
+                  <TouchableOpacity
+                    style={styles.callClientBtn}
+                    onPress={() => Linking.openURL(`tel:${activeSiteTask.clientPhone}`)}
+                  >
+                    <Ionicons name="call-outline" size={18} color="#0F2744" style={{ marginRight: 6 }} />
+                    <Text style={styles.callClientBtnText}>Call Client</Text>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity
+                    style={styles.navigateMapBtn}
+                    onPress={() =>
+                      Linking.openURL(
+                        `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(activeSiteTask.address)}`
+                      )
+                    }
+                  >
+                    <Ionicons name="navigate" size={18} color="#FFFFFF" style={{ marginRight: 6 }} />
+                    <Text style={styles.navigateMapBtnText}>Navigate Map</Text>
+                  </TouchableOpacity>
+                </View>
               </View>
 
+              {/* Module 1: 📏 Digital Smart Measurements */}
+              <Text style={styles.moduleSectionHeading}>📏 1. Digital Smart Measurements</Text>
               <TouchableOpacity
-                style={styles.photoOptionItem}
-                onPress={() => {
-                  setCapturePhotoModalVisible(false);
-                  setActiveSubScreen('live_camera_photo');
-                }}
+                style={styles.moduleCard}
+                onPress={() => setActiveSubScreen('measurements')}
               >
-                <View style={styles.photoOptionIconBox}>
-                  <Ionicons name="camera" size={22} color="#0284C7" />
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.moduleCardTitle}>1 Board Section(s) Configured</Text>
+                  <Text style={styles.moduleCardSub}>Total: 60.0 Sq.Ft (5.57 Sq.Meters)</Text>
                 </View>
-                <View style={{ marginLeft: 12 }}>
-                  <Text style={styles.photoOptionText}>Take Live Photo with Camera</Text>
-                  <Text style={styles.photoOptionSub}>Capture facade using live iPhone camera</Text>
-                </View>
+                <Ionicons name="chevron-forward" size={20} color="#94A3B8" />
               </TouchableOpacity>
 
-              <TouchableOpacity style={styles.photoOptionItem} onPress={handleLaunchGallery}>
-                <View style={[styles.photoOptionIconBox, { backgroundColor: '#E2E8F0' }]}>
-                  <Ionicons name="images" size={22} color="#475569" />
+              {/* Module 2: ✏️ Site Photograph & Touch Annotation */}
+              <Text style={styles.moduleSectionHeading}>✏️ 2. Site Photograph & Touch Annotation</Text>
+              <TouchableOpacity
+                style={styles.moduleCard}
+                onPress={() => setCapturePhotoModalVisible(true)}
+              >
+                <View style={styles.moduleIconBoxCyan}>
+                  <Ionicons name="camera-outline" size={22} color="#0284C7" />
                 </View>
-                <View style={{ marginLeft: 12 }}>
-                  <Text style={styles.photoOptionText}>Choose from Gallery</Text>
-                  <Text style={styles.photoOptionSub}>Select existing photo from phone</Text>
+                <View style={{ flex: 1, marginLeft: 12 }}>
+                  <Text style={styles.moduleCardTitle}>Capture & Annotate Site Photo</Text>
+                  <Text style={styles.moduleCardSub}>
+                    {activeSiteTask.hasPhoto ? '✅ 1 Annotated Facade Photo attached' : 'Draw width/height directly on site photo'}
+                  </Text>
                 </View>
+                <Ionicons name="chevron-forward" size={20} color="#94A3B8" />
+              </TouchableOpacity>
+
+              {/* Module 3: 🎥 Site Video Clip (10 Seconds) */}
+              <Text style={styles.moduleSectionHeading}>🎥 3. Site Video Clip (10 Seconds)</Text>
+              <TouchableOpacity
+                style={styles.moduleCard}
+                onPress={() => setActiveSubScreen('video_recording')}
+              >
+                <View style={styles.moduleIconBoxPurple}>
+                  <Ionicons name="videocam-outline" size={22} color="#8B5CF6" />
+                </View>
+                <View style={{ flex: 1, marginLeft: 12 }}>
+                  <Text style={styles.moduleCardTitle}>Record 10-Second Site Video</Text>
+                  <Text style={styles.moduleCardSub}>
+                    {activeSiteTask.hasVideo ? '✅ 10s Clearance Video saved' : 'Required to assess surrounding trees & road clearance'}
+                  </Text>
+                </View>
+                <Ionicons name="chevron-forward" size={20} color="#94A3B8" />
+              </TouchableOpacity>
+
+              {/* Module 4: 📋 Technical Checklist */}
+              <Text style={styles.moduleSectionHeading}>📋 4. Technical Checklist</Text>
+              <TouchableOpacity
+                style={styles.moduleCard}
+                onPress={() => setActiveSubScreen('checklist')}
+              >
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.moduleCardTitle}>{activeSiteTask.checklist.mountingHeight}</Text>
+                  <Text style={styles.moduleCardSub}>
+                    Power: {activeSiteTask.checklist.powerDistance}ft • Ladder: {activeSiteTask.checklist.ladderRequired ? 'Yes' : 'No'} • Crane:{' '}
+                    {activeSiteTask.checklist.craneRequired ? 'Yes' : 'No'}
+                  </Text>
+                </View>
+                <Ionicons name="chevron-forward" size={20} color="#94A3B8" />
               </TouchableOpacity>
 
               <TouchableOpacity
-                style={styles.photoOptionItem}
-                onPress={() => {
-                  setCapturePhotoModalVisible(false);
-                  setSelectedPhotoUri('https://images.unsplash.com/photo-1541888946425-d0fbb18015f6?w=1200');
-                  setActiveSubScreen('photo_annotation');
-                }}
+                style={[styles.submitSiteVisitPrimaryBtn, { marginTop: 14 }]}
+                onPress={() => handleSubmitSiteVisit(activeSiteTask)}
               >
-                <View style={[styles.photoOptionIconBox, { backgroundColor: '#F1F5F9' }]}>
-                  <Ionicons name="business" size={22} color="#64748B" />
-                </View>
-                <View style={{ marginLeft: 12 }}>
-                  <Text style={styles.photoOptionText}>Use Sample Retail Facade Photo</Text>
-                  <Text style={styles.photoOptionSub}>Pre-loaded building sample for quick demo</Text>
-                </View>
+                <Ionicons name="cloud-upload-outline" size={20} color="#FFFFFF" style={{ marginRight: 8 }} />
+                <Text style={styles.submitSiteVisitPrimaryText}>Submit & Sync to Designer</Text>
               </TouchableOpacity>
-            </View>
+            </ScrollView>
           </View>
-        </Modal>
-      </SafeAreaView>
+
+          {/* Photo Capture Modal */}
+          <Modal
+            visible={capturePhotoModalVisible}
+            transparent
+            animationType="slide"
+            onRequestClose={() => setCapturePhotoModalVisible(false)}
+          >
+            <View style={styles.sheetOverlay}>
+              <View style={styles.sheetContainer}>
+                <View style={styles.sheetHeader}>
+                  <View style={{ flex: 1, paddingRight: 12 }}>
+                    <Text style={styles.sheetTitle}>Capture Site Facade Photo</Text>
+                    <Text style={styles.sheetSub}>Choose camera or select existing photo</Text>
+                  </View>
+                  <TouchableOpacity
+                    style={styles.sheetCloseBtn}
+                    onPress={() => setCapturePhotoModalVisible(false)}
+                    hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                  >
+                    <Ionicons name="close" size={22} color="#64748B" />
+                  </TouchableOpacity>
+                </View>
+
+                <TouchableOpacity
+                  style={styles.photoOptionItem}
+                  onPress={() => {
+                    setCapturePhotoModalVisible(false);
+                    setActiveSubScreen('live_camera_photo');
+                  }}
+                >
+                  <View style={styles.photoOptionIconBox}>
+                    <Ionicons name="camera" size={22} color="#0284C7" />
+                  </View>
+                  <View style={{ marginLeft: 12 }}>
+                    <Text style={styles.photoOptionText}>Take Live Photo with Camera</Text>
+                    <Text style={styles.photoOptionSub}>Capture facade using live iPhone camera</Text>
+                  </View>
+                </TouchableOpacity>
+
+                <TouchableOpacity style={styles.photoOptionItem} onPress={handleLaunchGallery}>
+                  <View style={[styles.photoOptionIconBox, { backgroundColor: '#E2E8F0' }]}>
+                    <Ionicons name="images" size={22} color="#475569" />
+                  </View>
+                  <View style={{ marginLeft: 12 }}>
+                    <Text style={styles.photoOptionText}>Choose from Gallery</Text>
+                    <Text style={styles.photoOptionSub}>Select existing photo from phone</Text>
+                  </View>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={styles.photoOptionItem}
+                  onPress={() => {
+                    setCapturePhotoModalVisible(false);
+                    setSelectedPhotoUri('https://images.unsplash.com/photo-1541888946425-d0fbb18015f6?w=1200');
+                    setActiveSubScreen('photo_annotation');
+                  }}
+                >
+                  <View style={[styles.photoOptionIconBox, { backgroundColor: '#F1F5F9' }]}>
+                    <Ionicons name="business" size={22} color="#64748B" />
+                  </View>
+                  <View style={{ marginLeft: 12 }}>
+                    <Text style={styles.photoOptionText}>Use Sample Retail Facade Photo</Text>
+                    <Text style={styles.photoOptionSub}>Pre-loaded building sample for quick demo</Text>
+                  </View>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </Modal>
+        </SafeAreaView>
+      </View>
     );
   }
 
@@ -1757,13 +1769,189 @@ export default function App() {
     const submittedCount = fieldTasks.filter((t) => t.status === 'SUBMITTED').length;
 
     return (
-      <SafeAreaView style={styles.container}>
-        <StatusBar barStyle="light-content" backgroundColor="#0F2744" />
+      <View style={{ flex: 1, backgroundColor: '#0F2744' }}>
+        {/* Top iOS Notch Bar matching Navy */}
+        <SafeAreaView style={{ flex: 0, backgroundColor: '#0F2744' }}>
+          <StatusBar barStyle="light-content" backgroundColor="#0F2744" />
+        </SafeAreaView>
 
+        {/* Main Content & Bottom Area matching White so NO Blue Strip at bottom */}
+        <SafeAreaView style={{ flex: 1, backgroundColor: '#FFFFFF' }}>
+          <View style={styles.appBar}>
+            <View style={styles.appBarLeft}>
+              <Ionicons name="print" size={22} color="#FFFFFF" style={{ marginRight: 8 }} />
+              <Text style={styles.appBarTitle}>Field Boy Workspace</Text>
+            </View>
+
+            <View style={styles.appBarRight}>
+              <TouchableOpacity
+                style={styles.appBarIconBtn}
+                onPress={() => {
+                  const nextIndex = (DEMO_USERS.findIndex((u) => u.role === currentUser.role) + 1) % DEMO_USERS.length;
+                  setCurrentUser(DEMO_USERS[nextIndex]);
+                  Alert.alert('Role Switched', `Active Profile: ${DEMO_USERS[nextIndex].name} (${DEMO_USERS[nextIndex].role})`);
+                }}
+              >
+                <Ionicons name="person-circle-outline" size={22} color="#FFFFFF" />
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.appBarIconBtn} onPress={handleLogout}>
+                <Ionicons name="log-out-outline" size={22} color="#FFFFFF" />
+              </TouchableOpacity>
+            </View>
+          </View>
+
+          <View style={styles.appBodyWrapper}>
+            <ScrollView style={styles.mainScroll} contentContainerStyle={{ padding: 16, paddingBottom: 100 }}>
+              <View style={styles.fieldBoyStatusRow}>
+                <View style={styles.fieldBoyStatusCard}>
+                  <Ionicons name="time-outline" size={20} color="#F59E0B" />
+                  <Text style={[styles.fieldBoyStatusBigVal, { color: '#F59E0B' }]}>{pendingCount}</Text>
+                  <Text style={styles.fieldBoyStatusSub}>Pending</Text>
+                </View>
+
+                <View style={styles.fieldBoyStatusCard}>
+                  <Ionicons name="resize-outline" size={20} color="#0F2744" />
+                  <Text style={[styles.fieldBoyStatusBigVal, { color: '#0F2744' }]}>{inProgressCount}</Text>
+                  <Text style={styles.fieldBoyStatusSub}>In-Progress</Text>
+                </View>
+
+                <View style={styles.fieldBoyStatusCard}>
+                  <Ionicons name="cloud-done-outline" size={20} color="#10B981" />
+                  <Text style={[styles.fieldBoyStatusBigVal, { color: '#10B981' }]}>{submittedCount}</Text>
+                  <Text style={styles.fieldBoyStatusSub}>Submitted</Text>
+                </View>
+              </View>
+
+              <View style={styles.fieldBoyTipBanner}>
+                <Ionicons name="hand-left-outline" size={22} color="#0F2744" style={{ marginRight: 10 }} />
+                <Text style={styles.fieldBoyTipText}>
+                  Ready for site visit? Tap a task to start measurements & photo annotations.
+                </Text>
+              </View>
+
+              <Text style={styles.sectionTitle}>My Assigned Site Tasks</Text>
+
+              {fieldTasks.map((task) => (
+                <TouchableOpacity
+                  key={task.id}
+                  style={styles.fieldTaskCard}
+                  onPress={() => setActiveSiteTask(task)}
+                >
+                  <View style={styles.fieldTaskHeader}>
+                    <Text style={styles.fieldTaskTitle}>{task.title}</Text>
+                    <View
+                      style={[
+                        styles.fieldTaskStatusBadge,
+                        task.status === 'SUBMITTED' ? styles.statusBadgeGreen : styles.statusBadgeAmber,
+                      ]}
+                    >
+                      <Text
+                        style={[
+                          styles.fieldTaskStatusText,
+                          task.status === 'SUBMITTED' ? { color: '#10B981' } : { color: '#D97706' },
+                        ]}
+                      >
+                        {task.status}
+                      </Text>
+                    </View>
+                  </View>
+
+                  <View style={styles.fieldTaskMetaRow}>
+                    <Ionicons name="person-outline" size={14} color="#64748B" style={{ marginRight: 4 }} />
+                    <Text style={styles.fieldTaskMetaText}>{task.clientName}</Text>
+                    <Ionicons name="call-outline" size={14} color="#64748B" style={{ marginLeft: 12, marginRight: 4 }} />
+                    <Text style={styles.fieldTaskMetaText}>{task.clientPhone}</Text>
+                  </View>
+
+                  <View style={[styles.fieldTaskMetaRow, { marginTop: 6 }]}>
+                    <Ionicons name="location-outline" size={14} color="#64748B" style={{ marginRight: 4 }} />
+                    <Text style={[styles.fieldTaskMetaText, { flex: 1 }]}>{task.address}</Text>
+                  </View>
+
+                  <View style={styles.fieldTaskFooter}>
+                    <Text
+                      style={[
+                        styles.fieldTaskMeasurementStatus,
+                        task.measurementsCount > 0 && { color: '#10B981' },
+                      ]}
+                    >
+                      {task.measurementsCount > 0 ? `${task.measurementsCount} Board(s) measured` : 'No measurements recorded'}
+                    </Text>
+                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                      <Text style={styles.openFormText}>Open Form</Text>
+                      <Ionicons name="chevron-forward" size={14} color="#0F2744" />
+                    </View>
+                  </View>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+
+            {/* Bottom Navigation for Field Boy with Clean White iOS Safe Area */}
+            <View style={styles.bottomNav}>
+              <TouchableOpacity
+                style={styles.navItem}
+                onPress={() => setFieldBoyTab('tasks')}
+              >
+                <Ionicons name="grid" size={22} color={fieldBoyTab === 'tasks' ? '#0F2744' : '#64748B'} />
+                <Text style={[styles.navLabel, fieldBoyTab === 'tasks' && styles.navLabelActive]}>Tasks</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={styles.navItem}
+                onPress={() => {
+                  setFieldBoyTab('attendance');
+                  Alert.alert('📍 Field Attendance', 'Geofence Verified: Punched in at Andheri West site (09:15 AM)');
+                }}
+              >
+                <Ionicons name="location-outline" size={22} color={fieldBoyTab === 'attendance' ? '#0F2744' : '#64748B'} />
+                <Text style={[styles.navLabel, fieldBoyTab === 'attendance' && styles.navLabelActive]}>Attendance</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={styles.navItem}
+                onPress={() => {
+                  setFieldBoyTab('expenses');
+                  Alert.alert('💳 Petty Cash', 'Fuel claim ₹150 approved.');
+                }}
+              >
+                <Ionicons name="wallet-outline" size={22} color={fieldBoyTab === 'expenses' ? '#0F2744' : '#64748B'} />
+                <Text style={[styles.navLabel, fieldBoyTab === 'expenses' && styles.navLabelActive]}>Expenses</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={styles.navItem}
+                onPress={() => {
+                  setFieldBoyTab('points');
+                  Alert.alert('🏆 Performance Points', 'Total 450 Points (Rank #1 Field Boy this month)');
+                }}
+              >
+                <Ionicons name="trophy-outline" size={22} color={fieldBoyTab === 'points' ? '#0F2744' : '#64748B'} />
+                <Text style={[styles.navLabel, fieldBoyTab === 'points' && styles.navLabelActive]}>Points</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </SafeAreaView>
+      </View>
+    );
+  }
+
+  // =========================================================================
+  // SCREEN 2H: ADMIN DASHBOARD
+  // =========================================================================
+  return (
+    <View style={{ flex: 1, backgroundColor: '#0F2744' }}>
+      {/* Top iOS Notch Bar matching Navy */}
+      <SafeAreaView style={{ flex: 0, backgroundColor: '#0F2744' }}>
+        <StatusBar barStyle="light-content" backgroundColor="#0F2744" />
+      </SafeAreaView>
+
+      {/* Main Content & Bottom Area matching White so NO Blue Strip at bottom */}
+      <SafeAreaView style={{ flex: 1, backgroundColor: '#FFFFFF' }}>
+        {/* Top Header Bar */}
         <View style={styles.appBar}>
           <View style={styles.appBarLeft}>
             <Ionicons name="print" size={22} color="#FFFFFF" style={{ marginRight: 8 }} />
-            <Text style={styles.appBarTitle}>Field Boy Workspace</Text>
+            <Text style={styles.appBarTitle}>Apex Signage Admin</Text>
           </View>
 
           <View style={styles.appBarRight}>
@@ -1783,920 +1971,327 @@ export default function App() {
           </View>
         </View>
 
+        {/* Main Content Area */}
         <View style={styles.appBodyWrapper}>
-          <ScrollView style={styles.mainScroll} contentContainerStyle={{ padding: 16, paddingBottom: 110 }}>
-            <View style={styles.fieldBoyStatusRow}>
-              <View style={styles.fieldBoyStatusCard}>
-                <Ionicons name="time-outline" size={20} color="#F59E0B" />
-                <Text style={[styles.fieldBoyStatusBigVal, { color: '#F59E0B' }]}>{pendingCount}</Text>
-                <Text style={styles.fieldBoyStatusSub}>Pending</Text>
-              </View>
+          <ScrollView style={styles.mainScroll} contentContainerStyle={{ paddingBottom: 100 }}>
+            
+            {/* TAB 1: ADMIN DASHBOARD */}
+            {currentTab === 'dashboard' && (
+              <View style={styles.tabContent}>
+                <View style={styles.revenueCard}>
+                  <View style={styles.revenueCardHeader}>
+                    <Text style={styles.revenueLabel}>Total Billed Revenue</Text>
+                    <View style={styles.profitBadge}>
+                      <Text style={styles.profitBadgeText}>Est. Profit: ₹148550</Text>
+                    </View>
+                  </View>
 
-              <View style={styles.fieldBoyStatusCard}>
-                <Ionicons name="resize-outline" size={20} color="#0284C7" />
-                <Text style={[styles.fieldBoyStatusBigVal, { color: '#0284C7' }]}>{inProgressCount}</Text>
-                <Text style={styles.fieldBoyStatusSub}>In-Progress</Text>
-              </View>
+                  <Text style={styles.revenueAmount}>₹285000</Text>
 
-              <View style={styles.fieldBoyStatusCard}>
-                <Ionicons name="cloud-done-outline" size={20} color="#10B981" />
-                <Text style={[styles.fieldBoyStatusBigVal, { color: '#10B981' }]}>{submittedCount}</Text>
-                <Text style={styles.fieldBoyStatusSub}>Submitted</Text>
-              </View>
-            </View>
+                  <View style={styles.revenueBreakdownRow}>
+                    <View style={styles.revBreakdownCol}>
+                      <Text style={styles.breakdownLabel}>Collected</Text>
+                      <Text style={[styles.breakdownVal, { color: '#10B981' }]}>₹195000</Text>
+                    </View>
+                    <View style={styles.revBreakdownCol}>
+                      <Text style={styles.breakdownLabel}>Pending Due</Text>
+                      <Text style={[styles.breakdownVal, { color: '#F59E0B' }]}>₹90000</Text>
+                    </View>
+                    <View style={styles.revBreakdownCol}>
+                      <Text style={styles.breakdownLabel}>Petty Expenses</Text>
+                      <Text style={[styles.breakdownVal, { color: '#93C5FD' }]}>₹3450</Text>
+                    </View>
+                  </View>
+                </View>
 
-            <View style={styles.fieldBoyTipBanner}>
-              <Ionicons name="hand-left-outline" size={22} color="#0284C7" style={{ marginRight: 10 }} />
-              <Text style={styles.fieldBoyTipText}>
-                Ready for site visit? Tap a task to start measurements & photo annotations.
-              </Text>
-            </View>
-
-            <Text style={styles.sectionTitle}>My Assigned Site Tasks</Text>
-
-            {fieldTasks.map((task) => (
-              <TouchableOpacity
-                key={task.id}
-                style={styles.fieldTaskCard}
-                onPress={() => setActiveSiteTask(task)}
-              >
-                <View style={styles.fieldTaskHeader}>
-                  <Text style={styles.fieldTaskTitle}>{task.title}</Text>
-                  <View
-                    style={[
-                      styles.fieldTaskStatusBadge,
-                      task.status === 'SUBMITTED' ? styles.statusBadgeGreen : styles.statusBadgeAmber,
-                    ]}
-                  >
-                    <Text
-                      style={[
-                        styles.fieldTaskStatusText,
-                        task.status === 'SUBMITTED' ? { color: '#10B981' } : { color: '#D97706' },
-                      ]}
-                    >
-                      {task.status}
+                <TouchableOpacity style={styles.stockAlertBanner} onPress={() => setCurrentTab('inventory')}>
+                  <Ionicons name="warning-outline" size={24} color="#D97706" style={{ marginRight: 10 }} />
+                  <View style={{ flex: 1 }}>
+                    <Text style={styles.stockAlertTitle}>2 Materials Below Minimum Stock!</Text>
+                    <Text style={styles.stockAlertSub}>
+                      Avery Gloss Vinyl Roll (3/6 ROLL), Samsung 3-LED Module (120/300 PIECE)
                     </Text>
                   </View>
-                </View>
-
-                <View style={styles.fieldTaskMetaRow}>
-                  <Ionicons name="person-outline" size={14} color="#64748B" style={{ marginRight: 4 }} />
-                  <Text style={styles.fieldTaskMetaText}>{task.clientName}</Text>
-                  <Ionicons name="call-outline" size={14} color="#64748B" style={{ marginLeft: 12, marginRight: 4 }} />
-                  <Text style={styles.fieldTaskMetaText}>{task.clientPhone}</Text>
-                </View>
-
-                <View style={[styles.fieldTaskMetaRow, { marginTop: 6 }]}>
-                  <Ionicons name="location-outline" size={14} color="#64748B" style={{ marginRight: 4 }} />
-                  <Text style={[styles.fieldTaskMetaText, { flex: 1 }]}>{task.address}</Text>
-                </View>
-
-                <View style={styles.fieldTaskFooter}>
-                  <Text
-                    style={[
-                      styles.fieldTaskMeasurementStatus,
-                      task.measurementsCount > 0 && { color: '#10B981' },
-                    ]}
-                  >
-                    {task.measurementsCount > 0 ? `${task.measurementsCount} Board(s) measured` : 'No measurements recorded'}
-                  </Text>
-                  <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                    <Text style={styles.openFormText}>Open Form</Text>
-                    <Ionicons name="chevron-forward" size={14} color="#0F2744" />
-                  </View>
-                </View>
-              </TouchableOpacity>
-            ))}
-          </ScrollView>
-
-          {/* Bottom Navigation for Field Boy with iOS Safe Area Padding */}
-          <View style={styles.bottomNav}>
-            <TouchableOpacity
-              style={styles.navItem}
-              onPress={() => setFieldBoyTab('tasks')}
-            >
-              <Ionicons name="grid" size={22} color={fieldBoyTab === 'tasks' ? '#0284C7' : '#64748B'} />
-              <Text style={[styles.navLabel, fieldBoyTab === 'tasks' && styles.navLabelActive]}>Tasks</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={styles.navItem}
-              onPress={() => {
-                setFieldBoyTab('attendance');
-                Alert.alert('📍 Field Attendance', 'Geofence Verified: Punched in at Andheri West site (09:15 AM)');
-              }}
-            >
-              <Ionicons name="location-outline" size={22} color={fieldBoyTab === 'attendance' ? '#0284C7' : '#64748B'} />
-              <Text style={[styles.navLabel, fieldBoyTab === 'attendance' && styles.navLabelActive]}>Attendance</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={styles.navItem}
-              onPress={() => {
-                setFieldBoyTab('expenses');
-                Alert.alert('💳 Petty Cash', 'Fuel claim ₹150 approved.');
-              }}
-            >
-              <Ionicons name="wallet-outline" size={22} color={fieldBoyTab === 'expenses' ? '#0284C7' : '#64748B'} />
-              <Text style={[styles.navLabel, fieldBoyTab === 'expenses' && styles.navLabelActive]}>Expenses</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={styles.navItem}
-              onPress={() => {
-                setFieldBoyTab('points');
-                Alert.alert('🏆 Performance Points', 'Total 450 Points (Rank #1 Field Boy this month)');
-              }}
-            >
-              <Ionicons name="trophy-outline" size={22} color={fieldBoyTab === 'points' ? '#0284C7' : '#64748B'} />
-              <Text style={[styles.navLabel, fieldBoyTab === 'points' && styles.navLabelActive]}>Points</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </SafeAreaView>
-    );
-  }
-
-  // =========================================================================
-  // SCREEN 2H: ADMIN DASHBOARD
-  // =========================================================================
-  return (
-    <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor="#0F2744" />
-
-      {/* Top Header Bar */}
-      <View style={styles.appBar}>
-        <View style={styles.appBarLeft}>
-          <Ionicons name="print" size={22} color="#FFFFFF" style={{ marginRight: 8 }} />
-          <Text style={styles.appBarTitle}>Apex Signage Admin</Text>
-        </View>
-
-        <View style={styles.appBarRight}>
-          <TouchableOpacity
-            style={styles.appBarIconBtn}
-            onPress={() => {
-              const nextIndex = (DEMO_USERS.findIndex((u) => u.role === currentUser.role) + 1) % DEMO_USERS.length;
-              setCurrentUser(DEMO_USERS[nextIndex]);
-              Alert.alert('Role Switched', `Active Profile: ${DEMO_USERS[nextIndex].name} (${DEMO_USERS[nextIndex].role})`);
-            }}
-          >
-            <Ionicons name="person-circle-outline" size={22} color="#FFFFFF" />
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.appBarIconBtn} onPress={handleLogout}>
-            <Ionicons name="log-out-outline" size={22} color="#FFFFFF" />
-          </TouchableOpacity>
-        </View>
-      </View>
-
-      {/* Main Content Area */}
-      <View style={styles.appBodyWrapper}>
-        <ScrollView style={styles.mainScroll} contentContainerStyle={{ paddingBottom: 110 }}>
-          
-          {/* TAB 1: ADMIN DASHBOARD */}
-          {currentTab === 'dashboard' && (
-            <View style={styles.tabContent}>
-              <View style={styles.revenueCard}>
-                <View style={styles.revenueCardHeader}>
-                  <Text style={styles.revenueLabel}>Total Billed Revenue</Text>
-                  <View style={styles.profitBadge}>
-                    <Text style={styles.profitBadgeText}>Est. Profit: ₹148550</Text>
-                  </View>
-                </View>
-
-                <Text style={styles.revenueAmount}>₹285000</Text>
-
-                <View style={styles.revenueBreakdownRow}>
-                  <View style={styles.revBreakdownCol}>
-                    <Text style={styles.breakdownLabel}>Collected</Text>
-                    <Text style={[styles.breakdownVal, { color: '#10B981' }]}>₹195000</Text>
-                  </View>
-                  <View style={styles.revBreakdownCol}>
-                    <Text style={styles.breakdownLabel}>Pending Due</Text>
-                    <Text style={[styles.breakdownVal, { color: '#F59E0B' }]}>₹90000</Text>
-                  </View>
-                  <View style={styles.revBreakdownCol}>
-                    <Text style={styles.breakdownLabel}>Petty Expenses</Text>
-                    <Text style={[styles.breakdownVal, { color: '#93C5FD' }]}>₹3450</Text>
-                  </View>
-                </View>
-              </View>
-
-              <TouchableOpacity style={styles.stockAlertBanner} onPress={() => setCurrentTab('inventory')}>
-                <Ionicons name="warning-outline" size={24} color="#D97706" style={{ marginRight: 10 }} />
-                <View style={{ flex: 1 }}>
-                  <Text style={styles.stockAlertTitle}>2 Materials Below Minimum Stock!</Text>
-                  <Text style={styles.stockAlertSub}>
-                    Avery Gloss Vinyl Roll (3/6 ROLL), Samsung 3-LED Module (120/300 PIECE)
-                  </Text>
-                </View>
-              </TouchableOpacity>
-
-              <Text style={styles.sectionTitle}>Today's Production & Field Summary</Text>
-              <View style={styles.summaryGrid}>
-                <View style={styles.summaryCard}>
-                  <View style={styles.summaryCardHeader}>
-                    <Text style={styles.summaryCardTitle}>Active Jobs</Text>
-                    <Ionicons name="clipboard-outline" size={18} color="#0284C7" />
-                  </View>
-                  <Text style={styles.summaryCardBigVal}>12</Text>
-                  <Text style={styles.summaryCardSub}>1480.0 Total Sq.Ft</Text>
-                </View>
-
-                <View style={styles.summaryCard}>
-                  <View style={styles.summaryCardHeader}>
-                    <Text style={styles.summaryCardTitle}>Printing Output</Text>
-                    <Ionicons name="print-outline" size={18} color="#0284C7" />
-                  </View>
-                  <Text style={[styles.summaryCardBigVal, { color: '#0284C7' }]}>665.0 Sq.Ft</Text>
-                  <Text style={styles.summaryCardSub}>Waste: 19.0 Sq.Ft</Text>
-                </View>
-
-                <TouchableOpacity
-                  style={[styles.summaryCard, styles.summaryCardClickable]}
-                  onPress={() => setSiteVisitModalVisible(true)}
-                >
-                  <View style={styles.summaryCardHeader}>
-                    <Text style={styles.summaryCardTitle}>Site Visits Today</Text>
-                    <Ionicons name="location-outline" size={18} color="#4338CA" />
-                  </View>
-                  <Text style={[styles.summaryCardBigVal, { color: '#4338CA' }]}>{siteVisitsCount}</Text>
-                  <Text style={[styles.summaryCardSub, { color: '#4338CA', fontWeight: '600' }]}>
-                    Tap to Schedule & Assign ➔
-                  </Text>
                 </TouchableOpacity>
 
-                <View style={styles.summaryCard}>
-                  <View style={styles.summaryCardHeader}>
-                    <Text style={styles.summaryCardTitle}>Attendance & Team</Text>
-                    <Ionicons name="checkmark-done-circle-outline" size={18} color="#10B981" />
+                <Text style={styles.sectionTitle}>Today's Production & Field Summary</Text>
+                <View style={styles.summaryGrid}>
+                  <View style={styles.summaryCard}>
+                    <View style={styles.summaryCardHeader}>
+                      <Text style={styles.summaryCardTitle}>Active Jobs</Text>
+                      <Ionicons name="clipboard-outline" size={18} color="#0F2744" />
+                    </View>
+                    <Text style={styles.summaryCardBigVal}>12</Text>
+                    <Text style={styles.summaryCardSub}>1480.0 Total Sq.Ft</Text>
                   </View>
-                  <Text style={[styles.summaryCardBigVal, { color: '#10B981' }]}>8 / 9</Text>
-                  <Text style={styles.summaryCardSub}>★ 4.9 Rating</Text>
-                </View>
-              </View>
 
-              <Text style={styles.sectionTitle}>Job Production Pipeline (Live Stages)</Text>
-              <View style={styles.pipelineCard}>
-                <View style={styles.pipelineRow}>
-                  <View style={styles.pipelineLeft}>
-                    <Ionicons name="resize-outline" size={18} color="#1E293B" style={{ marginRight: 10 }} />
-                    <Text style={styles.pipelineStageName}>1. Site Visit</Text>
+                  <View style={styles.summaryCard}>
+                    <View style={styles.summaryCardHeader}>
+                      <Text style={styles.summaryCardTitle}>Printing Output</Text>
+                      <Ionicons name="print-outline" size={18} color="#0F2744" />
+                    </View>
+                    <Text style={[styles.summaryCardBigVal, { color: '#0F2744' }]}>665.0 Sq.Ft</Text>
+                    <Text style={styles.summaryCardSub}>Waste: 19.0 Sq.Ft</Text>
                   </View>
-                  <View style={styles.pipelineBadge}>
-                    <Text style={styles.pipelineBadgeText}>2 active</Text>
-                  </View>
-                </View>
 
-                <View style={styles.pipelineRow}>
-                  <View style={styles.pipelineLeft}>
-                    <Ionicons name="create-outline" size={18} color="#1E293B" style={{ marginRight: 10 }} />
-                    <Text style={styles.pipelineStageName}>2. Design Final</Text>
-                  </View>
-                  <View style={styles.pipelineBadge}>
-                    <Text style={styles.pipelineBadgeText}>3 active</Text>
-                  </View>
-                </View>
-
-                <View style={styles.pipelineRow}>
-                  <View style={styles.pipelineLeft}>
-                    <Ionicons name="print-outline" size={18} color="#1E293B" style={{ marginRight: 10 }} />
-                    <Text style={styles.pipelineStageName}>3. Printing</Text>
-                  </View>
-                  <View style={styles.pipelineBadge}>
-                    <Text style={styles.pipelineBadgeText}>2 active</Text>
-                  </View>
-                </View>
-
-                <View style={styles.pipelineRow}>
-                  <View style={styles.pipelineLeft}>
-                    <Ionicons name="construct-outline" size={18} color="#1E293B" style={{ marginRight: 10 }} />
-                    <Text style={styles.pipelineStageName}>4. Fabrication</Text>
-                  </View>
-                  <View style={styles.pipelineBadge}>
-                    <Text style={styles.pipelineBadgeText}>3 active</Text>
-                  </View>
-                </View>
-
-                <View style={styles.pipelineRow}>
-                  <View style={styles.pipelineLeft}>
-                    <Ionicons name="car-outline" size={18} color="#1E293B" style={{ marginRight: 10 }} />
-                    <Text style={styles.pipelineStageName}>5. Installation</Text>
-                  </View>
-                  <View style={styles.pipelineBadge}>
-                    <Text style={styles.pipelineBadgeText}>1 active</Text>
-                  </View>
-                </View>
-
-                <View style={[styles.pipelineRow, { borderBottomWidth: 0 }]}>
-                  <View style={styles.pipelineLeft}>
-                    <Ionicons name="checkmark-circle" size={18} color="#10B981" style={{ marginRight: 10 }} />
-                    <Text style={[styles.pipelineStageName, { color: '#10B981' }]}>6. Delivered</Text>
-                  </View>
-                  <View style={[styles.pipelineBadge, { backgroundColor: '#DCFCE7' }]}>
-                    <Text style={[styles.pipelineBadgeText, { color: '#10B981' }]}>1 active</Text>
-                  </View>
-                </View>
-              </View>
-            </View>
-          )}
-
-          {/* TAB 2: REAL-TIME MATERIAL INVENTORY */}
-          {currentTab === 'inventory' && (
-            <View style={styles.tabContent}>
-              <View style={styles.inventorySubHeader}>
-                <Text style={styles.invSubHeaderTitle}>Real-Time Material Inventory</Text>
-                <TouchableOpacity
-                  style={[styles.filterFunnelBtn, filterLowStockOnly && styles.filterFunnelBtnActive]}
-                  onPress={() => setFilterLowStockOnly(!filterLowStockOnly)}
-                >
-                  <Ionicons
-                    name={filterLowStockOnly ? 'funnel' : 'funnel-outline'}
-                    size={20}
-                    color={filterLowStockOnly ? '#0284C7' : '#0F2744'}
-                  />
-                </TouchableOpacity>
-              </View>
-
-              <View style={styles.inventoryTopBar}>
-                <Text style={styles.invTrackedText}>
-                  {displayedInventory.length} Materials Tracked {filterLowStockOnly && '(Low Stock Only)'}
-                </Text>
-                {lowStockCount > 0 && (
                   <TouchableOpacity
-                    style={styles.invAlertBadge}
+                    style={[styles.summaryCard, styles.summaryCardClickable]}
+                    onPress={() => setSiteVisitModalVisible(true)}
+                  >
+                    <View style={styles.summaryCardHeader}>
+                      <Text style={styles.summaryCardTitle}>Site Visits Today</Text>
+                      <Ionicons name="location-outline" size={18} color="#4338CA" />
+                    </View>
+                    <Text style={[styles.summaryCardBigVal, { color: '#4338CA' }]}>{siteVisitsCount}</Text>
+                    <Text style={[styles.summaryCardSub, { color: '#4338CA', fontWeight: '600' }]}>
+                      Tap to Schedule & Assign ➔
+                    </Text>
+                  </TouchableOpacity>
+
+                  <View style={styles.summaryCard}>
+                    <View style={styles.summaryCardHeader}>
+                      <Text style={styles.summaryCardTitle}>Attendance & Team</Text>
+                      <Ionicons name="checkmark-done-circle-outline" size={18} color="#10B981" />
+                    </View>
+                    <Text style={[styles.summaryCardBigVal, { color: '#10B981' }]}>8 / 9</Text>
+                    <Text style={styles.summaryCardSub}>★ 4.9 Rating</Text>
+                  </View>
+                </View>
+
+                <Text style={styles.sectionTitle}>Job Production Pipeline (Live Stages)</Text>
+                <View style={styles.pipelineCard}>
+                  <View style={styles.pipelineRow}>
+                    <View style={styles.pipelineLeft}>
+                      <Ionicons name="resize-outline" size={18} color="#1E293B" style={{ marginRight: 10 }} />
+                      <Text style={styles.pipelineStageName}>1. Site Visit</Text>
+                    </View>
+                    <View style={styles.pipelineBadge}>
+                      <Text style={styles.pipelineBadgeText}>2 active</Text>
+                    </View>
+                  </View>
+
+                  <View style={styles.pipelineRow}>
+                    <View style={styles.pipelineLeft}>
+                      <Ionicons name="create-outline" size={18} color="#1E293B" style={{ marginRight: 10 }} />
+                      <Text style={styles.pipelineStageName}>2. Design Final</Text>
+                    </View>
+                    <View style={styles.pipelineBadge}>
+                      <Text style={styles.pipelineBadgeText}>3 active</Text>
+                    </View>
+                  </View>
+
+                  <View style={styles.pipelineRow}>
+                    <View style={styles.pipelineLeft}>
+                      <Ionicons name="print-outline" size={18} color="#1E293B" style={{ marginRight: 10 }} />
+                      <Text style={styles.pipelineStageName}>3. Printing</Text>
+                    </View>
+                    <View style={styles.pipelineBadge}>
+                      <Text style={styles.pipelineBadgeText}>2 active</Text>
+                    </View>
+                  </View>
+
+                  <View style={styles.pipelineRow}>
+                    <View style={styles.pipelineLeft}>
+                      <Ionicons name="construct-outline" size={18} color="#1E293B" style={{ marginRight: 10 }} />
+                      <Text style={styles.pipelineStageName}>4. Fabrication</Text>
+                    </View>
+                    <View style={styles.pipelineBadge}>
+                      <Text style={styles.pipelineBadgeText}>3 active</Text>
+                    </View>
+                  </View>
+
+                  <View style={styles.pipelineRow}>
+                    <View style={styles.pipelineLeft}>
+                      <Ionicons name="car-outline" size={18} color="#1E293B" style={{ marginRight: 10 }} />
+                      <Text style={styles.pipelineStageName}>5. Installation</Text>
+                    </View>
+                    <View style={styles.pipelineBadge}>
+                      <Text style={styles.pipelineBadgeText}>1 active</Text>
+                    </View>
+                  </View>
+
+                  <View style={[styles.pipelineRow, { borderBottomWidth: 0 }]}>
+                    <View style={styles.pipelineLeft}>
+                      <Ionicons name="checkmark-circle" size={18} color="#10B981" style={{ marginRight: 10 }} />
+                      <Text style={[styles.pipelineStageName, { color: '#10B981' }]}>6. Delivered</Text>
+                    </View>
+                    <View style={[styles.pipelineBadge, { backgroundColor: '#DCFCE7' }]}>
+                      <Text style={[styles.pipelineBadgeText, { color: '#10B981' }]}>1 active</Text>
+                    </View>
+                  </View>
+                </View>
+              </View>
+            )}
+
+            {/* TAB 2: REAL-TIME MATERIAL INVENTORY */}
+            {currentTab === 'inventory' && (
+              <View style={styles.tabContent}>
+                <View style={styles.inventorySubHeader}>
+                  <Text style={styles.invSubHeaderTitle}>Real-Time Material Inventory</Text>
+                  <TouchableOpacity
+                    style={[styles.filterFunnelBtn, filterLowStockOnly && styles.filterFunnelBtnActive]}
                     onPress={() => setFilterLowStockOnly(!filterLowStockOnly)}
                   >
-                    <Text style={styles.invAlertBadgeText}>⚠️ {lowStockCount} Low Stock Alerts</Text>
+                    <Ionicons
+                      name={filterLowStockOnly ? 'funnel' : 'funnel-outline'}
+                      size={20}
+                      color={filterLowStockOnly ? '#0F2744' : '#64748B'}
+                    />
                   </TouchableOpacity>
-                )}
+                </View>
+
+                <View style={styles.inventoryTopBar}>
+                  <Text style={styles.invTrackedText}>
+                    {displayedInventory.length} Materials Tracked {filterLowStockOnly && '(Low Stock Only)'}
+                  </Text>
+                  {lowStockCount > 0 && (
+                    <TouchableOpacity
+                      style={styles.invAlertBadge}
+                      onPress={() => setFilterLowStockOnly(!filterLowStockOnly)}
+                    >
+                      <Text style={styles.invAlertBadgeText}>⚠️ {lowStockCount} Low Stock Alerts</Text>
+                    </TouchableOpacity>
+                  )}
+                </View>
+
+                {displayedInventory.map((item) => (
+                  <View key={item.id} style={styles.invItemCard}>
+                    <View style={styles.invItemMain}>
+                      <View style={{ flex: 1, paddingRight: 10 }}>
+                        <Text style={styles.invItemName}>{item.name}</Text>
+                        <Text
+                          style={[
+                            styles.invStockText,
+                            { color: item.isLow ? '#EF4444' : '#10B981', marginTop: 8 },
+                          ]}
+                        >
+                          Stock: {item.stock.toFixed(1)} {item.unit} (Min: {item.min.toFixed(1)})
+                        </Text>
+                      </View>
+
+                      <View style={styles.invItemRightCol}>
+                        {item.isLow && (
+                          <View style={styles.lowStockTag}>
+                            <Text style={styles.lowStockTagText}>LOW STOCK</Text>
+                          </View>
+                        )}
+                        <TouchableOpacity
+                          style={styles.stockBtn}
+                          onPress={() => openStockMovementModal(item)}
+                        >
+                          <Text style={styles.stockBtnText}>Stock In / Out</Text>
+                        </TouchableOpacity>
+                      </View>
+                    </View>
+                  </View>
+                ))}
               </View>
+            )}
 
-              {displayedInventory.map((item) => (
-                <View key={item.id} style={styles.invItemCard}>
-                  <View style={styles.invItemMain}>
-                    <View style={{ flex: 1, paddingRight: 10 }}>
-                      <Text style={styles.invItemName}>{item.name}</Text>
-                      <Text
+            {/* TAB 3: INVOICES & PAYMENT LEDGER */}
+            {currentTab === 'invoices' && (
+              <View style={styles.tabContent}>
+                <Text style={styles.sectionTitle}>Invoices & Payment Ledger</Text>
+
+                {invoices.map((inv) => (
+                  <View key={inv.id} style={styles.invoiceItemCard}>
+                    <View style={styles.invHeaderRow}>
+                      <Text style={styles.invoiceNumberBig}>{inv.invoiceNumber}</Text>
+                      <View
                         style={[
-                          styles.invStockText,
-                          { color: item.isLow ? '#EF4444' : '#10B981', marginTop: 8 },
+                          styles.statusPill,
+                          inv.status === 'PAID FULL' ? styles.statusPaid : styles.statusPartial,
                         ]}
-                      >
-                        Stock: {item.stock.toFixed(1)} {item.unit} (Min: {item.min.toFixed(1)})
-                      </Text>
-                    </View>
-
-                    <View style={styles.invItemRightCol}>
-                      {item.isLow && (
-                        <View style={styles.lowStockTag}>
-                          <Text style={styles.lowStockTagText}>LOW STOCK</Text>
-                        </View>
-                      )}
-                      <TouchableOpacity
-                        style={styles.stockBtn}
-                        onPress={() => openStockMovementModal(item)}
-                      >
-                        <Text style={styles.stockBtnText}>Stock In / Out</Text>
-                      </TouchableOpacity>
-                    </View>
-                  </View>
-                </View>
-              ))}
-            </View>
-          )}
-
-          {/* TAB 3: INVOICES & PAYMENT LEDGER */}
-          {currentTab === 'invoices' && (
-            <View style={styles.tabContent}>
-              <Text style={styles.sectionTitle}>Invoices & Payment Ledger</Text>
-
-              {invoices.map((inv) => (
-                <View key={inv.id} style={styles.invoiceItemCard}>
-                  <View style={styles.invHeaderRow}>
-                    <Text style={styles.invoiceNumberBig}>{inv.invoiceNumber}</Text>
-                    <View
-                      style={[
-                        styles.statusPill,
-                        inv.status === 'PAID FULL' ? styles.statusPaid : styles.statusPartial,
-                      ]}
-                    >
-                      <Text
-                        style={[
-                          styles.statusPillText,
-                          inv.status === 'PAID FULL' ? { color: '#10B981' } : { color: '#0284C7' },
-                        ]}
-                      >
-                        {inv.status}
-                      </Text>
-                    </View>
-                  </View>
-
-                  <Text style={styles.invCompanyName}>{inv.companyName}</Text>
-
-                  <View style={styles.invAmountRow}>
-                    <View>
-                      <Text style={styles.amtLabel}>Total Billed</Text>
-                      <Text style={styles.amtVal}>₹{inv.totalAmount.toLocaleString()}</Text>
-                    </View>
-                    <View>
-                      <Text style={styles.amtLabel}>Paid So Far</Text>
-                      <Text style={[styles.amtVal, { color: '#10B981' }]}>₹{inv.paidAmount.toLocaleString()}</Text>
-                    </View>
-                    <View>
-                      <Text style={styles.amtLabel}>Balance Due</Text>
-                      <Text style={[styles.amtVal, { color: '#EF4444' }]}>₹{inv.balanceDue.toLocaleString()}</Text>
-                    </View>
-                  </View>
-
-                  <View style={styles.invActionsRow}>
-                    <TouchableOpacity
-                      style={styles.recordPaymentBtn}
-                      onPress={() => openRecordPaymentModal(inv)}
-                    >
-                      <Text style={styles.recordPaymentText}>Record Payment</Text>
-                    </TouchableOpacity>
-
-                    <TouchableOpacity
-                      style={styles.shareWhatsAppBtn}
-                      onPress={() => sendInvoiceWhatsApp(inv)}
-                    >
-                      <FontAwesome5 name="whatsapp" size={16} color="#0F172A" style={{ marginRight: 6 }} />
-                      <Text style={styles.shareWhatsAppText}>WhatsApp</Text>
-                    </TouchableOpacity>
-                  </View>
-                </View>
-              ))}
-            </View>
-          )}
-
-          {/* TAB 4: AUTOMATIC RATE & QUOTATION BUILDER */}
-          {currentTab === 'rate_calc' && (
-            <View style={styles.tabContent}>
-              <Text style={styles.calcScreenMainHeading}>
-                Automatic Rate & Quotation Builder
-              </Text>
-
-              <View style={styles.customerSelectCard}>
-                <Text style={styles.customerSelectLabel}>Select Customer / Client</Text>
-                <TouchableOpacity
-                  style={styles.customerSelectRow}
-                  onPress={() => setCustomerDropdownOpen(!customerDropdownOpen)}
-                >
-                  <Ionicons name="business-outline" size={20} color="#0284C7" style={{ marginRight: 10 }} />
-                  <Text style={styles.customerSelectValue}>{selectedQuotationCustomer}</Text>
-                  <Ionicons
-                    name={customerDropdownOpen ? 'chevron-up' : 'chevron-down'}
-                    size={18}
-                    color="#64748B"
-                  />
-                </TouchableOpacity>
-
-                {customerDropdownOpen && (
-                  <View style={styles.customerDropdownList}>
-                    {customerOptions.map((c) => (
-                      <TouchableOpacity
-                        key={c}
-                        style={styles.customerDropdownItem}
-                        onPress={() => {
-                          setSelectedQuotationCustomer(c);
-                          setCustomerDropdownOpen(false);
-                        }}
                       >
                         <Text
                           style={[
-                            styles.customerDropdownText,
-                            selectedQuotationCustomer === c && styles.customerDropdownTextActive,
+                            styles.statusPillText,
+                            inv.status === 'PAID FULL' ? { color: '#10B981' } : { color: '#0F2744' },
                           ]}
                         >
-                          {c}
+                          {inv.status}
                         </Text>
-                      </TouchableOpacity>
-                    ))}
-                  </View>
-                )}
-              </View>
-
-              <View style={styles.gstToggleCard}>
-                <View style={{ flex: 1 }}>
-                  <Text style={styles.gstToggleTitle}>Include GST (18% Tax Invoice)</Text>
-                  <Text style={styles.gstToggleSubtitle}>
-                    Toggles GST vs Non-GST estimate format
-                  </Text>
-                </View>
-                <Switch
-                  value={includeGst}
-                  onValueChange={setIncludeGst}
-                  trackColor={{ false: '#CBD5E1', true: '#0F2744' }}
-                  thumbColor="#FFFFFF"
-                />
-              </View>
-
-              <View style={styles.lineItemsHeaderRow}>
-                <Text style={styles.lineItemsSectionTitle}>Signage Boards / Line Items</Text>
-                <TouchableOpacity style={styles.addItemBtn} onPress={handleAddLineItem}>
-                  <Ionicons name="add" size={18} color="#0284C7" style={{ marginRight: 4 }} />
-                  <Text style={styles.addItemBtnText}>Add Item</Text>
-                </TouchableOpacity>
-              </View>
-
-              {lineItems.map((item) => {
-                const { sqft, amount } = calculateItemValues(item);
-                return (
-                  <View key={item.id} style={styles.lineItemCard}>
-                    <View style={styles.lineItemDescGroup}>
-                      <View style={{ flex: 1 }}>
-                        <Text style={styles.inputInnerLabel}>Item Description</Text>
-                        <TextInput
-                          style={styles.lineItemDescInput}
-                          value={item.description}
-                          onChangeText={(val) => handleUpdateLineItem(item.id, 'description', val)}
-                          placeholder="Item Description"
-                        />
                       </View>
+                    </View>
+
+                    <Text style={styles.invCompanyName}>{inv.companyName}</Text>
+
+                    <View style={styles.invAmountRow}>
+                      <View>
+                        <Text style={styles.amtLabel}>Total Billed</Text>
+                        <Text style={styles.amtVal}>₹{inv.totalAmount.toLocaleString()}</Text>
+                      </View>
+                      <View>
+                        <Text style={styles.amtLabel}>Paid So Far</Text>
+                        <Text style={[styles.amtVal, { color: '#10B981' }]}>₹{inv.paidAmount.toLocaleString()}</Text>
+                      </View>
+                      <View>
+                        <Text style={styles.amtLabel}>Balance Due</Text>
+                        <Text style={[styles.amtVal, { color: '#EF4444' }]}>₹{inv.balanceDue.toLocaleString()}</Text>
+                      </View>
+                    </View>
+
+                    <View style={styles.invActionsRow}>
                       <TouchableOpacity
-                        style={styles.lineItemDeleteBtn}
-                        onPress={() => handleDeleteLineItem(item.id)}
+                        style={styles.recordPaymentBtn}
+                        onPress={() => openRecordPaymentModal(inv)}
                       >
-                        <Ionicons name="trash-outline" size={20} color="#EF4444" />
+                        <Text style={styles.recordPaymentText}>Record Payment</Text>
+                      </TouchableOpacity>
+
+                      <TouchableOpacity
+                        style={styles.shareWhatsAppBtn}
+                        onPress={() => sendInvoiceWhatsApp(inv)}
+                      >
+                        <FontAwesome5 name="whatsapp" size={16} color="#0F172A" style={{ marginRight: 6 }} />
+                        <Text style={styles.shareWhatsAppText}>WhatsApp</Text>
                       </TouchableOpacity>
                     </View>
-
-                    <View style={styles.dimensionsRow}>
-                      <View style={styles.dimCol}>
-                        <Text style={styles.dimLabel}>Length (ft)</Text>
-                        <TextInput
-                          style={styles.dimInput}
-                          keyboardType="numeric"
-                          value={item.length}
-                          onChangeText={(val) => handleUpdateLineItem(item.id, 'length', val)}
-                        />
-                      </View>
-
-                      <View style={styles.dimCol}>
-                        <Text style={styles.dimLabel}>Height (ft)</Text>
-                        <TextInput
-                          style={styles.dimInput}
-                          keyboardType="numeric"
-                          value={item.height}
-                          onChangeText={(val) => handleUpdateLineItem(item.id, 'height', val)}
-                        />
-                      </View>
-
-                      <View style={styles.dimCol}>
-                        <Text style={styles.dimLabel}>Rate (₹/SqFt)</Text>
-                        <TextInput
-                          style={styles.dimInput}
-                          keyboardType="numeric"
-                          value={item.rate}
-                          onChangeText={(val) => handleUpdateLineItem(item.id, 'rate', val)}
-                        />
-                      </View>
-                    </View>
-
-                    <View style={styles.lineItemFooterRow}>
-                      <Text style={styles.lineItemSqFtText}>{sqft.toFixed(1)} Sq.Ft</Text>
-                      <Text style={styles.lineItemTotalAmount}>₹{amount.toFixed(2)}</Text>
-                    </View>
                   </View>
-                );
-              })}
-
-              <View style={styles.extraChargesRow}>
-                <View style={styles.extraChargeCol}>
-                  <Text style={styles.extraChargeLabel}>Framing / MS (₹)</Text>
-                  <TextInput
-                    style={styles.extraChargeInput}
-                    keyboardType="numeric"
-                    value={framingCharge}
-                    onChangeText={setFramingCharge}
-                  />
-                </View>
-
-                <View style={styles.extraChargeCol}>
-                  <Text style={styles.extraChargeLabel}>Installation (₹)</Text>
-                  <TextInput
-                    style={styles.extraChargeInput}
-                    keyboardType="numeric"
-                    value={installationCharge}
-                    onChangeText={setInstallationCharge}
-                  />
-                </View>
+                ))}
               </View>
+            )}
 
-              <View style={styles.breakdownCard}>
-                <View style={styles.breakdownLine}>
-                  <Text style={styles.breakdownLineLabel}>Subtotal Items</Text>
-                  <Text style={styles.breakdownLineVal}>₹{subtotalItems.toFixed(2)}</Text>
-                </View>
-
-                <View style={styles.breakdownLine}>
-                  <Text style={styles.breakdownLineLabel}>Framing & Structure</Text>
-                  <Text style={styles.breakdownLineVal}>+ ₹{framingVal.toFixed(0)}</Text>
-                </View>
-
-                <View style={styles.breakdownLine}>
-                  <Text style={styles.breakdownLineLabel}>Installation Charge</Text>
-                  <Text style={styles.breakdownLineVal}>+ ₹{installVal.toFixed(0)}</Text>
-                </View>
-
-                <View style={styles.breakdownLine}>
-                  <Text style={styles.breakdownLineLabel}>GST (18%)</Text>
-                  <Text style={styles.breakdownLineVal}>+ ₹{gstVal.toFixed(2)}</Text>
-                </View>
-              </View>
-
-              <View style={styles.grandTotalBar}>
-                <Text style={styles.grandTotalBarLabel}>GRAND TOTAL:</Text>
-                <Text style={styles.grandTotalBarVal}>₹{grandTotalQuotation.toFixed(2)}</Text>
-              </View>
-
-              <TouchableOpacity
-                style={styles.generatePdfQuotationBtn}
-                onPress={handleGeneratePdfQuotation}
-              >
-                <Ionicons name="document-text-outline" size={20} color="#FFFFFF" style={{ marginRight: 8 }} />
-                <Text style={styles.generatePdfQuotationBtnText}>
-                  Generate Branded PDF Quotation
+            {/* TAB 4: AUTOMATIC RATE & QUOTATION BUILDER */}
+            {currentTab === 'rate_calc' && (
+              <View style={styles.tabContent}>
+                <Text style={styles.calcScreenMainHeading}>
+                  Automatic Rate & Quotation Builder
                 </Text>
-              </TouchableOpacity>
-            </View>
-          )}
 
-          {/* TAB 5: MONTHLY SALARY SLIP */}
-          {currentTab === 'salary' && (
-            <View style={styles.tabContent}>
-              <Text style={styles.calcScreenMainHeading}>Monthly Salary Slip</Text>
-
-              <View style={styles.payslipCard}>
-                <View style={styles.payslipCompanyHeader}>
-                  <Text style={styles.payslipCompanyName}>
-                    {staffSalaryData.companyName}
-                  </Text>
-                  <Text style={styles.payslipCompanyAddress}>
-                    {staffSalaryData.companyAddress}
-                  </Text>
-                </View>
-
-                <View style={styles.payslipDivider} />
-
-                <View style={styles.payslipEmployeeRow}>
-                  <View>
-                    <Text style={styles.payslipEmpName}>
-                      {staffSalaryData.employeeName}
-                    </Text>
-                    <Text style={styles.payslipEmpRole}>
-                      {staffSalaryData.employeeRole}
-                    </Text>
-                  </View>
-
-                  <View style={styles.payslipMonthBadge}>
-                    <Text style={styles.payslipMonthBadgeText}>
-                      {staffSalaryData.monthYear}
-                    </Text>
-                  </View>
-                </View>
-
-                <View style={styles.attendanceBox}>
-                  <View style={styles.attendanceCol}>
-                    <Text style={styles.attendanceLabel}>Present Days</Text>
-                    <Text style={styles.attendanceVal}>
-                      {staffSalaryData.presentDays} / {staffSalaryData.totalDays}
-                    </Text>
-                  </View>
-
-                  <View style={styles.attendanceCol}>
-                    <Text style={styles.attendanceLabel}>Late Marks</Text>
-                    <Text style={styles.attendanceVal}>
-                      {staffSalaryData.lateMarks}
-                    </Text>
-                  </View>
-
-                  <View style={styles.attendanceCol}>
-                    <Text style={styles.attendanceLabel}>Overtime</Text>
-                    <Text style={styles.attendanceVal}>
-                      {staffSalaryData.overtimeHours.toFixed(1)} hrs
-                    </Text>
-                  </View>
-                </View>
-
-                <Text style={styles.earningsHeading}>Earnings & Incentives</Text>
-
-                <View style={styles.salaryBreakdownTable}>
-                  <View style={styles.salaryRow}>
-                    <Text style={styles.salaryRowLabel}>Basic Monthly Pay</Text>
-                    <Text style={styles.salaryRowVal}>
-                      ₹{staffSalaryData.basicPay}
-                    </Text>
-                  </View>
-
-                  <View style={styles.salaryRow}>
-                    <Text style={styles.salaryRowLabel}>Overtime Pay</Text>
-                    <Text style={styles.salaryRowVal}>
-                      + ₹{staffSalaryData.overtimePay}
-                    </Text>
-                  </View>
-
-                  <View style={styles.salaryRow}>
-                    <Text style={styles.salaryRowLabel}>
-                      Employee of Month Bonus 🏆
-                    </Text>
-                    <Text style={[styles.salaryRowVal, { color: '#10B981' }]}>
-                      + ₹{staffSalaryData.bonus}
-                    </Text>
-                  </View>
-
-                  <View style={styles.salaryRow}>
-                    <Text style={styles.salaryRowLabel}>Late Mark Deductions</Text>
-                    <Text style={[styles.salaryRowVal, { color: '#EF4444' }]}>
-                      - ₹{staffSalaryData.deductions}
-                    </Text>
-                  </View>
-
-                  <View style={styles.payslipDivider} />
-
-                  <View style={styles.netSalaryRow}>
-                    <Text style={styles.netSalaryLabel}>NET SALARY PAYABLE:</Text>
-                    <Text style={styles.netSalaryVal}>
-                      ₹{staffSalaryData.netPayable}
-                    </Text>
-                  </View>
-                </View>
-              </View>
-
-              <TouchableOpacity
-                style={styles.downloadPayslipBtn}
-                onPress={handleDownloadPayslip}
-              >
-                <Ionicons name="document-text-outline" size={20} color="#FFFFFF" style={{ marginRight: 8 }} />
-                <Text style={styles.downloadPayslipBtnText}>
-                  Download Payslip PDF
-                </Text>
-              </TouchableOpacity>
-            </View>
-          )}
-
-        </ScrollView>
-
-        {/* Floating SnackBar Toast */}
-        {payslipDownloadedToast && (
-          <View style={styles.floatingToast}>
-            <Ionicons name="document-text" size={18} color="#FFFFFF" style={{ marginRight: 8 }} />
-            <Text style={styles.floatingToastText}>
-              Payslip PDF downloaded successfully!
-            </Text>
-          </View>
-        )}
-
-        {/* Admin Bottom Navigation Bar with iOS Safe Area Padding */}
-        <View style={styles.bottomNav}>
-          <TouchableOpacity
-            style={styles.navItem}
-            onPress={() => setCurrentTab('dashboard')}
-          >
-            <Ionicons name="bar-chart" size={22} color={currentTab === 'dashboard' ? '#0284C7' : '#64748B'} />
-            <Text style={[styles.navLabel, currentTab === 'dashboard' && styles.navLabelActive]}>Dashboard</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={styles.navItem}
-            onPress={() => setCurrentTab('inventory')}
-          >
-            <Ionicons name="cube-outline" size={22} color={currentTab === 'inventory' ? '#0284C7' : '#64748B'} />
-            <Text style={[styles.navLabel, currentTab === 'inventory' && styles.navLabelActive]}>Inventory</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={styles.navItem}
-            onPress={() => setCurrentTab('invoices')}
-          >
-            <Ionicons name="receipt-outline" size={22} color={currentTab === 'invoices' ? '#0284C7' : '#64748B'} />
-            <Text style={[styles.navLabel, currentTab === 'invoices' && styles.navLabelActive]}>Invoices</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={styles.navItem}
-            onPress={() => setCurrentTab('rate_calc')}
-          >
-            <Ionicons name="calculator-outline" size={22} color={currentTab === 'rate_calc' ? '#0284C7' : '#64748B'} />
-            <Text style={[styles.navLabel, currentTab === 'rate_calc' && styles.navLabelActive]}>Rate Calc</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={styles.navItem}
-            onPress={() => setCurrentTab('salary')}
-          >
-            <Ionicons name="document-text-outline" size={22} color={currentTab === 'salary' ? '#0284C7' : '#64748B'} />
-            <Text style={[styles.navLabel, currentTab === 'salary' && styles.navLabelActive]}>Salary Slips</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
-
-      {/* Schedule Site Visit Modal (Admin) */}
-      <Modal
-        visible={siteVisitModalVisible}
-        transparent
-        animationType="slide"
-        onRequestClose={() => setSiteVisitModalVisible(false)}
-      >
-        <View style={styles.sheetOverlay}>
-          <KeyboardAvoidingView
-            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-            style={{ width: '100%' }}
-          >
-            <View style={styles.sheetContainer}>
-              <View style={styles.sheetHeader}>
-                <View style={{ flex: 1, paddingRight: 14 }}>
-                  <Text style={styles.sheetTitle}>Schedule New Site Visit</Text>
-                  <Text style={styles.sheetSub}>
-                    Assign task to Field Boy with client phone & Google Maps link.
-                  </Text>
-                </View>
-                <TouchableOpacity
-                  style={styles.sheetCloseBtn}
-                  onPress={() => setSiteVisitModalVisible(false)}
-                  hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-                >
-                  <Ionicons name="close" size={22} color="#475569" />
-                </TouchableOpacity>
-              </View>
-
-              <ScrollView style={{ maxHeight: 380 }} showsVerticalScrollIndicator={false}>
-                <View style={styles.sheetInputGroup}>
-                  <Text style={styles.sheetInputLabel}>Client / Business Name</Text>
-                  <View style={styles.sheetInputRow}>
-                    <Ionicons name="business-outline" size={20} color="#64748B" style={{ marginRight: 10 }} />
-                    <TextInput
-                      style={styles.sheetTextInput}
-                      value={clientName}
-                      onChangeText={setClientName}
-                      placeholder="e.g. Apex Retail Store"
-                      placeholderTextColor="#94A3B8"
-                    />
-                  </View>
-                </View>
-
-                <View style={[styles.sheetInputGroup, { marginTop: 12 }]}>
-                  <Text style={styles.sheetInputLabel}>Client Phone Number</Text>
-                  <View style={styles.sheetInputRow}>
-                    <Ionicons name="call-outline" size={20} color="#64748B" style={{ marginRight: 10 }} />
-                    <TextInput
-                      style={styles.sheetTextInput}
-                      value={clientPhone}
-                      onChangeText={setClientPhone}
-                      placeholder="+91 98200 11223"
-                      placeholderTextColor="#94A3B8"
-                      keyboardType="phone-pad"
-                    />
-                  </View>
-                </View>
-
-                <View style={[styles.sheetInputGroup, { marginTop: 12 }]}>
-                  <Text style={styles.sheetInputLabel}>Site Address (Google Maps)</Text>
-                  <View style={styles.sheetInputRow}>
-                    <Ionicons name="location-outline" size={20} color="#64748B" style={{ marginRight: 10 }} />
-                    <TextInput
-                      style={styles.sheetTextInput}
-                      value={siteAddress}
-                      onChangeText={setSiteAddress}
-                      placeholder="Enter site location"
-                      placeholderTextColor="#94A3B8"
-                    />
-                  </View>
-                </View>
-
-                <View style={[styles.sheetInputGroup, { marginTop: 12 }]}>
-                  <Text style={styles.sheetInputLabel}>Assign Field Boy</Text>
+                <View style={styles.customerSelectCard}>
+                  <Text style={styles.customerSelectLabel}>Select Customer / Client</Text>
                   <TouchableOpacity
-                    style={styles.sheetInputRow}
-                    onPress={() => setFieldBoyDropdownOpen(!fieldBoyDropdownOpen)}
+                    style={styles.customerSelectRow}
+                    onPress={() => setCustomerDropdownOpen(!customerDropdownOpen)}
                   >
-                    <Ionicons name="person-circle-outline" size={20} color="#64748B" style={{ marginRight: 10 }} />
-                    <Text style={[styles.sheetTextInput, { paddingTop: 8 }]}>{assignedFieldBoy}</Text>
+                    <Ionicons name="business-outline" size={20} color="#0F2744" style={{ marginRight: 10 }} />
+                    <Text style={styles.customerSelectValue}>{selectedQuotationCustomer}</Text>
                     <Ionicons
-                      name={fieldBoyDropdownOpen ? 'chevron-up' : 'chevron-down'}
+                      name={customerDropdownOpen ? 'chevron-up' : 'chevron-down'}
                       size={18}
                       color="#64748B"
                     />
                   </TouchableOpacity>
 
-                  {fieldBoyDropdownOpen && (
-                    <View style={styles.dropdownList}>
-                      {fieldBoysList.map((fb) => (
+                  {customerDropdownOpen && (
+                    <View style={styles.customerDropdownList}>
+                      {customerOptions.map((c) => (
                         <TouchableOpacity
-                          key={fb}
-                          style={styles.dropdownItem}
+                          key={c}
+                          style={styles.customerDropdownItem}
                           onPress={() => {
-                            setAssignedFieldBoy(fb);
-                            setFieldBoyDropdownOpen(false);
+                            setSelectedQuotationCustomer(c);
+                            setCustomerDropdownOpen(false);
                           }}
                         >
                           <Text
                             style={[
-                              styles.dropdownItemText,
-                              assignedFieldBoy === fb && { color: '#0284C7', fontWeight: 'bold' },
+                              styles.customerDropdownText,
+                              selectedQuotationCustomer === c && styles.customerDropdownTextActive,
                             ]}
                           >
-                            {fb}
+                            {c}
                           </Text>
                         </TouchableOpacity>
                       ))}
@@ -2704,302 +2299,731 @@ export default function App() {
                   )}
                 </View>
 
-                <View style={[styles.sheetInputGroup, { marginTop: 12, marginBottom: 18 }]}>
-                  <Text style={styles.sheetInputLabel}>Instructions / Notes</Text>
-                  <View style={styles.sheetInputRow}>
-                    <Ionicons name="create-outline" size={20} color="#64748B" style={{ marginRight: 10 }} />
+                <View style={styles.gstToggleCard}>
+                  <View style={{ flex: 1 }}>
+                    <Text style={styles.gstToggleTitle}>Include GST (18% Tax Invoice)</Text>
+                    <Text style={styles.gstToggleSubtitle}>
+                      Toggles GST vs Non-GST estimate format
+                    </Text>
+                  </View>
+                  <Switch
+                    value={includeGst}
+                    onValueChange={setIncludeGst}
+                    trackColor={{ false: '#CBD5E1', true: '#0F2744' }}
+                    thumbColor="#FFFFFF"
+                  />
+                </View>
+
+                <View style={styles.lineItemsHeaderRow}>
+                  <Text style={styles.lineItemsSectionTitle}>Signage Boards / Line Items</Text>
+                  <TouchableOpacity style={styles.addItemBtn} onPress={handleAddLineItem}>
+                    <Ionicons name="add" size={18} color="#0F2744" style={{ marginRight: 4 }} />
+                    <Text style={styles.addItemBtnText}>Add Item</Text>
+                  </TouchableOpacity>
+                </View>
+
+                {lineItems.map((item) => {
+                  const { sqft, amount } = calculateItemValues(item);
+                  return (
+                    <View key={item.id} style={styles.lineItemCard}>
+                      <View style={styles.lineItemDescGroup}>
+                        <View style={{ flex: 1 }}>
+                          <Text style={styles.inputInnerLabel}>Item Description</Text>
+                          <TextInput
+                            style={styles.lineItemDescInput}
+                            value={item.description}
+                            onChangeText={(val) => handleUpdateLineItem(item.id, 'description', val)}
+                            placeholder="Item Description"
+                          />
+                        </View>
+                        <TouchableOpacity
+                          style={styles.lineItemDeleteBtn}
+                          onPress={() => handleDeleteLineItem(item.id)}
+                        >
+                          <Ionicons name="trash-outline" size={20} color="#EF4444" />
+                        </TouchableOpacity>
+                      </View>
+
+                      <View style={styles.dimensionsRow}>
+                        <View style={styles.dimCol}>
+                          <Text style={styles.dimLabel}>Length (ft)</Text>
+                          <TextInput
+                            style={styles.dimInput}
+                            keyboardType="numeric"
+                            value={item.length}
+                            onChangeText={(val) => handleUpdateLineItem(item.id, 'length', val)}
+                          />
+                        </View>
+
+                        <View style={styles.dimCol}>
+                          <Text style={styles.dimLabel}>Height (ft)</Text>
+                          <TextInput
+                            style={styles.dimInput}
+                            keyboardType="numeric"
+                            value={item.height}
+                            onChangeText={(val) => handleUpdateLineItem(item.id, 'height', val)}
+                          />
+                        </View>
+
+                        <View style={styles.dimCol}>
+                          <Text style={styles.dimLabel}>Rate (₹/SqFt)</Text>
+                          <TextInput
+                            style={styles.dimInput}
+                            keyboardType="numeric"
+                            value={item.rate}
+                            onChangeText={(val) => handleUpdateLineItem(item.id, 'rate', val)}
+                          />
+                        </View>
+                      </View>
+
+                      <View style={styles.lineItemFooterRow}>
+                        <Text style={styles.lineItemSqFtText}>{sqft.toFixed(1)} Sq.Ft</Text>
+                        <Text style={styles.lineItemTotalAmount}>₹{amount.toFixed(2)}</Text>
+                      </View>
+                    </View>
+                  );
+                })}
+
+                <View style={styles.extraChargesRow}>
+                  <View style={styles.extraChargeCol}>
+                    <Text style={styles.extraChargeLabel}>Framing / MS (₹)</Text>
                     <TextInput
-                      style={styles.sheetTextInput}
-                      value={visitInstructions}
-                      onChangeText={setVisitInstructions}
-                      placeholder="e.g. Measure main facade LED board"
-                      placeholderTextColor="#94A3B8"
+                      style={styles.extraChargeInput}
+                      keyboardType="numeric"
+                      value={framingCharge}
+                      onChangeText={setFramingCharge}
+                    />
+                  </View>
+
+                  <View style={styles.extraChargeCol}>
+                    <Text style={styles.extraChargeLabel}>Installation (₹)</Text>
+                    <TextInput
+                      style={styles.extraChargeInput}
+                      keyboardType="numeric"
+                      value={installationCharge}
+                      onChangeText={setInstallationCharge}
                     />
                   </View>
                 </View>
-              </ScrollView>
 
-              <TouchableOpacity
-                style={styles.dispatchPrimaryBtn}
-                onPress={handleDispatchSiteVisit}
-              >
-                <Ionicons name="send" size={18} color="#FFFFFF" style={{ marginRight: 8 }} />
-                <Text style={styles.dispatchPrimaryBtnText}>Assign & Dispatch Task to Field Boy</Text>
-              </TouchableOpacity>
-            </View>
-          </KeyboardAvoidingView>
-        </View>
-      </Modal>
-
-      {/* Stock Movement Modal (Admin) */}
-      <Modal
-        visible={stockMovementModalVisible}
-        transparent
-        animationType="fade"
-        onRequestClose={() => setStockMovementModalVisible(false)}
-      >
-        <View style={styles.modalOverlay}>
-          <KeyboardAvoidingView
-            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-            style={{ width: '100%', alignItems: 'center' }}
-          >
-            <View style={styles.stockModalCard}>
-              <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 10 }}>
-                <Text style={[styles.stockModalTitle, { flex: 1, paddingRight: 10 }]}>
-                  Stock Movement: {selectedMaterial?.name}
-                </Text>
-                <TouchableOpacity
-                  style={styles.sheetCloseBtn}
-                  onPress={() => setStockMovementModalVisible(false)}
-                  hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-                >
-                  <Ionicons name="close" size={20} color="#64748B" />
-                </TouchableOpacity>
-              </View>
-
-              <View style={[styles.modalInputGroup, { marginTop: 10 }]}>
-                <Text style={styles.modalInputLabel}>Transaction Type</Text>
-                <TouchableOpacity
-                  style={styles.modalSelectRow}
-                  onPress={() => setTransactionDropdownOpen(!transactionDropdownOpen)}
-                >
-                  <Text style={styles.modalSelectText}>{getTransactionLabel()}</Text>
-                  <Ionicons
-                    name={transactionDropdownOpen ? 'chevron-up' : 'chevron-down'}
-                    size={18}
-                    color="#475569"
-                  />
-                </TouchableOpacity>
-
-                {transactionDropdownOpen && (
-                  <View style={styles.modalDropdownOptions}>
-                    <TouchableOpacity
-                      style={styles.modalDropdownOptionItem}
-                      onPress={() => {
-                        setTransactionType('STOCK_IN');
-                        setStockReason('Restock shipment received from supplier');
-                        setTransactionDropdownOpen(false);
-                      }}
-                    >
-                      <Text style={[styles.modalOptionText, transactionType === 'STOCK_IN' && styles.modalOptionActive]}>
-                        Stock In (Purchase/Restock)
-                      </Text>
-                    </TouchableOpacity>
-
-                    <TouchableOpacity
-                      style={styles.modalDropdownOptionItem}
-                      onPress={() => {
-                        setTransactionType('STOCK_OUT');
-                        setStockReason('Job JB-2026-0001 usage');
-                        setTransactionDropdownOpen(false);
-                      }}
-                    >
-                      <Text style={[styles.modalOptionText, transactionType === 'STOCK_OUT' && styles.modalOptionActive]}>
-                        Stock Out (Job Usage)
-                      </Text>
-                    </TouchableOpacity>
-
-                    <TouchableOpacity
-                      style={[styles.modalDropdownOptionItem, { borderBottomWidth: 0 }]}
-                      onPress={() => {
-                        setTransactionType('ADJUSTMENT');
-                        setStockReason('Physical inventory audit count');
-                        setTransactionDropdownOpen(false);
-                      }}
-                    >
-                      <Text style={[styles.modalOptionText, transactionType === 'ADJUSTMENT' && styles.modalOptionActive]}>
-                        Manual Count Adjustment
-                      </Text>
-                    </TouchableOpacity>
+                <View style={styles.breakdownCard}>
+                  <View style={styles.breakdownLine}>
+                    <Text style={styles.breakdownLineLabel}>Subtotal Items</Text>
+                    <Text style={styles.breakdownLineVal}>₹{subtotalItems.toFixed(2)}</Text>
                   </View>
-                )}
-              </View>
 
-              <View style={[styles.modalInputGroup, { marginTop: 12 }]}>
-                <Text style={styles.modalInputLabel}>
-                  Quantity ({selectedMaterial?.unit})
-                </Text>
-                <TextInput
-                  style={styles.modalTextInput}
-                  value={stockQty}
-                  onChangeText={setStockQty}
-                  keyboardType="numeric"
-                  placeholder="Enter quantity"
-                  placeholderTextColor="#94A3B8"
-                />
-              </View>
-
-              <View style={[styles.modalInputGroup, { marginTop: 12, marginBottom: 18 }]}>
-                <Text style={styles.modalInputLabel}>Reason / Bill No</Text>
-                <TextInput
-                  style={styles.modalTextInput}
-                  value={stockReason}
-                  onChangeText={setStockReason}
-                  placeholder="e.g. Restock shipment from supplier"
-                  placeholderTextColor="#94A3B8"
-                />
-              </View>
-
-              <View style={{ flexDirection: 'row', gap: 10 }}>
-                <TouchableOpacity
-                  style={[styles.stockModalCancelBtn, { flex: 1 }]}
-                  onPress={() => setStockMovementModalVisible(false)}
-                >
-                  <Text style={styles.stockModalCancelText}>Cancel</Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity
-                  style={[styles.stockModalConfirmBtn, { flex: 2 }]}
-                  onPress={handleStockMovementConfirm}
-                >
-                  <Text style={styles.stockModalConfirmText}>Confirm</Text>
-                </TouchableOpacity>
-              </View>
-            </View>
-          </KeyboardAvoidingView>
-        </View>
-      </Modal>
-
-      {/* Record Payment Modal (Admin) */}
-      <Modal
-        visible={recordPaymentModalVisible}
-        transparent
-        animationType="fade"
-        onRequestClose={() => setRecordPaymentModalVisible(false)}
-      >
-        <View style={styles.modalOverlay}>
-          <KeyboardAvoidingView
-            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-            style={{ width: '100%', alignItems: 'center' }}
-          >
-            <View style={styles.stockModalCard}>
-              <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 10 }}>
-                <Text style={[styles.stockModalTitle, { flex: 1, paddingRight: 10 }]}>
-                  Record Payment: {selectedInvoice?.invoiceNumber}
-                </Text>
-                <TouchableOpacity
-                  style={styles.sheetCloseBtn}
-                  onPress={() => setRecordPaymentModalVisible(false)}
-                  hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-                >
-                  <Ionicons name="close" size={20} color="#64748B" />
-                </TouchableOpacity>
-              </View>
-
-              <View style={[styles.modalInputGroup, { marginTop: 10 }]}>
-                <Text style={styles.modalInputLabel}>Amount Received (₹)</Text>
-                <TextInput
-                  style={styles.modalTextInput}
-                  value={paymentAmount}
-                  onChangeText={setPaymentAmount}
-                  keyboardType="numeric"
-                  placeholder="Enter amount received"
-                  placeholderTextColor="#94A3B8"
-                />
-              </View>
-
-              <View style={[styles.modalInputGroup, { marginTop: 12 }]}>
-                <Text style={styles.modalInputLabel}>Payment Method</Text>
-                <TouchableOpacity
-                  style={styles.modalSelectRow}
-                  onPress={() => setPaymentMethodDropdownOpen(!paymentMethodDropdownOpen)}
-                >
-                  <Text style={styles.modalSelectText}>{getPaymentMethodLabel()}</Text>
-                  <Ionicons
-                    name={paymentMethodDropdownOpen ? 'chevron-up' : 'chevron-down'}
-                    size={18}
-                    color="#475569"
-                  />
-                </TouchableOpacity>
-
-                {paymentMethodDropdownOpen && (
-                  <View style={styles.modalDropdownOptions}>
-                    <TouchableOpacity
-                      style={styles.modalDropdownOptionItem}
-                      onPress={() => {
-                        setPaymentMethod('UPI');
-                        setPaymentRef('UPI/HDFC/998822');
-                        setPaymentMethodDropdownOpen(false);
-                      }}
-                    >
-                      <Text style={[styles.modalOptionText, paymentMethod === 'UPI' && styles.modalOptionActive]}>
-                        UPI (GPay / PhonePe / Paytm)
-                      </Text>
-                    </TouchableOpacity>
-
-                    <TouchableOpacity
-                      style={styles.modalDropdownOptionItem}
-                      onPress={() => {
-                        setPaymentMethod('BANK_TRANSFER');
-                        setPaymentRef('NEFT/AXIS/774411');
-                        setPaymentMethodDropdownOpen(false);
-                      }}
-                    >
-                      <Text style={[styles.modalOptionText, paymentMethod === 'BANK_TRANSFER' && styles.modalOptionActive]}>
-                        Bank Transfer (NEFT/RTGS)
-                      </Text>
-                    </TouchableOpacity>
-
-                    <TouchableOpacity
-                      style={styles.modalDropdownOptionItem}
-                      onPress={() => {
-                        setPaymentMethod('CASH');
-                        setPaymentRef('CASH/RECEIPT-01');
-                        setPaymentMethodDropdownOpen(false);
-                      }}
-                    >
-                      <Text style={[styles.modalOptionText, paymentMethod === 'CASH' && styles.modalOptionActive]}>
-                        Cash Payment
-                      </Text>
-                    </TouchableOpacity>
-
-                    <TouchableOpacity
-                      style={[styles.modalDropdownOptionItem, { borderBottomWidth: 0 }]}
-                      onPress={() => {
-                        setPaymentMethod('CHEQUE');
-                        setPaymentRef('CHQ/SBI/123456');
-                        setPaymentMethodDropdownOpen(false);
-                      }}
-                    >
-                      <Text style={[styles.modalOptionText, paymentMethod === 'CHEQUE' && styles.modalOptionActive]}>
-                        Cheque / Demand Draft
-                      </Text>
-                    </TouchableOpacity>
+                  <View style={styles.breakdownLine}>
+                    <Text style={styles.breakdownLineLabel}>Framing & Structure</Text>
+                    <Text style={styles.breakdownLineVal}>+ ₹{framingVal.toFixed(0)}</Text>
                   </View>
-                )}
-              </View>
 
-              <View style={[styles.modalInputGroup, { marginTop: 12, marginBottom: 18 }]}>
-                <Text style={styles.modalInputLabel}>Transaction Ref / UTR No</Text>
-                <TextInput
-                  style={styles.modalTextInput}
-                  value={paymentRef}
-                  onChangeText={setPaymentRef}
-                  placeholder="e.g. UPI/HDFC/998822"
-                  placeholderTextColor="#94A3B8"
-                />
-              </View>
+                  <View style={styles.breakdownLine}>
+                    <Text style={styles.breakdownLineLabel}>Installation Charge</Text>
+                    <Text style={styles.breakdownLineVal}>+ ₹{installVal.toFixed(0)}</Text>
+                  </View>
 
-              <View style={{ flexDirection: 'row', gap: 10 }}>
-                <TouchableOpacity
-                  style={[styles.stockModalCancelBtn, { flex: 1 }]}
-                  onPress={() => setRecordPaymentModalVisible(false)}
-                >
-                  <Text style={styles.stockModalCancelText}>Cancel</Text>
-                </TouchableOpacity>
+                  <View style={styles.breakdownLine}>
+                    <Text style={styles.breakdownLineLabel}>GST (18%)</Text>
+                    <Text style={styles.breakdownLineVal}>+ ₹{gstVal.toFixed(2)}</Text>
+                  </View>
+                </View>
+
+                <View style={styles.grandTotalBar}>
+                  <Text style={styles.grandTotalBarLabel}>GRAND TOTAL:</Text>
+                  <Text style={styles.grandTotalBarVal}>₹{grandTotalQuotation.toFixed(2)}</Text>
+                </View>
 
                 <TouchableOpacity
-                  style={[styles.stockModalConfirmBtn, { flex: 2 }]}
-                  onPress={handleConfirmPayment}
+                  style={styles.generatePdfQuotationBtn}
+                  onPress={handleGeneratePdfQuotation}
                 >
-                  <Text style={styles.stockModalConfirmText}>Confirm</Text>
+                  <Ionicons name="document-text-outline" size={20} color="#FFFFFF" style={{ marginRight: 8 }} />
+                  <Text style={styles.generatePdfQuotationBtnText}>
+                    Generate Branded PDF Quotation
+                  </Text>
                 </TouchableOpacity>
               </View>
+            )}
+
+            {/* TAB 5: MONTHLY SALARY SLIP */}
+            {currentTab === 'salary' && (
+              <View style={styles.tabContent}>
+                <Text style={styles.calcScreenMainHeading}>Monthly Salary Slip</Text>
+
+                <View style={styles.payslipCard}>
+                  <View style={styles.payslipCompanyHeader}>
+                    <Text style={styles.payslipCompanyName}>
+                      {staffSalaryData.companyName}
+                    </Text>
+                    <Text style={styles.payslipCompanyAddress}>
+                      {staffSalaryData.companyAddress}
+                    </Text>
+                  </View>
+
+                  <View style={styles.payslipDivider} />
+
+                  <View style={styles.payslipEmployeeRow}>
+                    <View>
+                      <Text style={styles.payslipEmpName}>
+                        {staffSalaryData.employeeName}
+                      </Text>
+                      <Text style={styles.payslipEmpRole}>
+                        {staffSalaryData.employeeRole}
+                      </Text>
+                    </View>
+
+                    <View style={styles.payslipMonthBadge}>
+                      <Text style={styles.payslipMonthBadgeText}>
+                        {staffSalaryData.monthYear}
+                      </Text>
+                    </View>
+                  </View>
+
+                  <View style={styles.attendanceBox}>
+                    <View style={styles.attendanceCol}>
+                      <Text style={styles.attendanceLabel}>Present Days</Text>
+                      <Text style={styles.attendanceVal}>
+                        {staffSalaryData.presentDays} / {staffSalaryData.totalDays}
+                      </Text>
+                    </View>
+
+                    <View style={styles.attendanceCol}>
+                      <Text style={styles.attendanceLabel}>Late Marks</Text>
+                      <Text style={styles.attendanceVal}>
+                        {staffSalaryData.lateMarks}
+                      </Text>
+                    </View>
+
+                    <View style={styles.attendanceCol}>
+                      <Text style={styles.attendanceLabel}>Overtime</Text>
+                      <Text style={styles.attendanceVal}>
+                        {staffSalaryData.overtimeHours.toFixed(1)} hrs
+                      </Text>
+                    </View>
+                  </View>
+
+                  <Text style={styles.earningsHeading}>Earnings & Incentives</Text>
+
+                  <View style={styles.salaryBreakdownTable}>
+                    <View style={styles.salaryRow}>
+                      <Text style={styles.salaryRowLabel}>Basic Monthly Pay</Text>
+                      <Text style={styles.salaryRowVal}>
+                        ₹{staffSalaryData.basicPay}
+                      </Text>
+                    </View>
+
+                    <View style={styles.salaryRow}>
+                      <Text style={styles.salaryRowLabel}>Overtime Pay</Text>
+                      <Text style={styles.salaryRowVal}>
+                        + ₹{staffSalaryData.overtimePay}
+                      </Text>
+                    </View>
+
+                    <View style={styles.salaryRow}>
+                      <Text style={styles.salaryRowLabel}>
+                        Employee of Month Bonus 🏆
+                      </Text>
+                      <Text style={[styles.salaryRowVal, { color: '#10B981' }]}>
+                        + ₹{staffSalaryData.bonus}
+                      </Text>
+                    </View>
+
+                    <View style={styles.salaryRow}>
+                      <Text style={styles.salaryRowLabel}>Late Mark Deductions</Text>
+                      <Text style={[styles.salaryRowVal, { color: '#EF4444' }]}>
+                        - ₹{staffSalaryData.deductions}
+                      </Text>
+                    </View>
+
+                    <View style={styles.payslipDivider} />
+
+                    <View style={styles.netSalaryRow}>
+                      <Text style={styles.netSalaryLabel}>NET SALARY PAYABLE:</Text>
+                      <Text style={styles.netSalaryVal}>
+                        ₹{staffSalaryData.netPayable}
+                      </Text>
+                    </View>
+                  </View>
+                </View>
+
+                <TouchableOpacity
+                  style={styles.downloadPayslipBtn}
+                  onPress={handleDownloadPayslip}
+                >
+                  <Ionicons name="document-text-outline" size={20} color="#FFFFFF" style={{ marginRight: 8 }} />
+                  <Text style={styles.downloadPayslipBtnText}>
+                    Download Payslip PDF
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            )}
+
+          </ScrollView>
+
+          {/* Floating SnackBar Toast */}
+          {payslipDownloadedToast && (
+            <View style={styles.floatingToast}>
+              <Ionicons name="document-text" size={18} color="#FFFFFF" style={{ marginRight: 8 }} />
+              <Text style={styles.floatingToastText}>
+                Payslip PDF downloaded successfully!
+              </Text>
             </View>
-          </KeyboardAvoidingView>
+          )}
+
+          {/* Admin Bottom Navigation Bar with Clean White iOS Safe Area */}
+          <View style={styles.bottomNav}>
+            <TouchableOpacity
+              style={styles.navItem}
+              onPress={() => setCurrentTab('dashboard')}
+            >
+              <Ionicons name="bar-chart" size={22} color={currentTab === 'dashboard' ? '#0F2744' : '#64748B'} />
+              <Text style={[styles.navLabel, currentTab === 'dashboard' && styles.navLabelActive]}>Dashboard</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.navItem}
+              onPress={() => setCurrentTab('inventory')}
+            >
+              <Ionicons name="cube-outline" size={22} color={currentTab === 'inventory' ? '#0F2744' : '#64748B'} />
+              <Text style={[styles.navLabel, currentTab === 'inventory' && styles.navLabelActive]}>Inventory</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.navItem}
+              onPress={() => setCurrentTab('invoices')}
+            >
+              <Ionicons name="receipt-outline" size={22} color={currentTab === 'invoices' ? '#0F2744' : '#64748B'} />
+              <Text style={[styles.navLabel, currentTab === 'invoices' && styles.navLabelActive]}>Invoices</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.navItem}
+              onPress={() => setCurrentTab('rate_calc')}
+            >
+              <Ionicons name="calculator-outline" size={22} color={currentTab === 'rate_calc' ? '#0F2744' : '#64748B'} />
+              <Text style={[styles.navLabel, currentTab === 'rate_calc' && styles.navLabelActive]}>Rate Calc</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.navItem}
+              onPress={() => setCurrentTab('salary')}
+            >
+              <Ionicons name="document-text-outline" size={22} color={currentTab === 'salary' ? '#0F2744' : '#64748B'} />
+              <Text style={[styles.navLabel, currentTab === 'salary' && styles.navLabelActive]}>Salary Slips</Text>
+            </TouchableOpacity>
+          </View>
         </View>
-      </Modal>
-    </SafeAreaView>
+
+        {/* Schedule Site Visit Modal (Admin) */}
+        <Modal
+          visible={siteVisitModalVisible}
+          transparent
+          animationType="slide"
+          onRequestClose={() => setSiteVisitModalVisible(false)}
+        >
+          <View style={styles.sheetOverlay}>
+            <KeyboardAvoidingView
+              behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+              style={{ width: '100%' }}
+            >
+              <View style={styles.sheetContainer}>
+                <View style={styles.sheetHeader}>
+                  <View style={{ flex: 1, paddingRight: 14 }}>
+                    <Text style={styles.sheetTitle}>Schedule New Site Visit</Text>
+                    <Text style={styles.sheetSub}>
+                      Assign task to Field Boy with client phone & Google Maps link.
+                    </Text>
+                  </View>
+                  <TouchableOpacity
+                    style={styles.sheetCloseBtn}
+                    onPress={() => setSiteVisitModalVisible(false)}
+                    hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                  >
+                    <Ionicons name="close" size={22} color="#475569" />
+                  </TouchableOpacity>
+                </View>
+
+                <ScrollView style={{ maxHeight: 380 }} showsVerticalScrollIndicator={false}>
+                  <View style={styles.sheetInputGroup}>
+                    <Text style={styles.sheetInputLabel}>Client / Business Name</Text>
+                    <View style={styles.sheetInputRow}>
+                      <Ionicons name="business-outline" size={20} color="#64748B" style={{ marginRight: 10 }} />
+                      <TextInput
+                        style={styles.sheetTextInput}
+                        value={clientName}
+                        onChangeText={setClientName}
+                        placeholder="e.g. Apex Retail Store"
+                        placeholderTextColor="#94A3B8"
+                      />
+                    </View>
+                  </View>
+
+                  <View style={[styles.sheetInputGroup, { marginTop: 12 }]}>
+                    <Text style={styles.sheetInputLabel}>Client Phone Number</Text>
+                    <View style={styles.sheetInputRow}>
+                      <Ionicons name="call-outline" size={20} color="#64748B" style={{ marginRight: 10 }} />
+                      <TextInput
+                        style={styles.sheetTextInput}
+                        value={clientPhone}
+                        onChangeText={setClientPhone}
+                        placeholder="+91 98200 11223"
+                        placeholderTextColor="#94A3B8"
+                        keyboardType="phone-pad"
+                      />
+                    </View>
+                  </View>
+
+                  <View style={[styles.sheetInputGroup, { marginTop: 12 }]}>
+                    <Text style={styles.sheetInputLabel}>Site Address (Google Maps)</Text>
+                    <View style={styles.sheetInputRow}>
+                      <Ionicons name="location-outline" size={20} color="#64748B" style={{ marginRight: 10 }} />
+                      <TextInput
+                        style={styles.sheetTextInput}
+                        value={siteAddress}
+                        onChangeText={setSiteAddress}
+                        placeholder="Enter site location"
+                        placeholderTextColor="#94A3B8"
+                      />
+                    </View>
+                  </View>
+
+                  <View style={[styles.sheetInputGroup, { marginTop: 12 }]}>
+                    <Text style={styles.sheetInputLabel}>Assign Field Boy</Text>
+                    <TouchableOpacity
+                      style={styles.sheetInputRow}
+                      onPress={() => setFieldBoyDropdownOpen(!fieldBoyDropdownOpen)}
+                    >
+                      <Ionicons name="person-circle-outline" size={20} color="#64748B" style={{ marginRight: 10 }} />
+                      <Text style={[styles.sheetTextInput, { paddingTop: 8 }]}>{assignedFieldBoy}</Text>
+                      <Ionicons
+                        name={fieldBoyDropdownOpen ? 'chevron-up' : 'chevron-down'}
+                        size={18}
+                        color="#64748B"
+                      />
+                    </TouchableOpacity>
+
+                    {fieldBoyDropdownOpen && (
+                      <View style={styles.dropdownList}>
+                        {fieldBoysList.map((fb) => (
+                          <TouchableOpacity
+                            key={fb}
+                            style={styles.dropdownItem}
+                            onPress={() => {
+                              setAssignedFieldBoy(fb);
+                              setFieldBoyDropdownOpen(false);
+                            }}
+                          >
+                            <Text
+                              style={[
+                                styles.dropdownItemText,
+                                assignedFieldBoy === fb && { color: '#0F2744', fontWeight: 'bold' },
+                              ]}
+                            >
+                              {fb}
+                            </Text>
+                          </TouchableOpacity>
+                        ))}
+                      </View>
+                    )}
+                  </View>
+
+                  <View style={[styles.sheetInputGroup, { marginTop: 12, marginBottom: 18 }]}>
+                    <Text style={styles.sheetInputLabel}>Instructions / Notes</Text>
+                    <View style={styles.sheetInputRow}>
+                      <Ionicons name="create-outline" size={20} color="#64748B" style={{ marginRight: 10 }} />
+                      <TextInput
+                        style={styles.sheetTextInput}
+                        value={visitInstructions}
+                        onChangeText={setVisitInstructions}
+                        placeholder="e.g. Measure main facade LED board"
+                        placeholderTextColor="#94A3B8"
+                      />
+                    </View>
+                  </View>
+                </ScrollView>
+
+                <TouchableOpacity
+                  style={styles.dispatchPrimaryBtn}
+                  onPress={handleDispatchSiteVisit}
+                >
+                  <Ionicons name="send" size={18} color="#FFFFFF" style={{ marginRight: 8 }} />
+                  <Text style={styles.dispatchPrimaryBtnText}>Assign & Dispatch Task to Field Boy</Text>
+                </TouchableOpacity>
+              </View>
+            </KeyboardAvoidingView>
+          </View>
+        </Modal>
+
+        {/* Stock Movement Modal (Admin) */}
+        <Modal
+          visible={stockMovementModalVisible}
+          transparent
+          animationType="fade"
+          onRequestClose={() => setStockMovementModalVisible(false)}
+        >
+          <View style={styles.modalOverlay}>
+            <KeyboardAvoidingView
+              behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+              style={{ width: '100%', alignItems: 'center' }}
+            >
+              <View style={styles.stockModalCard}>
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 10 }}>
+                  <Text style={[styles.stockModalTitle, { flex: 1, paddingRight: 10 }]}>
+                    Stock Movement: {selectedMaterial?.name}
+                  </Text>
+                  <TouchableOpacity
+                    style={styles.sheetCloseBtn}
+                    onPress={() => setStockMovementModalVisible(false)}
+                    hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                  >
+                    <Ionicons name="close" size={20} color="#64748B" />
+                  </TouchableOpacity>
+                </View>
+
+                <View style={[styles.modalInputGroup, { marginTop: 10 }]}>
+                  <Text style={styles.modalInputLabel}>Transaction Type</Text>
+                  <TouchableOpacity
+                    style={styles.modalSelectRow}
+                    onPress={() => setTransactionDropdownOpen(!transactionDropdownOpen)}
+                  >
+                    <Text style={styles.modalSelectText}>{getTransactionLabel()}</Text>
+                    <Ionicons
+                      name={transactionDropdownOpen ? 'chevron-up' : 'chevron-down'}
+                      size={18}
+                      color="#475569"
+                    />
+                  </TouchableOpacity>
+
+                  {transactionDropdownOpen && (
+                    <View style={styles.modalDropdownOptions}>
+                      <TouchableOpacity
+                        style={styles.modalDropdownOptionItem}
+                        onPress={() => {
+                          setTransactionType('STOCK_IN');
+                          setStockReason('Restock shipment received from supplier');
+                          setTransactionDropdownOpen(false);
+                        }}
+                      >
+                        <Text style={[styles.modalOptionText, transactionType === 'STOCK_IN' && styles.modalOptionActive]}>
+                          Stock In (Purchase/Restock)
+                        </Text>
+                      </TouchableOpacity>
+
+                      <TouchableOpacity
+                        style={styles.modalDropdownOptionItem}
+                        onPress={() => {
+                          setTransactionType('STOCK_OUT');
+                          setStockReason('Job JB-2026-0001 usage');
+                          setTransactionDropdownOpen(false);
+                        }}
+                      >
+                        <Text style={[styles.modalOptionText, transactionType === 'STOCK_OUT' && styles.modalOptionActive]}>
+                          Stock Out (Job Usage)
+                        </Text>
+                      </TouchableOpacity>
+
+                      <TouchableOpacity
+                        style={[styles.modalDropdownOptionItem, { borderBottomWidth: 0 }]}
+                        onPress={() => {
+                          setTransactionType('ADJUSTMENT');
+                          setStockReason('Physical inventory audit count');
+                          setTransactionDropdownOpen(false);
+                        }}
+                      >
+                        <Text style={[styles.modalOptionText, transactionType === 'ADJUSTMENT' && styles.modalOptionActive]}>
+                          Manual Count Adjustment
+                        </Text>
+                      </TouchableOpacity>
+                    </View>
+                  )}
+                </View>
+
+                <View style={[styles.modalInputGroup, { marginTop: 12 }]}>
+                  <Text style={styles.modalInputLabel}>
+                    Quantity ({selectedMaterial?.unit})
+                  </Text>
+                  <TextInput
+                    style={styles.modalTextInput}
+                    value={stockQty}
+                    onChangeText={setStockQty}
+                    keyboardType="numeric"
+                    placeholder="Enter quantity"
+                    placeholderTextColor="#94A3B8"
+                  />
+                </View>
+
+                <View style={[styles.modalInputGroup, { marginTop: 12, marginBottom: 18 }]}>
+                  <Text style={styles.modalInputLabel}>Reason / Bill No</Text>
+                  <TextInput
+                    style={styles.modalTextInput}
+                    value={stockReason}
+                    onChangeText={setStockReason}
+                    placeholder="e.g. Restock shipment from supplier"
+                    placeholderTextColor="#94A3B8"
+                  />
+                </View>
+
+                <View style={{ flexDirection: 'row', gap: 10 }}>
+                  <TouchableOpacity
+                    style={[styles.stockModalCancelBtn, { flex: 1 }]}
+                    onPress={() => setStockMovementModalVisible(false)}
+                  >
+                    <Text style={styles.stockModalCancelText}>Cancel</Text>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity
+                    style={[styles.stockModalConfirmBtn, { flex: 2 }]}
+                    onPress={handleStockMovementConfirm}
+                  >
+                    <Text style={styles.stockModalConfirmText}>Confirm</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            </KeyboardAvoidingView>
+          </View>
+        </Modal>
+
+        {/* Record Payment Modal (Admin) */}
+        <Modal
+          visible={recordPaymentModalVisible}
+          transparent
+          animationType="fade"
+          onRequestClose={() => setRecordPaymentModalVisible(false)}
+        >
+          <View style={styles.modalOverlay}>
+            <KeyboardAvoidingView
+              behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+              style={{ width: '100%', alignItems: 'center' }}
+            >
+              <View style={styles.stockModalCard}>
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 10 }}>
+                  <Text style={[styles.stockModalTitle, { flex: 1, paddingRight: 10 }]}>
+                    Record Payment: {selectedInvoice?.invoiceNumber}
+                  </Text>
+                  <TouchableOpacity
+                    style={styles.sheetCloseBtn}
+                    onPress={() => setRecordPaymentModalVisible(false)}
+                    hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                  >
+                    <Ionicons name="close" size={20} color="#64748B" />
+                  </TouchableOpacity>
+                </View>
+
+                <View style={[styles.modalInputGroup, { marginTop: 10 }]}>
+                  <Text style={styles.modalInputLabel}>Amount Received (₹)</Text>
+                  <TextInput
+                    style={styles.modalTextInput}
+                    value={paymentAmount}
+                    onChangeText={setPaymentAmount}
+                    keyboardType="numeric"
+                    placeholder="Enter amount received"
+                    placeholderTextColor="#94A3B8"
+                  />
+                </View>
+
+                <View style={[styles.modalInputGroup, { marginTop: 12 }]}>
+                  <Text style={styles.modalInputLabel}>Payment Method</Text>
+                  <TouchableOpacity
+                    style={styles.modalSelectRow}
+                    onPress={() => setPaymentMethodDropdownOpen(!paymentMethodDropdownOpen)}
+                  >
+                    <Text style={styles.modalSelectText}>{getPaymentMethodLabel()}</Text>
+                    <Ionicons
+                      name={paymentMethodDropdownOpen ? 'chevron-up' : 'chevron-down'}
+                      size={18}
+                      color="#475569"
+                    />
+                  </TouchableOpacity>
+
+                  {paymentMethodDropdownOpen && (
+                    <View style={styles.modalDropdownOptions}>
+                      <TouchableOpacity
+                        style={styles.modalDropdownOptionItem}
+                        onPress={() => {
+                          setPaymentMethod('UPI');
+                          setPaymentRef('UPI/HDFC/998822');
+                          setPaymentMethodDropdownOpen(false);
+                        }}
+                      >
+                        <Text style={[styles.modalOptionText, paymentMethod === 'UPI' && styles.modalOptionActive]}>
+                          UPI (GPay / PhonePe / Paytm)
+                        </Text>
+                      </TouchableOpacity>
+
+                      <TouchableOpacity
+                        style={styles.modalDropdownOptionItem}
+                        onPress={() => {
+                          setPaymentMethod('BANK_TRANSFER');
+                          setPaymentRef('NEFT/AXIS/774411');
+                          setPaymentMethodDropdownOpen(false);
+                        }}
+                      >
+                        <Text style={[styles.modalOptionText, paymentMethod === 'BANK_TRANSFER' && styles.modalOptionActive]}>
+                          Bank Transfer (NEFT/RTGS)
+                        </Text>
+                      </TouchableOpacity>
+
+                      <TouchableOpacity
+                        style={styles.modalDropdownOptionItem}
+                        onPress={() => {
+                          setPaymentMethod('CASH');
+                          setPaymentRef('CASH/RECEIPT-01');
+                          setPaymentMethodDropdownOpen(false);
+                        }}
+                      >
+                        <Text style={[styles.modalOptionText, paymentMethod === 'CASH' && styles.modalOptionActive]}>
+                          Cash Payment
+                        </Text>
+                      </TouchableOpacity>
+
+                      <TouchableOpacity
+                        style={[styles.modalDropdownOptionItem, { borderBottomWidth: 0 }]}
+                        onPress={() => {
+                          setPaymentMethod('CHEQUE');
+                          setPaymentRef('CHQ/SBI/123456');
+                          setPaymentMethodDropdownOpen(false);
+                        }}
+                      >
+                        <Text style={[styles.modalOptionText, paymentMethod === 'CHEQUE' && styles.modalOptionActive]}>
+                          Cheque / Demand Draft
+                        </Text>
+                      </TouchableOpacity>
+                    </View>
+                  )}
+                </View>
+
+                <View style={[styles.modalInputGroup, { marginTop: 12, marginBottom: 18 }]}>
+                  <Text style={styles.modalInputLabel}>Transaction Ref / UTR No</Text>
+                  <TextInput
+                    style={styles.modalTextInput}
+                    value={paymentRef}
+                    onChangeText={setPaymentRef}
+                    placeholder="e.g. UPI/HDFC/998822"
+                    placeholderTextColor="#94A3B8"
+                  />
+                </View>
+
+                <View style={{ flexDirection: 'row', gap: 10 }}>
+                  <TouchableOpacity
+                    style={[styles.stockModalCancelBtn, { flex: 1 }]}
+                    onPress={() => setRecordPaymentModalVisible(false)}
+                  >
+                    <Text style={styles.stockModalCancelText}>Cancel</Text>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity
+                    style={[styles.stockModalConfirmBtn, { flex: 2 }]}
+                    onPress={handleConfirmPayment}
+                  >
+                    <Text style={styles.stockModalConfirmText}>Confirm</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            </KeyboardAvoidingView>
+          </View>
+        </Modal>
+      </SafeAreaView>
+    </View>
   );
 }
 
@@ -3118,7 +3142,7 @@ const styles = StyleSheet.create({
     borderRadius: 20,
   },
   roleChipActive: {
-    borderColor: '#0284C7',
+    borderColor: '#0F2744',
     backgroundColor: '#F0F9FF',
   },
   chipDot: {
@@ -3134,10 +3158,6 @@ const styles = StyleSheet.create({
   },
 
   // Main App Styles (iOS Status Bar & Header)
-  container: {
-    flex: 1,
-    backgroundColor: '#0F2744',
-  },
   appBodyWrapper: {
     flex: 1,
     backgroundColor: '#F8FAFC',
@@ -3330,7 +3350,7 @@ const styles = StyleSheet.create({
   },
   pipelineBadgeText: {
     fontSize: 12,
-    color: '#0284C7',
+    color: '#0F2744',
     fontWeight: '700',
   },
   inventorySubHeader: {
@@ -3526,7 +3546,7 @@ const styles = StyleSheet.create({
   customerSelectCard: {
     backgroundColor: '#FFFFFF',
     borderWidth: 1.5,
-    borderColor: '#0284C7',
+    borderColor: '#0F2744',
     borderRadius: 12,
     paddingHorizontal: 14,
     paddingVertical: 8,
@@ -3534,7 +3554,7 @@ const styles = StyleSheet.create({
   },
   customerSelectLabel: {
     fontSize: 11,
-    color: '#0284C7',
+    color: '#0F2744',
     fontWeight: '600',
     marginBottom: 2,
   },
@@ -3568,7 +3588,7 @@ const styles = StyleSheet.create({
     color: '#334155',
   },
   customerDropdownTextActive: {
-    color: '#0284C7',
+    color: '#0F2744',
     fontWeight: 'bold',
   },
   gstToggleCard: {
@@ -3610,7 +3630,7 @@ const styles = StyleSheet.create({
   addItemBtnText: {
     fontSize: 13,
     fontWeight: 'bold',
-    color: '#0284C7',
+    color: '#0F2744',
   },
   lineItemCard: {
     backgroundColor: '#FFFFFF',
@@ -3970,7 +3990,7 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 12,
     fontWeight: '600',
-    color: '#0369A1',
+    color: '#0F2744',
     lineHeight: 18,
   },
   fieldTaskCard: {
@@ -4242,7 +4262,7 @@ const styles = StyleSheet.create({
   obstaclesCardActive: {
     backgroundColor: '#FFFFFF',
     borderWidth: 1.5,
-    borderColor: '#0284C7',
+    borderColor: '#0F2744',
     borderRadius: 12,
     paddingHorizontal: 14,
     paddingVertical: 10,
@@ -4250,7 +4270,7 @@ const styles = StyleSheet.create({
   },
   obstaclesLabel: {
     fontSize: 11,
-    color: '#0284C7',
+    color: '#0F2744',
     fontWeight: '600',
     marginBottom: 4,
   },
@@ -4306,11 +4326,11 @@ const styles = StyleSheet.create({
   calcFormulaText: {
     fontSize: 12,
     fontWeight: 'bold',
-    color: '#0369A1',
+    color: '#0F2744',
   },
   calcFormulaSub: {
     fontSize: 11,
-    color: '#0284C7',
+    color: '#475569',
     marginTop: 1,
   },
   measureCard: {
@@ -4459,7 +4479,7 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
   },
   annotationSaveBtn: {
-    backgroundColor: '#0284C7',
+    backgroundColor: '#0F2744',
     paddingHorizontal: 14,
     paddingVertical: 6,
     borderRadius: 6,
@@ -4652,7 +4672,7 @@ const styles = StyleSheet.create({
   grantPermBtn: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#0284C7',
+    backgroundColor: '#0F2744',
     paddingHorizontal: 18,
     paddingVertical: 12,
     borderRadius: 10,
@@ -4923,7 +4943,7 @@ const styles = StyleSheet.create({
     color: '#334155',
   },
   modalOptionActive: {
-    color: '#0284C7',
+    color: '#0F2744',
     fontWeight: 'bold',
   },
   modalTextInput: {
@@ -4970,7 +4990,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-around',
     backgroundColor: '#FFFFFF',
     paddingTop: 10,
-    paddingBottom: Platform.OS === 'ios' ? 24 : 10,
+    paddingBottom: 12,
     borderTopWidth: 1,
     borderTopColor: '#E2E8F0',
     elevation: 8,
@@ -4993,7 +5013,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   navLabelActive: {
-    color: '#0284C7',
+    color: '#0F2744',
     fontWeight: 'bold',
   },
 });
