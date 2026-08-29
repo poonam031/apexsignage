@@ -718,32 +718,33 @@ export default function App() {
             {displayedInventory.map((item) => (
               <View key={item.id} style={styles.invItemCard}>
                 <View style={styles.invItemMain}>
-                  <View style={{ flex: 1 }}>
+                  {/* Left Column: Name and Stock Level */}
+                  <View style={{ flex: 1, paddingRight: 10 }}>
                     <Text style={styles.invItemName}>{item.name}</Text>
-                    <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 6 }}>
-                      <Text
-                        style={[
-                          styles.invStockText,
-                          { color: item.isLow ? '#EF4444' : '#10B981' },
-                        ]}
-                      >
-                        Stock: {item.stock.toFixed(1)} {item.unit} (Min: {item.min.toFixed(1)})
-                      </Text>
-                      {item.isLow && (
-                        <View style={styles.lowStockTag}>
-                          <Text style={styles.lowStockTagText}>LOW STOCK</Text>
-                        </View>
-                      )}
-                    </View>
+                    <Text
+                      style={[
+                        styles.invStockText,
+                        { color: item.isLow ? '#EF4444' : '#10B981', marginTop: 8 },
+                      ]}
+                    >
+                      Stock: {item.stock.toFixed(1)} {item.unit} (Min: {item.min.toFixed(1)})
+                    </Text>
                   </View>
 
-                  {/* Stock In / Out Action Button (Opens Stock Movement Modal!) */}
-                  <TouchableOpacity
-                    style={styles.stockBtn}
-                    onPress={() => openStockMovementModal(item)}
-                  >
-                    <Text style={styles.stockBtnText}>Stock In / Out</Text>
-                  </TouchableOpacity>
+                  {/* Right Column: LOW STOCK Badge above Stock In / Out button */}
+                  <View style={styles.invItemRightCol}>
+                    {item.isLow && (
+                      <View style={styles.lowStockTag}>
+                        <Text style={styles.lowStockTagText}>LOW STOCK</Text>
+                      </View>
+                    )}
+                    <TouchableOpacity
+                      style={styles.stockBtn}
+                      onPress={() => openStockMovementModal(item)}
+                    >
+                      <Text style={styles.stockBtnText}>Stock In / Out</Text>
+                    </TouchableOpacity>
+                  </View>
                 </View>
               </View>
             ))}
@@ -1676,6 +1677,10 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
   },
+  invItemRightCol: {
+    alignItems: 'flex-end',
+    justifyContent: 'center',
+  },
   invItemName: {
     fontSize: 14,
     fontWeight: 'bold',
@@ -1687,22 +1692,23 @@ const styles = StyleSheet.create({
   },
   lowStockTag: {
     backgroundColor: '#FEE2E2',
-    paddingHorizontal: 6,
+    paddingHorizontal: 8,
     paddingVertical: 2,
     borderRadius: 4,
-    marginLeft: 8,
+    marginBottom: 6,
+    alignSelf: 'flex-end',
   },
   lowStockTagText: {
     color: '#EF4444',
     fontSize: 10,
-    fontWeight: 'bold',
+    fontWeight: '800',
+    letterSpacing: 0.3,
   },
   stockBtn: {
     backgroundColor: '#0F2744',
     paddingHorizontal: 14,
     paddingVertical: 8,
     borderRadius: 8,
-    marginLeft: 10,
   },
   stockBtnText: {
     color: '#FFFFFF',
