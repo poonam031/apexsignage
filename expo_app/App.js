@@ -22,7 +22,7 @@ import { Ionicons, FontAwesome5 } from '@expo/vector-icons';
 import { CameraView, useCameraPermissions, useMicrophonePermissions } from 'expo-camera';
 import * as ImagePicker from 'expo-image-picker';
 
-const BACKEND_URL = 'http://172.20.10.2:5000/api/v1';
+const BACKEND_URL = 'http://10.196.155.107:5000/api/v1';
 
 // Predefined Demo Accounts
 const DEMO_USERS = [
@@ -215,7 +215,7 @@ export default function App() {
       boardSections: [
         {
           id: 'b-1',
-          name: '1 Board Section(s) Configured',
+          name: 'Board 1: Main Entrance LED Board',
           length: '15.0',
           height: '4.0',
           material: 'ACP Sheet',
@@ -656,7 +656,7 @@ export default function App() {
         (i, idx) =>
           `🔹 *Item ${idx + 1}:* ${i.description}\n   Size: ${i.length}ft × ${i.height}ft (${calculateItemValues(i).sqft.toFixed(1)} Sq.Ft) @ ₹${i.rate}/Sq.Ft = *₹${calculateItemValues(i).amount.toFixed(2)}*`
       )
-      .join('\n\n')}\n\n━━━━━━━━━━━━━━━━━━━━\n📦 *Subtotal Items:* ₹${subtotalItems.toFixed(2)}\n🏗️ *Framing & Structure:* ₹${framingVal.toFixed(2)}\n🚚 *Installation Charge:* ₹${installVal.toFixed(2)}\n📑 *GST (18%):* ₹${gstVal.toFixed(2)}\n\n💰 *GRAND TOTAL:* *₹${grandTotalQuotation.toFixed(2)}*\n\n📥 *Download PDF:* http://172.20.10.2:5000/uploads/QT-2026-0001.pdf\n\nPlease reply to confirm and begin fabrication!`;
+      .join('\n\n')}\n\n━━━━━━━━━━━━━━━━━━━━\n📦 *Subtotal Items:* ₹${subtotalItems.toFixed(2)}\n🏗️ *Framing & Structure:* ₹${framingVal.toFixed(2)}\n🚚 *Installation Charge:* ₹${installVal.toFixed(2)}\n📑 *GST (18%):* ₹${gstVal.toFixed(2)}\n\n💰 *GRAND TOTAL:* *₹${grandTotalQuotation.toFixed(2)}*\n\n📥 *Download PDF:* http://10.196.155.107:5000/uploads/QT-2026-0001.pdf\n\nPlease reply to confirm and begin fabrication!`;
 
     Linking.openURL(`whatsapp://send?phone=919423800532&text=${encodeURIComponent(quoteMessage)}`).catch(() => {});
 
@@ -689,7 +689,7 @@ export default function App() {
   const handleDownloadPayslip = () => {
     setPayslipDownloadedToast(true);
 
-    const salaryMsg = `📄 *APEX SIGNAGE SOLUTIONS - SALARY SLIP*\n━━━━━━━━━━━━━━━━━━━━\n*Employee:* ${staffSalaryData.employeeName} (${staffSalaryData.employeeRole})\n*Month:* ${staffSalaryData.monthYear}\n\n📅 *Attendance:* ${staffSalaryData.presentDays}/${staffSalaryData.totalDays} Days | ${staffSalaryData.overtimeHours} hrs OT\n\n💵 *Basic Pay:* ₹${staffSalaryData.basicPay.toLocaleString()}\n⏱️ *Overtime Pay:* +₹${staffSalaryData.overtimePay.toLocaleString()}\n🏆 *Bonus:* +₹${staffSalaryData.bonus.toLocaleString()}\n\n💰 *NET SALARY PAID:* *₹${staffSalaryData.netPayable.toLocaleString()}*\n\n📥 *Download PDF Slip:* http://172.20.10.2:5000/uploads/SAL-2026-08-AMIT.pdf\n━━━━━━━━━━━━━━━━━━━━\n*Apex Signage HR & Accounts*`;
+    const salaryMsg = `📄 *APEX SIGNAGE SOLUTIONS - SALARY SLIP*\n━━━━━━━━━━━━━━━━━━━━\n*Employee:* ${staffSalaryData.employeeName} (${staffSalaryData.employeeRole})\n*Month:* ${staffSalaryData.monthYear}\n\n📅 *Attendance:* ${staffSalaryData.presentDays}/${staffSalaryData.totalDays} Days | ${staffSalaryData.overtimeHours} hrs OT\n\n💵 *Basic Pay:* ₹${staffSalaryData.basicPay.toLocaleString()}\n⏱️ *Overtime Pay:* +₹${staffSalaryData.overtimePay.toLocaleString()}\n🏆 *Bonus:* +₹${staffSalaryData.bonus.toLocaleString()}\n\n💰 *NET SALARY PAID:* *₹${staffSalaryData.netPayable.toLocaleString()}*\n\n📥 *Download PDF Slip:* http://10.196.155.107:5000/uploads/SAL-2026-08-AMIT.pdf\n━━━━━━━━━━━━━━━━━━━━\n*Apex Signage HR & Accounts*`;
 
     Linking.openURL(`whatsapp://send?phone=919423800532&text=${encodeURIComponent(salaryMsg)}`).catch(() => {});
 
@@ -701,7 +701,7 @@ export default function App() {
   // WhatsApp Dispatch Engine
   const sendInvoiceWhatsApp = async (inv) => {
     const formattedPhone = '919423800532';
-    const message = `🧾 *APEX SIGNAGE & PRINTING - INVOICE*\n━━━━━━━━━━━━━━━━━━━━\nDear *${inv.companyName}*,\n\nPlease find your official tax invoice details below:\n\n📄 *Invoice #:* ${inv.invoiceNumber}\n📅 *Date:* ${inv.date}\n💰 *Total Billed:* ₹${inv.totalAmount.toLocaleString()}\n✅ *Paid Amount:* ₹${inv.paidAmount.toLocaleString()}\n⚠️ *Balance Due:* ₹${inv.balanceDue.toLocaleString()}\n\n📥 *Download PDF Invoice:* http://172.20.10.2:5000/uploads/${inv.invoiceNumber}.pdf\n💳 *UPI Payment:* paytmqr.apexsignage@icici\n\nThank you for choosing Apex Signage!\n━━━━━━━━━━━━━━━━━━━━\n*Apex Signage & Printing Solutions*\nPhone: +91 9423800532`;
+    const message = `🧾 *APEX SIGNAGE & PRINTING - INVOICE*\n━━━━━━━━━━━━━━━━━━━━\nDear *${inv.companyName}*,\n\nPlease find your official tax invoice details below:\n\n📄 *Invoice #:* ${inv.invoiceNumber}\n📅 *Date:* ${inv.date}\n💰 *Total Billed:* ₹${inv.totalAmount.toLocaleString()}\n✅ *Paid Amount:* ₹${inv.paidAmount.toLocaleString()}\n⚠️ *Balance Due:* ₹${inv.balanceDue.toLocaleString()}\n\n📥 *Download PDF Invoice:* http://10.196.155.107:5000/uploads/${inv.invoiceNumber}.pdf\n💳 *UPI Payment:* paytmqr.apexsignage@icici\n\nThank you for choosing Apex Signage!\n━━━━━━━━━━━━━━━━━━━━\n*Apex Signage & Printing Solutions*\nPhone: +91 9423800532`;
 
     const nativeUrl = `whatsapp://send?phone=${formattedPhone}&text=${encodeURIComponent(message)}`;
     const webUrl = `https://api.whatsapp.com/send?phone=${formattedPhone}&text=${encodeURIComponent(message)}`;
@@ -1370,11 +1370,11 @@ export default function App() {
   }
 
   // =========================================================================
-  // SUB-SCREEN 2E: SMART MEASUREMENT CALCULATOR
+  // SUB-SCREEN 2E: SMART MEASUREMENT CALCULATOR (MATCHING USER SCREENSHOT EXACTLY)
   // =========================================================================
   if (currentUser.role === 'Field Boy' && activeSubScreen === 'measurements' && activeSiteTask) {
     const currentSection = activeSiteTask.boardSections[0] || {
-      name: '1 Board Section(s) Configured',
+      name: 'Board 1: Main Entrance LED Board',
       length: '15.0',
       height: '4.0',
       material: 'ACP Sheet',
@@ -1387,48 +1387,60 @@ export default function App() {
 
     return (
       <View style={styles.rootFullContainer}>
+        {/* Top Dark Navy Safe Area */}
         <SafeAreaView style={{ flex: 0, backgroundColor: '#0F2744' }}>
           <StatusBar barStyle="light-content" backgroundColor="#0F2744" />
         </SafeAreaView>
 
-        <View style={styles.appBar}>
-          <View style={styles.appBarLeft}>
-            <TouchableOpacity onPress={() => setActiveSubScreen(null)} style={{ marginRight: 10 }}>
-              <Ionicons name="arrow-back" size={24} color="#FFFFFF" />
-            </TouchableOpacity>
-            <Text style={styles.appBarTitle}>Smart Measurement Calculator</Text>
-          </View>
+        {/* Top Header Bar */}
+        <View style={styles.calcHeaderBar}>
+          <TouchableOpacity onPress={() => setActiveSubScreen(null)} style={{ padding: 4, marginRight: 8 }}>
+            <Ionicons name="arrow-back" size={24} color="#FFFFFF" />
+          </TouchableOpacity>
+          <Text style={styles.calcHeaderBarTitle}>Smart Measurement Calculator</Text>
         </View>
 
+        {/* Body Content */}
         <View style={styles.appBodyWrapper}>
-          <ScrollView style={styles.mainScroll} contentContainerStyle={styles.scrollContentInset}>
-            <View style={styles.calcFormulaBox}>
-              <Ionicons name="sparkles" size={18} color="#0284C7" style={{ marginRight: 8 }} />
+          <ScrollView
+            style={styles.mainScroll}
+            contentContainerStyle={styles.calcScrollContent}
+            showsVerticalScrollIndicator={false}
+          >
+            {/* Top Formula Tip Box */}
+            <View style={styles.calcTipBannerExact}>
+              <Ionicons name="sparkles" size={22} color="#0284C7" style={{ marginRight: 12 }} />
               <View style={{ flex: 1 }}>
-                <Text style={styles.calcFormulaText}>Auto-Calculates: Sq.Ft = Length × Height</Text>
-                <Text style={styles.calcFormulaSub}>Sq.Meter = Sq.Ft × 0.092903</Text>
+                <Text style={styles.calcTipTextExactBold}>Auto-Calculates: Sq.Ft = Length × Height</Text>
+                <Text style={styles.calcTipTextExact}>Sq.Meter = Sq.Ft × 0.092903</Text>
               </View>
             </View>
 
-            <View style={styles.measureCard}>
-              <View style={styles.measureInputGroup}>
-                <Text style={styles.measureInputLabel}>Board / Section Name</Text>
+            {/* Board Section Card */}
+            <View style={styles.calcSectionCardExact}>
+              {/* Board / Section Name */}
+              <View style={styles.calcOutlinedInputBox}>
+                <Text style={styles.calcFloatingLabel}>Board / Section Name</Text>
                 <TextInput
-                  style={styles.measureTextInput}
+                  style={styles.calcInputTextValue}
                   value={currentSection.name}
                   onChangeText={(text) => {
                     currentSection.name = text;
                     setActiveSiteTask({ ...activeSiteTask });
                   }}
+                  placeholder="Enter board name"
+                  placeholderTextColor="#94A3B8"
                 />
               </View>
 
-              <View style={styles.measureDimensionsRow}>
-                <View style={styles.measureDimCol}>
-                  <Text style={styles.measureInputLabel}>Length (ft)</Text>
-                  <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+              {/* Length & Height with multiply sign */}
+              <View style={styles.calcDimRowExact}>
+                {/* Length Box */}
+                <View style={[styles.calcOutlinedInputBox, { flex: 1 }]}>
+                  <Text style={styles.calcFloatingLabel}>Length (ft)</Text>
+                  <View style={styles.calcDimInnerRow}>
                     <TextInput
-                      style={[styles.measureTextInput, { flex: 1 }]}
+                      style={styles.calcDimInputVal}
                       keyboardType="numeric"
                       value={currentSection.length}
                       onChangeText={(text) => {
@@ -1436,17 +1448,19 @@ export default function App() {
                         setActiveSiteTask({ ...activeSiteTask });
                       }}
                     />
-                    <Text style={styles.unitSuffix}>ft</Text>
+                    <Text style={styles.calcUnitSuffixText}>ft</Text>
                   </View>
                 </View>
 
-                <Text style={styles.multiplySign}>×</Text>
+                {/* Multiply Sign */}
+                <Text style={styles.calcMultiplySignText}>×</Text>
 
-                <View style={styles.measureDimCol}>
-                  <Text style={styles.measureInputLabel}>Height (ft)</Text>
-                  <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                {/* Height Box */}
+                <View style={[styles.calcOutlinedInputBox, { flex: 1 }]}>
+                  <Text style={styles.calcFloatingLabel}>Height (ft)</Text>
+                  <View style={styles.calcDimInnerRow}>
                     <TextInput
-                      style={[styles.measureTextInput, { flex: 1 }]}
+                      style={styles.calcDimInputVal}
                       keyboardType="numeric"
                       value={currentSection.height}
                       onChangeText={(text) => {
@@ -1454,69 +1468,95 @@ export default function App() {
                         setActiveSiteTask({ ...activeSiteTask });
                       }}
                     />
-                    <Text style={styles.unitSuffix}>ft</Text>
+                    <Text style={styles.calcUnitSuffixText}>ft</Text>
                   </View>
                 </View>
               </View>
 
-              <View style={styles.areaResultBox}>
-                <Text style={styles.areaResultLabel}>Area Result:</Text>
-                <Text style={styles.areaResultVal}>
-                  {sqft.toFixed(2)} Sq.Ft | {sqm.toFixed(3)} Sq.M
+              {/* Area Result Banner */}
+              <View style={styles.calcAreaResultBar}>
+                <Text style={styles.calcAreaResultBarLabel}>Area Result:</Text>
+                <Text style={styles.calcAreaResultBarValue}>
+                  {sqft.toFixed(2)} Sq.Ft <Text style={{ color: '#64748B', fontWeight: 'normal' }}>|</Text> {sqm.toFixed(3)} Sq.M
                 </Text>
               </View>
 
-              <View style={[styles.measureInputGroup, { marginTop: 12 }]}>
-                <Text style={styles.measureInputLabel}>Material Specification</Text>
-                <TouchableOpacity style={styles.measureDropdownRow}>
-                  <Text style={styles.measureDropdownVal}>{currentSection.material}</Text>
-                  <Ionicons name="chevron-down" size={18} color="#64748B" />
+              {/* Material Specification Dropdown */}
+              <View style={[styles.calcOutlinedInputBox, { marginTop: 14 }]}>
+                <Text style={styles.calcFloatingLabel}>Material Specification</Text>
+                <TouchableOpacity
+                  style={styles.calcDropdownRowExact}
+                  onPress={() => {
+                    const materials = ['ACP Sheet', 'Acrylic 3D Letter', 'Star Flex 440 GSM', 'Backlit Vinyl'];
+                    const nextMat = materials[(materials.indexOf(currentSection.material) + 1) % materials.length];
+                    currentSection.material = nextMat;
+                    setActiveSiteTask({ ...activeSiteTask });
+                  }}
+                >
+                  <Text style={styles.calcDropdownValueExact}>{currentSection.material}</Text>
+                  <Ionicons name="caret-down" size={16} color="#64748B" />
                 </TouchableOpacity>
               </View>
 
-              <View style={[styles.measureInputGroup, { marginTop: 12 }]}>
-                <Text style={styles.measureInputLabel}>MS Pipe Structure Gauge</Text>
-                <TouchableOpacity style={styles.measureDropdownRow}>
-                  <Text style={styles.measureDropdownVal}>{currentSection.gauge}</Text>
-                  <Ionicons name="chevron-down" size={18} color="#64748B" />
+              {/* MS Pipe Structure Gauge Dropdown */}
+              <View style={[styles.calcOutlinedInputBox, { marginTop: 14 }]}>
+                <Text style={styles.calcFloatingLabel}>MS Pipe Structure Gauge</Text>
+                <TouchableOpacity
+                  style={styles.calcDropdownRowExact}
+                  onPress={() => {
+                    const gauges = ['1" x 1" (18 Gauge)', '1.5" x 1.5" (16 Gauge)', '2" x 2" (14 Gauge)'];
+                    const nextG = gauges[(gauges.indexOf(currentSection.gauge) + 1) % gauges.length];
+                    currentSection.gauge = nextG;
+                    setActiveSiteTask({ ...activeSiteTask });
+                  }}
+                >
+                  <Text style={styles.calcDropdownValueExact}>{currentSection.gauge}</Text>
+                  <Ionicons name="caret-down" size={16} color="#64748B" />
                 </TouchableOpacity>
               </View>
             </View>
 
+            {/* Add Another Board / Section Button */}
             <TouchableOpacity
-              style={styles.addBoardOutlineBtn}
+              style={styles.calcAddBoardOutlineBtnExact}
               onPress={() => Alert.alert('Add Section', 'Added Section 2 for Front Facade')}
+              activeOpacity={0.7}
             >
-              <Ionicons name="add-circle-outline" size={20} color="#0F2744" style={{ marginRight: 6 }} />
-              <Text style={styles.addBoardOutlineText}>Add Another Board / Section</Text>
+              <Ionicons name="add-circle-outline" size={20} color="#0F2744" style={{ marginRight: 8 }} />
+              <Text style={styles.calcAddBoardOutlineBtnText}>Add Another Board / Section</Text>
             </TouchableOpacity>
+          </ScrollView>
 
-            <View style={styles.measureTotalAreaRow}>
-              <Text style={styles.measureTotalAreaLabel}>TOTAL AREA:</Text>
-              <Text style={styles.measureTotalAreaVal}>
-                {sqft.toFixed(2)} Sq.Ft <Text style={{ fontSize: 12, color: '#64748B' }}>({sqm.toFixed(3)} Sq.Meters)</Text>
-              </Text>
+          {/* Sticky Bottom Area Summary & Save Button */}
+          <View style={styles.calcStickyBottomBar}>
+            <View style={styles.calcTotalAreaSummaryRow}>
+              <Text style={styles.calcTotalAreaSummaryLabel}>TOTAL AREA:</Text>
+              <View style={{ alignItems: 'flex-end' }}>
+                <Text style={styles.calcTotalAreaSummarySqFt}>{sqft.toFixed(2)} Sq.Ft</Text>
+                <Text style={styles.calcTotalAreaSummarySqM}>({sqm.toFixed(3)} Sq.Meters)</Text>
+              </View>
             </View>
 
             <TouchableOpacity
-              style={styles.saveMeasurementsBtn}
+              style={styles.calcSaveMeasurementsPrimaryBtn}
               onPress={() => {
                 activeSiteTask.measurementsCount = 1;
                 Alert.alert('✅ Saved', 'Measurements saved successfully!');
                 setActiveSubScreen(null);
               }}
+              activeOpacity={0.8}
             >
               <Ionicons name="checkmark" size={20} color="#FFFFFF" style={{ marginRight: 8 }} />
-              <Text style={styles.saveMeasurementsBtnText}>Save 1 Board Measurements</Text>
+              <Text style={styles.calcSaveMeasurementsPrimaryBtnText}>Save 1 Board Measurements</Text>
             </TouchableOpacity>
-          </ScrollView>
+          </View>
         </View>
       </View>
     );
   }
 
   // =========================================================================
-  // SCREEN 2F: FIELD BOY SITE VISIT DETAIL SCREEN (EXACT MATCH TO SCREENSHOT)
+  // SCREEN 2F: FIELD BOY SITE VISIT DETAIL SCREEN
   // =========================================================================
   if (currentUser.role === 'Field Boy' && activeSiteTask) {
     return (
@@ -4065,7 +4105,7 @@ const styles = StyleSheet.create({
     color: '#0F2744',
   },
 
-  // SITE DETAIL SCREEN STYLES (MATCHING USER SCREENSHOT EXACTLY)
+  // SITE DETAIL SCREEN STYLES
   taskDetailAppBar: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -4251,6 +4291,196 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
 
+  // SMART MEASUREMENT CALCULATOR EXACT STYLES (MATCHING SCREENSHOT)
+  calcHeaderBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#0F2744',
+    paddingHorizontal: 16,
+    paddingTop: Platform.OS === 'android' ? 12 : 6,
+    paddingBottom: 14,
+  },
+  calcHeaderBarTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#FFFFFF',
+    marginLeft: 6,
+  },
+  calcScrollContent: {
+    padding: 16,
+    paddingBottom: 20,
+  },
+  calcTipBannerExact: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#E0F2FE',
+    borderWidth: 1,
+    borderColor: '#BAE6FD',
+    borderRadius: 14,
+    padding: 14,
+    marginBottom: 16,
+  },
+  calcTipTextExactBold: {
+    fontSize: 13,
+    fontWeight: 'bold',
+    color: '#0F2744',
+    marginBottom: 2,
+  },
+  calcTipTextExact: {
+    fontSize: 12,
+    color: '#0F2744',
+  },
+  calcSectionCardExact: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 16,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    marginBottom: 16,
+  },
+  calcOutlinedInputBox: {
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#CBD5E1',
+    borderRadius: 10,
+    paddingHorizontal: 14,
+    paddingTop: 8,
+    paddingBottom: 8,
+    position: 'relative',
+  },
+  calcFloatingLabel: {
+    fontSize: 11,
+    color: '#64748B',
+    fontWeight: '500',
+    marginBottom: 2,
+  },
+  calcInputTextValue: {
+    fontSize: 15,
+    fontWeight: '600',
+    color: '#0F172A',
+    height: 24,
+    padding: 0,
+  },
+  calcDimRowExact: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 14,
+  },
+  calcDimInnerRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  calcDimInputVal: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#0F172A',
+    flex: 1,
+    height: 26,
+    padding: 0,
+  },
+  calcUnitSuffixText: {
+    fontSize: 14,
+    color: '#94A3B8',
+    fontWeight: '500',
+  },
+  calcMultiplySignText: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#64748B',
+    marginHorizontal: 10,
+  },
+  calcAreaResultBar: {
+    backgroundColor: '#F1F5F9',
+    borderRadius: 8,
+    paddingVertical: 10,
+    paddingHorizontal: 14,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginTop: 14,
+  },
+  calcAreaResultBarLabel: {
+    fontSize: 13,
+    color: '#64748B',
+    fontWeight: '500',
+  },
+  calcAreaResultBarValue: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: '#0F2744',
+  },
+  calcDropdownRowExact: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    height: 24,
+  },
+  calcDropdownValueExact: {
+    fontSize: 15,
+    fontWeight: '600',
+    color: '#0F172A',
+  },
+  calcAddBoardOutlineBtnExact: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1.5,
+    borderColor: '#0F2744',
+    borderRadius: 24,
+    paddingVertical: 12,
+    backgroundColor: '#FFFFFF',
+    marginBottom: 10,
+  },
+  calcAddBoardOutlineBtnText: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: '#0F2744',
+  },
+  calcStickyBottomBar: {
+    backgroundColor: '#FFFFFF',
+    borderTopWidth: 1,
+    borderTopColor: '#E2E8F0',
+    paddingHorizontal: 16,
+    paddingTop: 12,
+    paddingBottom: Platform.OS === 'ios' ? 34 : 16,
+  },
+  calcTotalAreaSummaryRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  calcTotalAreaSummaryLabel: {
+    fontSize: 13,
+    fontWeight: 'bold',
+    color: '#64748B',
+    letterSpacing: 0.5,
+  },
+  calcTotalAreaSummarySqFt: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#0F2744',
+  },
+  calcTotalAreaSummarySqM: {
+    fontSize: 12,
+    color: '#94A3B8',
+    marginTop: 1,
+  },
+  calcSaveMeasurementsPrimaryBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#0F2744',
+    borderRadius: 10,
+    paddingVertical: 14,
+  },
+  calcSaveMeasurementsPrimaryBtnText: {
+    color: '#FFFFFF',
+    fontSize: 15,
+    fontWeight: 'bold',
+  },
+
   checklistSectionHeading: {
     fontSize: 16,
     fontWeight: 'bold',
@@ -4366,158 +4596,6 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   saveChecklistBtnText: {
-    color: '#FFFFFF',
-    fontSize: 15,
-    fontWeight: 'bold',
-  },
-  calcFormulaBox: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#E0F2FE',
-    borderWidth: 1,
-    borderColor: '#BAE6FD',
-    borderRadius: 12,
-    padding: 12,
-    marginBottom: 16,
-  },
-  calcFormulaText: {
-    fontSize: 12,
-    fontWeight: 'bold',
-    color: '#0F2744',
-  },
-  calcFormulaSub: {
-    fontSize: 11,
-    color: '#475569',
-    marginTop: 1,
-  },
-  measureCard: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 14,
-    padding: 16,
-    borderWidth: 1,
-    borderColor: '#E2E8F0',
-    marginBottom: 16,
-  },
-  measureInputGroup: {
-    backgroundColor: '#FFFFFF',
-    borderWidth: 1,
-    borderColor: '#CBD5E1',
-    borderRadius: 10,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-  },
-  measureInputLabel: {
-    fontSize: 10,
-    color: '#64748B',
-    fontWeight: '500',
-    marginBottom: 2,
-  },
-  measureTextInput: {
-    fontSize: 14,
-    fontWeight: 'bold',
-    color: '#0F172A',
-  },
-  measureDimensionsRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: 12,
-  },
-  measureDimCol: {
-    flex: 1,
-    backgroundColor: '#FFFFFF',
-    borderWidth: 1,
-    borderColor: '#CBD5E1',
-    borderRadius: 10,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-  },
-  unitSuffix: {
-    fontSize: 12,
-    color: '#94A3B8',
-    fontWeight: '600',
-  },
-  multiplySign: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#64748B',
-    marginHorizontal: 8,
-  },
-  areaResultBox: {
-    backgroundColor: '#F1F5F9',
-    borderRadius: 8,
-    paddingVertical: 10,
-    paddingHorizontal: 12,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginTop: 12,
-  },
-  areaResultLabel: {
-    fontSize: 12,
-    color: '#475569',
-    fontWeight: '500',
-  },
-  areaResultVal: {
-    fontSize: 13,
-    fontWeight: 'bold',
-    color: '#0F2744',
-  },
-  measureDropdownRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    height: 28,
-  },
-  measureDropdownVal: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#0F172A',
-  },
-  addBoardOutlineBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 1.5,
-    borderColor: '#0F2744',
-    borderRadius: 24,
-    paddingVertical: 12,
-    marginBottom: 16,
-  },
-  addBoardOutlineText: {
-    fontSize: 14,
-    fontWeight: 'bold',
-    color: '#0F2744',
-  },
-  measureTotalAreaRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 14,
-    backgroundColor: '#FFFFFF',
-    padding: 12,
-    borderRadius: 10,
-    borderWidth: 1,
-    borderColor: '#E2E8F0',
-  },
-  measureTotalAreaLabel: {
-    fontSize: 13,
-    fontWeight: 'bold',
-    color: '#475569',
-  },
-  measureTotalAreaVal: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#0F2744',
-  },
-  saveMeasurementsBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#0F2744',
-    paddingVertical: 14,
-    borderRadius: 12,
-  },
-  saveMeasurementsBtnText: {
     color: '#FFFFFF',
     fontSize: 15,
     fontWeight: 'bold',
